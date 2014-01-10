@@ -1,0 +1,33 @@
+<blueprint
+	xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+	xsi:schemaLocation="
+		http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+		http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
+		https://svn.apache.org/repos/asf/aries/tags/blueprint-0.3.1/blueprint-cm/src/main/resources/org/apache/aries/blueprint/compendium/cm/blueprint-cm-1.1.0.xsd
+		http://www.osgi.org/xmlns/blueprint-ext/v1.1.0
+		https://svn.apache.org/repos/asf/aries/tags/blueprint-0.3.1/blueprint-core/src/main/resources/org/apache/aries/blueprint/ext/blueprint-ext.xsd"
+>
+
+  <!-- Override with an etc/org.opennms.netmgt.storage.sample.cassandra.cfg -->
+  <cm:property-placeholder id="appConfig" persistent-id="org.opennms.netmgt.storage.sample.cassandra" update-strategy="reload">
+    <cm:default-properties>
+      <cm:property name="cassandraHost" value="localhost" />
+      <cm:property name="cassandraPort" value="9042" />
+      <cm:property name="cassandraKeyspace" value="seriesdb" />
+    </cm:default-properties>
+  </cm:property-placeholder>
+
+  <bean id="sampleRepository" class="org.opennms.netmgt.storage.sample.cassandra.internal.CassandraSampleRepository">
+    <argument value="${cassandraHost}" />
+    <argument value="${cassandraPort}" />
+    <argument value="${cassandraKeyspace}" />
+  </bean>
+  
+  <service id="sampleRepoRegistration" ref="sampleRepository" interface="org.opennms.netmgt.api.sample.SampleRepository">
+    <service-properties>
+      <entry key="impl" value="cassandra"/>
+    </service-properties>
+  </service>
+</blueprint>

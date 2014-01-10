@@ -1,0 +1,107 @@
+<!doctype html>
+<link type="text/css" rel="stylesheet" href="css/rickshaw.min.css">
+<link rel="stylesheet" href="jquery/jquery-ui.css" />
+<script src="js/d3.min.js"></script>
+<script src="js/d3.layout.min.js"></script>
+<script src="js/rickshaw.min.js"></script>
+<script src="jquery/jquery.js"></script>
+<script src="jquery/jquery-ui.js"></script>
+
+<style>
+  #chart_container {
+          display: inline-block;
+          font-family: Arial, Helvetica, sans-serif;
+  }
+  #chart {
+          float: left;
+  }
+  #legend {
+          float: left;
+          margin-left: 15px;
+  }
+  #offset_form {
+          float: left;
+          margin: 2em 0 0 15px;
+          font-size: 13px;
+  }
+  #y_axis {
+          float: left;
+          width: 40px;
+  }
+  #slider {
+          clear: both;
+          margin-left: 40px;
+  }
+  #form {
+          margin-top: 30px;
+  }
+</style>
+
+<div id="chart_container"></div>
+
+<script src="js/plot.js"></script>
+
+<script>
+  function submitForm() {
+    var agent = document.getElementById("agent").value;
+    var resource_type = document.getElementById("resource_type").value;
+    var resource_name = document.getElementById("resource_name").value;
+    var metrics = document.getElementById("metrics").value;
+    var from_time = document.getElementById("from_time").value;
+    var to_time = document.getElementById("to_time").value;
+
+    plotSamples(
+            agent,
+            resource_type,
+            resource_name,
+            metrics,
+            from_time,
+            to_time);
+  }
+</script>
+
+<div id="form">
+  <table>
+    <tr>
+      <td align="right">Agent:</td>
+      <td><input type="text" name="agent" id="agent"
+                 value="SNMP:127.0.0.1:161"/></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td align="right">Resource Type:</td>
+      <td><input type="text" name="resource_type" id="resource_type"
+                 value="ifIndex"/></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td align="right">Resource Name:</td>
+      <td><input type="text" name="resource_name" id="resource_name"
+                 value="wlan0-84:3a:4b:0e:89:94"/></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td align="right">Metric(s):</td>
+      <td><input type="text" name="metrics" id="metrics"
+                 value="ifInOctets,ifOutOctets"/></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td align="right">From:</td>
+      <td><input type="text" name="from_time" id="from_time"/></td>
+      <td><i>secs</i></td>
+    </tr>
+    <tr>
+      <td align="right">To:</td>
+      <td><input type="text" name="to_time" id="to_time"/></td>
+      <td><i>secs</i></td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <input type="button" name="submit" value="Go" onclick="submitForm()"/>
+      </td>
+      <td></td>
+  </table>
+</form>
+
+

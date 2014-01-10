@@ -1,0 +1,54 @@
+<blueprint
+	xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+	xsi:schemaLocation="
+		http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+		http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
+		https://svn.apache.org/repos/asf/aries/tags/blueprint-0.3.1/blueprint-cm/src/main/resources/org/apache/aries/blueprint/compendium/cm/blueprint-cm-1.1.0.xsd
+		http://www.osgi.org/xmlns/blueprint-ext/v1.1.0
+		https://svn.apache.org/repos/asf/aries/tags/blueprint-0.3.1/blueprint-core/src/main/resources/org/apache/aries/blueprint/ext/blueprint-ext.xsd"
+>
+
+  <!-- Override with an etc/org.opennms.netmgt.sample.config.configuration.snmp.cfg -->
+  <cm:property-placeholder id="appConfig" persistent-id="org.opennms.netmgt.sampler.config.snmp" update-strategy="reload">
+    <cm:default-properties>
+      <cm:property name="datacollectionFile" value="/datacollection-config.xml" />
+      <cm:property name="datacollectionDir" value="/datacollection" />
+    </cm:default-properties>
+  </cm:property-placeholder>
+  
+  <bean id="snmpMetricRepository" class="org.opennms.netmgt.sampler.config.snmp.SnmpMetricRepository">
+  	<argument value="${datacollectionFile}" />
+  	<argument value="${datacollectionDir}" />
+  	<argument ref="blueprintBundle" />
+  </bean>
+  
+  <service ref="snmpMetricRepository">
+    <interfaces>
+     <value>org.opennms.netmgt.api.sample.CollectionConfiguration</value>
+     <value>org.opennms.netmgt.api.sample.MetricRepository</value>
+    </interfaces>
+    <service-properties>
+      <entry key="protocol" value="SNMP"/>
+    </service-properties>
+  </service>
+
+  <bean id="snmpAgentRepository" class="org.opennms.netmgt.sampler.config.snmp.SnmpAgentRepository">
+  </bean>
+
+  <service ref="snmpAgentRepository" interface="org.opennms.netmgt.api.sample.AgentRepository">
+    <service-properties>
+      <entry key="protocol" value="SNMP"/>
+    </service-properties>  
+  </service>
+
+    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
+        <command  name="snmp:add-agent">
+            <action class="org.opennms.netmgt.sampler.config.snmp.SnmpAddAgentCommand">
+              <property name="snmpAgentRepository" ref="snmpAgentRepository" />
+            </action>
+        </command>
+    </command-bundle>
+
+</blueprint>

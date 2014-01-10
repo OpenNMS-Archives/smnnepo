@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xsi:schemaLocation="
+        http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd
+">
+
+  <parent>
+    <groupId>org.opennms.netmgt.sample</groupId>
+    <artifactId>sample-parent</artifactId>
+    <version>1.13.1-SNAPSHOT</version>
+  </parent>
+
+  <properties>
+    <bundle.symbolicName>org.opennms.netmgt.sampler.routes</bundle.symbolicName>
+    <bundle.namespace>org.opennms.netmgt.sampler.routes</bundle.namespace>
+  </properties>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>sampler-routes</artifactId>
+
+  <name>Sample Collection and Storage :: Routes</name>
+
+  <packaging>pom</packaging>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-artifacts</id>
+            <phase>package</phase>
+            <goals>
+              <goal>attach-artifact</goal>
+            </goals>
+            <configuration>
+              <artifacts>
+                <artifact>
+                  <file>routes-standalone.xml</file>
+                  <type>xml</type>
+                  <classifier>standalone</classifier>
+                </artifact>
+                <artifact>
+                  <file>routes-persister.xml</file>
+                  <type>xml</type>
+                  <classifier>persister</classifier>
+                </artifact>
+                <artifact>
+                  <file>routes-collector.xml</file>
+                  <type>xml</type>
+                  <classifier>collector</classifier>
+                </artifact>
+              </artifacts>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

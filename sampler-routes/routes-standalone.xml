@@ -1,0 +1,62 @@
+<bp:blueprint
+    xmlns="http://camel.apache.org/schema/blueprint"
+	xmlns:bp="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+	xsi:schemaLocation="
+	    http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint-2.9.6.xsd
+		http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+		http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
+		https://svn.apache.org/repos/asf/aries/tags/blueprint-0.3.1/blueprint-cm/src/main/resources/org/apache/aries/blueprint/compendium/cm/blueprint-cm-1.1.0.xsd
+		http://www.osgi.org/xmlns/blueprint-ext/v1.1.0
+		https://svn.apache.org/repos/asf/aries/tags/blueprint-0.3.1/blueprint-core/src/main/resources/org/apache/aries/blueprint/ext/blueprint-ext.xsd"     
+>
+   
+  <bp:reference id="snmpAgentRepository" interface="org.opennms.netmgt.api.sample.AgentRepository" filter="(protocol=SNMP)" />
+  <bp:reference id="snmpCollectionConfiguration" interface="org.opennms.netmgt.api.sample.CollectionConfiguration" filter="(protocol=SNMP)" />
+  <bp:reference id="sampleRepository" interface="org.opennms.netmgt.api.sample.SampleRepository" />
+  <bp:reference id="snmpCollector" interface="org.opennms.netmgt.sampler.snmp.SnmpCollector" />
+
+  <camelContext>
+    
+    <route id="addAgent">
+      <from uri="seda:addAgent" />
+      <bean ref="snmpAgentRepository" method="addAgent" />
+      <log message="Agent ${body} added." />
+    </route>
+  
+    <route id="collectionTimer">
+      <from uri="timer://collectTimer?fixedRate=true&amp;period=1s&amp;delay=3000" />
+      <transform><constant>SNMP</constant></transform>
+      <log message="${body}" />
+      <to uri="seda:doCollection" />
+    </route>
+    
+    <route id="doCollection">
+      <from uri="seda:doCollection" />
+	  <bean ref="snmpAgentRepository" method="getAgentsByProtocol"/>
+	  <split>
+	    <simple>${body}</simple>
+	    <log message="Split Agent: ${body}" />
+	    <to uri="seda:collectAgents" />
+	  </split>
+    </route>
+    
+    <route id="collectAgents">
+      <from uri="seda:collectAgents" />
+	  <bean ref="snmpCollectionConfiguration" method="createRequestForAgent" />
+	  <log message="About to collect: ${body}" />
+	  <bean ref="snmpCollector" method="collect" />      
+	  <log message="Finished collection.  Results: ${body}" />
+	  <to uri="seda:sampleSets" />
+    </route>
+    
+    <route id="sampleSets">
+      <from uri="seda:sampleSets" />
+      <bean ref="sampleRepository" method="save" />
+      <to uri="log:samples?groupSize=10" />
+    </route>
+    
+  </camelContext>
+
+</bp:blueprint>

@@ -1,0 +1,31 @@
+<bp:blueprint
+    xmlns="http://camel.apache.org/schema/blueprint"
+	xmlns:bp="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+	xsi:schemaLocation="
+	    http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint-2.9.6.xsd
+		http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+		http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
+		https://svn.apache.org/repos/asf/aries/tags/blueprint-0.3.1/blueprint-cm/src/main/resources/org/apache/aries/blueprint/compendium/cm/blueprint-cm-1.1.0.xsd
+		http://www.osgi.org/xmlns/blueprint-ext/v1.1.0
+		https://svn.apache.org/repos/asf/aries/tags/blueprint-0.3.1/blueprint-core/src/main/resources/org/apache/aries/blueprint/ext/blueprint-ext.xsd"     
+>
+
+  <bp:reference id="sampleRepository" interface="org.opennms.netmgt.api.sample.SampleRepository" />
+
+  <camelContext>
+    
+    <route id="sampleSets">
+      <from uri="activemq:sampleSets" />
+      <bean ref="sampleRepository" method="save" />
+      <to uri="log:samples?groupSize=10" />
+    </route>
+    
+  </camelContext>
+
+  <bp:bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
+    <bp:property name="brokerURL" value="tcp://localhost:61616" />
+  </bp:bean>
+
+</bp:blueprint>
