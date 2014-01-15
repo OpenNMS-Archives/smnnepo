@@ -59,7 +59,9 @@
     <feature name="samples-standalone" description="Sample Collection and Storage :: Standalone routing" version="1.13.1-SNAPSHOT">
       <configfile finalname="/etc/routes-standalone.xml">mvn:org.opennms.netmgt.sample/sampler-routes/1.13.1-SNAPSHOT/xml/standalone</configfile>
       <feature>sampler-snmp</feature>
+      <!-- use the file storage temporarily 
       <feature>sample-storage-cassandra</feature>
+      -->
       <feature>camel-blueprint</feature>
       <bundle>blueprint:file:etc/routes-standalone.xml</bundle>
     </feature>
