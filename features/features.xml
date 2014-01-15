@@ -74,6 +74,7 @@
 
     <feature name="distributed-persister" description="OpenNMS Distributed Persister">
       <configfile finalname="/etc/routes-persister.xml">mvn:org.opennms.netmgt.sample/sampler-routes/1.13.1-SNAPSHOT/xml/persister</configfile>
+      <feature>sampler-snmp</feature> <!-- this is needed for deserializing responses -->
       <!--
       <feature>sample-storage-cassandra</feature>
       -->
