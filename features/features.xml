@@ -9,7 +9,6 @@
     <repository>mvn:org.apache.cxf.karaf/apache-cxf/2.7.5/xml/features</repository>
     
     <feature name="snmp" description="OpenNMS SNMP" version="1.13.1-SNAPSHOT">
-      <bundle>wrap:mvn:org.snmp4j/snmp4j/1.11.1</bundle>
       <bundle>mvn:org.opennms.core.snmp/org.opennms.core.snmp.api/1.13.1-SNAPSHOT</bundle>
       <bundle>mvn:org.opennms.core.snmp/org.opennms.core.snmp.commands/1.13.1-SNAPSHOT</bundle>
       <bundle>mvn:org.opennms.core.snmp/org.opennms.core.snmp.implementations.snmp4j/1.13.1-SNAPSHOT</bundle>
@@ -56,7 +55,7 @@
     </feature>
 
 
-    <feature name="samples-standalone" description="Sample Collection and Storage :: Standalone routing" version="1.13.1-SNAPSHOT">
+    <feature name="sampler-standalone" description="Sample Collection and Storage :: Standalone routing" version="1.13.1-SNAPSHOT">
       <configfile finalname="/etc/routes-standalone.xml">mvn:org.opennms.netmgt.sample/sampler-routes/1.13.1-SNAPSHOT/xml/standalone</configfile>
       <feature>sampler-snmp</feature>
       <!-- use the file storage temporarily 
