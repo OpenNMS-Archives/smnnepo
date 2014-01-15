@@ -39,6 +39,11 @@
             <configuration>
               <artifacts>
                 <artifact>
+                  <file>file-repo.xml</file>
+                  <type>xml</type>
+                  <classifier>file-repo</classifier>
+                </artifact>
+                <artifact>
                   <file>routes-standalone.xml</file>
                   <type>xml</type>
                   <classifier>standalone</classifier>

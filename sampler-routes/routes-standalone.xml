@@ -14,13 +14,8 @@
    
   <bp:reference id="snmpAgentRepository" interface="org.opennms.netmgt.api.sample.AgentRepository" filter="(protocol=SNMP)" />
   <bp:reference id="snmpCollectionConfiguration" interface="org.opennms.netmgt.api.sample.CollectionConfiguration" filter="(protocol=SNMP)" />
-<!--  <bp:reference id="sampleRepository" interface="org.opennms.netmgt.api.sample.SampleRepository" /> -->
+  <bp:reference id="sampleRepository" interface="org.opennms.netmgt.api.sample.SampleRepository" /> 
   <bp:reference id="snmpCollector" interface="org.opennms.netmgt.sampler.snmp.SnmpCollector" />
-
-  <bp:bean id="sampleRepository" class="org.opennms.netmgt.api.sample.support.SimpleFileRepository">
-    <bp:argument index="0" value="attributes.properties" />
-    <bp:argument index="1" value="samples.dat" />
-  </bp:bean>
 
   <camelContext>
     

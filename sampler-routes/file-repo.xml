@@ -11,35 +11,16 @@
 		http://www.osgi.org/xmlns/blueprint-ext/v1.1.0
 		https://svn.apache.org/repos/asf/aries/tags/blueprint-0.3.1/blueprint-core/src/main/resources/org/apache/aries/blueprint/ext/blueprint-ext.xsd"     
 >
-
-  <bp:reference id="sampleRepository" interface="org.opennms.netmgt.api.sample.SampleRepository" />
-
-  <camelContext>
-    
-    <route id="sampleSets">
-      <from uri="mina2:tcp://localhost:1976" />
-      <to uri="seda:store" />
-    </route>
-
-<!-- disable activemq sample
-    <route id="sampleSets">
-      <from uri="activemq:sampleSets" />
-      <to uri="seda:store" />
-    </route>
--->
- 
-    <route id="store>
-      <from uri="seda:store" />
-      <bean ref="sampleRepository" method="save" />
-      <to uri="log:samples?groupSize=10" />
-    </route>
-
-  </camelContext>
-
-<!--
-  <bp:bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
-    <bp:property name="brokerURL" value="tcp://localhost:61616" />
+   
+  <bp:bean id="sampleRepository" class="org.opennms.netmgt.api.sample.support.SimpleFileRepository">
+    <bp:argument index="0" value="attributes.properties" />
+    <bp:argument index="1" value="samples.dat" />
   </bp:bean>
--->
+
+  <bp:service id="sampleRepoRegistration" ref="sampleRepository" interface="org.opennms.netmgt.api.sample.SampleRepository">
+    <bp:service-properties>
+      <bp:entry key="impl" value="file"/>
+    </bp:service-properties>
+  </bp:service>
 
 </bp:blueprint>

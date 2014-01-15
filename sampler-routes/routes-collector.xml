@@ -52,7 +52,10 @@
     
     <route id="sampleSets">
       <from uri="seda:sampleSets" />
+<!--
       <to uri="activemq:sampleSets" />
+-->
+      <to uri="mina:tcp://uzbekistan.local.:1976" />
     </route>
     
   </camelContext>
