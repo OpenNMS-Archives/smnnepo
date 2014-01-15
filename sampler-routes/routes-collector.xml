@@ -46,7 +46,7 @@
 	  <bean ref="snmpCollectionConfiguration" method="createRequestForAgent" />
 	  <log message="About to collect: ${body}" />
 	  <bean ref="snmpCollector" method="collect" />      
-	  <log message="Finished collection.  Results: ${body}" />
+	  <log message="Finished collection." />
 	  <to uri="seda:sampleSets" />
     </route>
     
@@ -55,7 +55,7 @@
 <!--
       <to uri="activemq:sampleSets" />
 -->
-      <to uri="mina:tcp://uzbekistan.local.:1976" />
+      <to uri="mina2:tcp://uzbekistan.local.:1976" />
     </route>
     
   </camelContext>
