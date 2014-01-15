@@ -60,9 +60,10 @@
     
   </camelContext>
 
+<!--
   <bp:bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
     <bp:property name="brokerURL" value="tcp://localhost:61616" />
   </bp:bean>
-
+-->
 
 </bp:blueprint>

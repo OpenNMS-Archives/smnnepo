@@ -28,7 +28,7 @@
     </route>
 -->
  
-    <route id="store>
+    <route id="store">
       <from uri="seda:store" />
       <bean ref="sampleRepository" method="save" />
       <to uri="log:samples?groupSize=10" />
