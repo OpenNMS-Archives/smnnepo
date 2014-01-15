@@ -17,7 +17,7 @@
   <camelContext>
     
     <route id="sampleSets">
-      <from uri="mina2:tcp://localhost:1976" />
+      <from uri="mina2:tcp://0.0.0.0:1976" />
       <to uri="seda:store" />
     </route>
 
