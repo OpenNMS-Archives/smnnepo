@@ -9,3 +9,4 @@ Running the Standalone Sampler
 4. Run Karaf (bin/karaf)
 5. features:install mvn:org.opennms.netmgt.sample/karaf//xml
 6. features:install sampler-standalone
+7. add-agent -v 2c -c public -r 0 -t 3000 -p 161 172.20.1.107 .1
