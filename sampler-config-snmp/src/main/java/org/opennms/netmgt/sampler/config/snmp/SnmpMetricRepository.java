@@ -57,7 +57,10 @@ public class SnmpMetricRepository implements MetricRepository, CollectionConfigu
 	
 	private static Logger s_log = LoggerFactory.getLogger(SnmpMetricRepository.class); 
 	
-	private final DataCollectionConfig m_dataCollectionConfig;
+	private final URL m_dataCollectionConfigURL;
+	private final URL[] m_dataCollectionGroupURLs;
+	
+	private DataCollectionConfig m_dataCollectionConfig;
 	
 	private static URL[] findEntries(Bundle bundle, String dir) {
 		List<URL> urls = new ArrayList<URL>();
@@ -74,7 +77,16 @@ public class SnmpMetricRepository implements MetricRepository, CollectionConfigu
 		this(bundle.getEntry(dataCollectionPath), findEntries(bundle, dataCollectionDir));
 	}
 	
+	
+	
 	public SnmpMetricRepository(URL dataCollectionConfigURL, URL... dataCollectionGroupURLs) throws Exception {
+		m_dataCollectionConfigURL = dataCollectionConfigURL;
+		m_dataCollectionGroupURLs = dataCollectionGroupURLs;
+	}
+	
+	
+	public void refresh() throws JAXBException, IOException {
+		
 		Parser parser = new Parser();
 		
 		Map<String, DataCollectionGroup> dataCollectionGroups = new HashMap<String, DataCollectionGroup>();
@@ -84,7 +96,7 @@ public class SnmpMetricRepository implements MetricRepository, CollectionConfigu
 		Map<String, Table> tableMap = new HashMap<String, Table>();
 		Map<String, Group> groupMap = new HashMap<String, Group>();
 
-		for(URL dataCollectionGroupURL : dataCollectionGroupURLs) {
+		for(URL dataCollectionGroupURL : m_dataCollectionGroupURLs) {
 			DataCollectionGroup group = parser.getDataCollectionGroup(dataCollectionGroupURL);
 			group.gatherSymbols(typeMap, tableMap, groupMap);
 			dataCollectionGroups.put(group.getName(), group);
@@ -96,7 +108,7 @@ public class SnmpMetricRepository implements MetricRepository, CollectionConfigu
 		}
 				
 
-		m_dataCollectionConfig = parser.getDataCollectionConfig(dataCollectionConfigURL);
+		m_dataCollectionConfig = parser.getDataCollectionConfig(m_dataCollectionConfigURL);
 		m_dataCollectionConfig.initialize(dataCollectionGroups);
 		
 	}
