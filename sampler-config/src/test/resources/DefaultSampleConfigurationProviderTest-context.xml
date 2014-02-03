@@ -1,22 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans" 
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:util="http://www.springframework.org/schema/util"
-       xmlns:onmsgi="http://xmlns.opennms.org/xsd/spring/onms-osgi"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
-       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd
-       http://xmlns.opennms.org/xsd/spring/onms-osgi http://xmlns.opennms.org/xsd/spring/onms-osgi.xsd
-       ">
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:onmsgi="http://xmlns.opennms.org/xsd/spring/onms-osgi"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd
+		http://xmlns.opennms.org/xsd/spring/onms-osgi http://xmlns.opennms.org/xsd/spring/onms-osgi.xsd
+	">
 
-  <context:annotation-config />
+	<context:annotation-config />
 
-  
-  
-  <bean id="locationMonitorDao" class="org.opennms.netmgt.dao.hibernate.LocationMonitorDaoHibernate">
-    <property name="sessionFactory" ref="sessionFactory"/>
-    <property name="monitoringLocationConfigResource" value="classpath:/monitoring-locations.xml" />
-  </bean>
-  
+	<bean name="collectd-configuration.xml" class="org.opennms.core.config.impl.JaxbResourceConfiguration">
+		<constructor-arg value="org.opennms.netmgt.config.collectd.CollectdConfiguration" />
+		<constructor-arg value="classpath:/collectd-configuration.xml" />
+	</bean>
+
+	<bean name="monitoring-locations.xml" class="org.opennms.core.config.impl.JaxbResourceConfiguration">
+		<constructor-arg value="org.opennms.netmgt.config.monitoringLocations.MonitoringLocationsConfiguration" />
+		<constructor-arg value="classpath:/monitoring-locations.xml" />
+	</bean>
+
+	<bean id="locationMonitorDao" class="org.opennms.netmgt.dao.hibernate.LocationMonitorDaoHibernate">
+		<property name="sessionFactory" ref="sessionFactory" />
+		<property name="monitoringLocationConfigResource" value="classpath:/monitoring-locations.xml" />
+	</bean>
+
+	
+	<bean id="snmpPeerFactory" class="org.opennms.netmgt.config.SnmpPeerFactory">
+	    <constructor-arg type="org.springframework.core.io.Resource" value="classpath:/snmp-config.xml" />
+	</bean>
 </beans>

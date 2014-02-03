@@ -28,6 +28,7 @@
     <module>sample-storage-cassandra</module>
     <module>sampler-config</module>
     <module>sampler-config-snmp</module>
+    <module>sampler-servicer</module>
     <module>sampler-snmp</module>
     <module>sampler-routes</module>
     <module>sample-graphs</module>
