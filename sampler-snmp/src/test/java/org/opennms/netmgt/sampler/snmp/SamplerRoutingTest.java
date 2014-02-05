@@ -1,33 +1,22 @@
 package org.opennms.netmgt.sampler.snmp;
 
 import java.io.File;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.concurrent.Future;
+import java.util.List;
 
 import javax.xml.bind.JAXBContext;
 
-import org.apache.camel.Exchange;
-import org.apache.camel.Message;
-import org.apache.camel.NoTypeConversionAvailableException;
-import org.apache.camel.Processor;
-import org.apache.camel.TypeConversionException;
-import org.apache.camel.TypeConverter;
-import org.apache.camel.WrappedFile;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.component.bean.BeanInvocation;
 import org.apache.camel.component.jackson.JacksonDataFormat;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.converter.jaxb.JaxbDataFormat;
 import org.apache.camel.impl.JndiRegistry;
-import org.apache.camel.model.dataformat.JsonLibrary;
-import org.apache.camel.support.TypeConverterSupport;
 import org.apache.camel.test.junit4.CamelTestSupport;
+import org.junit.Ignore;
 import org.junit.Test;
-import org.opennms.netmgt.api.sample.support.SimpleFileRepository;
 import org.opennms.netmgt.sampler.config.snmp.SnmpMetricRepository;
-import org.opennms.netmgt.sampler.snmp.CollectdConfigurationService.CollectionService;
+import org.opennms.netmgt.sampler.snmp.CollectdConfigurationService.PackageService;
 import org.opennms.netmgt.sampler.snmp.ServiceAgent.ServiceAgentList;
 
 public class SamplerRoutingTest extends CamelTestSupport {
@@ -40,8 +29,14 @@ public class SamplerRoutingTest extends CamelTestSupport {
 	}
 	
 	public static class Utils {
-		public URL stringToURL(String s) throws MalformedURLException {
-			return new URL(s);
+		public URL toURL(String s) throws MalformedURLException {
+			URL url = new URL(s);
+			//System.err.printf("Converting String '%s' to url: '%s'\n", s, url);
+			return url;
+		}
+		public URL toURL(URL u) throws MalformedURLException {
+			//System.err.printf("No need to convert URL '%s' to a url\n", u);
+			return u;
 		}
 	}
 	
@@ -57,18 +52,8 @@ public class SamplerRoutingTest extends CamelTestSupport {
 				url("datacollection/dell.xml")
 				);
 		
-		SimpleFileRepository sampleRepository = new SimpleFileRepository(
-				new File("target/attributes.properties"),
-				new File("target/samples.txt"));
-		
-		
-		
-		CollectdConfigurationService collectdConfigurationService = new CollectdConfigurationService();
-		
-		SnmpConfigurationService snmpConfigurationService = new SnmpConfigurationService();
-		
-		registry.bind("collectdConfigurationService", collectdConfigurationService);;
-		registry.bind("snmpConfigurationService", snmpConfigurationService);;
+		registry.bind("collectdConfigurationService", new CollectdConfigurationService());;
+		registry.bind("snmpConfigurationService", new SnmpConfigurationService());;
 		registry.bind("snmpMetricRepository", snmpMetricRepository);
 		registry.bind("utils", new Utils());
 		
@@ -88,76 +73,150 @@ public class SamplerRoutingTest extends CamelTestSupport {
 				JaxbDataFormat jaxb = new JaxbDataFormat(context);
 				JacksonDataFormat  json = new JacksonDataFormat(ServiceAgentList.class);
 				
+				// Call this to retrieve a url in string form or URL form into the jaxb objects they represent
+				from("direct:parseXML")
+					.beanRef("utils", "toURL")
+					.unmarshal(jaxb)
+				;
+				
+				// Call this to retrieve a url in string form or URL form into the json objects they represent
+				from("direct:parseJSON")
+					.beanRef("utils", "toURL")
+					.unmarshal(json)
+				;
+				
 				from("seda:start")
-				.multicast()
-					.parallelProcessing().to("direct:loadCollectdConfiguration","direct:loadDataCollectionConfig","direct:loadSnmpConfig")
-				.end()
-				.log("==== Configuration Loaded. ===")
-				.beanRef("collectdConfigurationService", "getServiceList")
-				.split().body()
-					.log("CollectionService: ${body}")
-					.to("seda:processService")
-				.end()
-				.to("mock:result")
+				    // load all of the configs
+					.multicast()
+						.parallelProcessing().to("direct:loadCollectdConfiguration","direct:loadDataCollectionConfig","direct:loadSnmpConfig")
+					.end()
+					.log("==== Configuration Loaded. ===")
+					.to("direct:schedulePackageServiceList")
+					.to("mock:result")
 				;
 
 				from("direct:loadCollectdConfiguration")
-				.transform(constant(url("collectd-configuration.xml")))
-				.log("Loading collectd-configuration.xml:\n ${body}")
-				.unmarshal(jaxb)
-				.beanRef("collectdConfigurationService", "setConfiguration")
+					.transform(constant(url("collectd-configuration.xml")))
+					.to("direct:parseXML")
+					.beanRef("collectdConfigurationService", "setConfiguration")
 				;
 
 				from("direct:loadDataCollectionConfig")
-				.log("Refreshing snmpMetricRepository")
-				.beanRef("snmpMetricRepository", "refresh")
+					.log("Refreshing snmpMetricRepository")
+					.beanRef("snmpMetricRepository", "refresh")
 				;
 
 				from("direct:loadSnmpConfig")
-				.transform(constant(url("snmp-config.xml")))
-				.log("Loading snmp-config.xml:\n ${body}")
-				.unmarshal(jaxb)
-				.beanRef("snmpConfigurationService", "setConfiguration")
+					.transform(constant(url("snmp-config.xml")))
+					.to("direct:parseXML")
+					.beanRef("snmpConfigurationService", "setConfiguration")
+				;
+				
+				from("direct:schedulePackageServiceList")
+					.beanRef("collectdConfigurationService", "getPackageServiceList")
+					.split().body()
+						.log("PackageService: ${body}")
+						.to("seda:processService")
+					.end()
 				;
 				
 				from("seda:processService")
-				.log("Processing Service: ${body}")
-				.to("direct:loadServiceAgents")
-				.to("seda:scheduleServiceAgents")
+					.log("Processing Service: ${body}")
+					.to("direct:loadServiceAgents")
+					.to("seda:scheduleServiceAgents")
 				;
 
 				from("direct:loadServiceAgents")
-				.transform().simple("file:src/test/resources/agents/${body.filterName}/${body.svcName}.json")
-				.beanRef("utils", "stringToURL")
-				.log("BODY IS: ${body}")
-				.unmarshal(json)
-				.log("${body}")
-				.to("mock:loaded");
+					.transform().simple("file:src/test/resources/agents/${body.filterName}/${body.svcName}.json")
+					.to("direct:parseJSON")
+					.log("${body}")
+				;
 
 			}
 			
 		};
 	}
-
+	
 	@Test
-	public void testLoadService() throws Exception {
-		
-		MockEndpoint loaded = getMockEndpoint("mock:loaded");
-		loaded.expectedMessageCount(1);
+	public void testParseXML() throws Exception {
 
-		CollectionService svc = new CollectionService("example1", "SNMP", 300000, "example1");
-		
-		template.sendBody("direct:loadServiceAgents", svc);
+		SnmpConfiguration resultsUsingURL = template.requestBody("direct:parseXML", url("snmp-config.xml"), SnmpConfiguration.class);
 
-		loaded.await();
+		//System.err.printf("Results: %s\n", resultsUsingURL);
+		assertNotNull(resultsUsingURL);
 		
-		System.err.println("Finished waiting");
+		SnmpConfiguration resultsUsingString = template.requestBody("direct:parseXML", url("snmp-config.xml").toString(), SnmpConfiguration.class);
 
-		
+		//System.err.printf("Results: %s\n", resultsUsingString);
+		assertNotNull(resultsUsingString);
 	}
 
+	@Test
+	public void testParseJSON() throws Exception {
+		List<ServiceAgent> resultsUsingURL = template.requestBody("direct:parseJSON", url("agents/example1/SNMP.json"), ServiceAgentList.class);
+
+		//System.err.printf("Results: %s\n", resultsUsingURL);
+		assertNotNull(resultsUsingURL);
+		assertEquals(3, resultsUsingURL.size());
+		
+		List<ServiceAgent> resultsUsingString = template.requestBody("direct:parseJSON", url("agents/example1/SNMP.json").toString(), ServiceAgentList.class);
+
+		//System.err.printf("Results: %s\n", resultsUsingString);
+		assertNotNull(resultsUsingString);
+		assertEquals(3, resultsUsingString.size());
+	}
 
 	@Test
+	public void testLoadCollectdConfiguration() throws Exception {
+		
+		template.requestBody("direct:loadCollectdConfiguration", null, String.class);
+		
+		CollectdConfigurationService configSvc = bean("collectdConfigurationService", CollectdConfigurationService.class);
+		
+		assertNotNull(configSvc);
+		assertNotNull(configSvc.getConfiguration());
+		
+		
+
+	}
+	@Test
+	public void testLoadSnmpConfig() throws Exception {
+		
+		template.requestBody("direct:loadSnmpConfig", null, String.class);
+		
+		SnmpConfigurationService configSvc = bean("snmpConfigurationService", SnmpConfigurationService.class);
+		
+		assertNotNull(configSvc);
+		assertNotNull(configSvc.getConfiguration());
+
+	}
+	@Test
+	public void testLoadDataCollectionConfig() throws Exception {
+		
+		template.requestBody("direct:loadDataCollectionConfig", null, String.class);
+		
+		SnmpMetricRepository metricRepo = bean("snmpMetricRepository", SnmpMetricRepository.class);
+		
+		assertNotNull(metricRepo);
+		assertNotNull(metricRepo.getMetric("ifInOctets"));
+		
+	}
+	@Test
+	public void testLoadServiceAgents() throws Exception {
+		
+		PackageService svc = new PackageService("example1", "SNMP", 300000, "example1");
+		
+		List<ServiceAgent> agents = template.requestBody("direct:loadServiceAgents", svc, ServiceAgentList.class);
+		
+		assertNotNull(agents);
+		assertEquals(3, agents.size());
+		
+	}
+	
+
+
+	@Test
+	@Ignore
 	public void testStartup() throws Exception {
 		
 		MockEndpoint result = getMockEndpoint("mock:result");
@@ -171,8 +230,8 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		//template.asyncRequestBody("seda:start", null);
 		template.sendBody("seda:start", null);
 
-		CollectdConfigurationService configService = context().getRegistry().lookupByNameAndType("collectdConfigurationService", CollectdConfigurationService.class);
-		SnmpConfigurationService snmpConfigurationService = context().getRegistry().lookupByNameAndType("snmpConfigurationService", SnmpConfigurationService.class);
+		CollectdConfigurationService configService = bean("collectdConfigurationService", CollectdConfigurationService.class);
+		SnmpConfigurationService snmpConfigurationService = bean("snmpConfigurationService", SnmpConfigurationService.class);
 		
 		System.err.println("Waiting");
 
@@ -187,6 +246,11 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		assertNotNull(snmpConfigurationService);
 		assertNotNull(snmpConfigurationService.getConfiguration());
 		
+	}
+
+
+	private <T> T bean(String name,	Class<T> type) {
+		return context().getRegistry().lookupByNameAndType(name, type);
 	}
 
 

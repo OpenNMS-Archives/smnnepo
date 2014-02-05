@@ -6,14 +6,14 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class CollectdConfigurationService {
 	
-	public static class CollectionService {
+	public static class PackageService {
 
 		private String m_packageName;
 		private String m_svcName;
 		private int m_millis;
 		private String m_filterName;
 
-		public CollectionService(String packageName, String svcName, int millis, String filterName) {
+		public PackageService(String packageName, String svcName, int millis, String filterName) {
 			m_packageName = packageName;
 			m_svcName = svcName;
 			m_millis = millis;
@@ -57,11 +57,11 @@ public class CollectdConfigurationService {
 		return m_config.get();
 	}
 	
-	public List<CollectionService> getServiceList() {
+	public List<PackageService> getPackageServiceList() {
 		
-		CollectionService[] svcs = new CollectionService[] {
-				new CollectionService("example1", "SNMP", 300000, "example1"),
-				new CollectionService("example1", "JMX", 300000, "example1")
+		PackageService[] svcs = new PackageService[] {
+				new PackageService("example1", "SNMP", 300000, "example1"),
+				new PackageService("example1", "JMX", 300000, "example1")
 		};
 		
 		return Arrays.asList(svcs);
