@@ -7,15 +7,18 @@ import java.util.List;
 
 import javax.xml.bind.JAXBContext;
 
+import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.jackson.JacksonDataFormat;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.converter.jaxb.JaxbDataFormat;
 import org.apache.camel.impl.JndiRegistry;
+import org.apache.camel.processor.aggregate.AggregationStrategy;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.opennms.netmgt.sampler.config.snmp.SnmpMetricRepository;
+import org.opennms.netmgt.sampler.snmp.CollectdConfigurationService.PackageAgentList;
 import org.opennms.netmgt.sampler.snmp.CollectdConfigurationService.PackageService;
 import org.opennms.netmgt.sampler.snmp.ServiceAgent.ServiceAgentList;
 
@@ -112,24 +115,42 @@ public class SamplerRoutingTest extends CamelTestSupport {
 					.beanRef("snmpConfigurationService", "setConfiguration")
 				;
 				
-				from("direct:schedulePackageServiceList")
+				from("direct:loadPackageServiceList")
 					.beanRef("collectdConfigurationService", "getPackageServiceList")
 					.split().body()
 						.log("PackageService: ${body}")
-						.to("seda:processService")
+						.to("seda:loadPackageAgents")
 					.end()
 				;
 				
-				from("seda:processService")
+				from("seda:processPackageService")
 					.log("Processing Service: ${body}")
 					.to("direct:loadServiceAgents")
 					.to("seda:scheduleServiceAgents")
 				;
+				
+				from("seda:loadPackageAgents")
+					.enrich("direct:getServiceAgents", new AggregationStrategy() {
+						
+						@Override
+						public Exchange aggregate(Exchange pkgServiceExchange, Exchange svcAgentsExchange) {
+							PackageService pkgService = pkgServiceExchange.getIn().getBody(PackageService.class);
+							List<ServiceAgent> svcAgents = svcAgentsExchange.getIn().getBody(ServiceAgentList.class);
+							
+							PackageAgentList pkgAgents = new PackageAgentList(pkgService, svcAgents);
+							
+							pkgServiceExchange.getIn().setBody(pkgAgents);
+							
+							return pkgServiceExchange;
+						}
+					})
+					.beanRef("collectdConfigurationService", "setPackageAgentList")
+					
+				;
 
-				from("direct:loadServiceAgents")
+				from("direct:getServiceAgents")
 					.transform().simple("file:src/test/resources/agents/${body.filterName}/${body.svcName}.json")
 					.to("direct:parseJSON")
-					.log("${body}")
 				;
 
 			}
