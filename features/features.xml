@@ -17,6 +17,10 @@
       <bundle>wrap:mvn:com.atomikos/transactions-jdbc/3.9.2</bundle>
     </feature>
 
+    <feature name="c3p0" description="c3p0 :: c3p0" version="0.9.1.2">
+      <bundle>wrap:mvn:c3p0/c3p0/0.9.1.2</bundle>
+    </feature>
+
     <feature name="castor" description="Castor :: Castor" version="1.1.2.1">
       <bundle>wrap:mvn:org.codehaus.castor/castor/1.1.2.1</bundle>
     </feature>
@@ -72,9 +76,18 @@
 
     <!-- OpenNMS features -->
     <feature name="opennms-core" description="OpenNMS :: Core" version="1.13.1-SNAPSHOT">
+      <feature version="3.2.3.RELEASE">spring</feature>
+      <feature version="3.2.3.RELEASE">spring-orm</feature>
+
+      <feature>castor</feature>
+      <feature>commons-io</feature>
+      <feature>dnsjava</feature>
+      <feature>jaxb</feature>
+
       <bundle>mvn:org.opennms.core/org.opennms.core.criteria/1.13.1-SNAPSHOT</bundle>
       <bundle>mvn:org.opennms.core/org.opennms.core.logging/1.13.1-SNAPSHOT</bundle>
       <bundle>mvn:org.opennms.core/org.opennms.core.soa/1.13.1-SNAPSHOT</bundle>
+      <bundle>mvn:org.opennms.core/org.opennms.core.spring/1.13.1-SNAPSHOT</bundle>
       <bundle>mvn:org.opennms.core/org.opennms.core.xml/1.13.1-SNAPSHOT</bundle>
       <bundle>mvn:org.opennms/opennms-util/1.13.1-SNAPSHOT</bundle>
     </feature>
@@ -114,6 +127,7 @@
     </feature>
 
     <feature name="opennms-config" description="OpenNMS :: Configuration" version="1.13.1-SNAPSHOT">
+      <feature>c3p0</feature>
       <feature>opennms-config-api</feature>
       <feature>opennms-core-db</feature>
       <feature>opennms-snmp</feature>
