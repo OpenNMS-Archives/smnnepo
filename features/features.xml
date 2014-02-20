@@ -84,7 +84,9 @@
       <feature>dnsjava</feature>
       <feature>jaxb</feature>
 
+      <bundle>mvn:org.opennms.core/org.opennms.core.api/1.13.1-SNAPSHOT</bundle>
       <bundle>mvn:org.opennms.core/org.opennms.core.criteria/1.13.1-SNAPSHOT</bundle>
+      <bundle>mvn:org.opennms.core/org.opennms.core.lib/1.13.1-SNAPSHOT</bundle>
       <bundle>mvn:org.opennms.core/org.opennms.core.logging/1.13.1-SNAPSHOT</bundle>
       <bundle>mvn:org.opennms.core/org.opennms.core.soa/1.13.1-SNAPSHOT</bundle>
       <bundle>mvn:org.opennms.core/org.opennms.core.spring/1.13.1-SNAPSHOT</bundle>
@@ -124,6 +126,7 @@
       <feature>opennms-model</feature>
       <bundle>mvn:org.opennms/opennms-config-api/1.13.1-SNAPSHOT</bundle>
       <bundle>mvn:org.opennms/opennms-config-model/1.13.1-SNAPSHOT</bundle>
+      <bundle>mvn:org.opennms/opennms-config-jaxb/1.13.1-SNAPSHOT</bundle>
     </feature>
 
     <feature name="opennms-config" description="OpenNMS :: Configuration" version="1.13.1-SNAPSHOT">
