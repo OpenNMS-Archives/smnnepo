@@ -17,12 +17,15 @@
       <bundle>wrap:mvn:com.atomikos/transactions-jdbc/3.9.2</bundle>
     </feature>
 
-    <feature name="c3p0" description="c3p0 :: c3p0" version="0.9.1.2">
+    <feature name="c3p0" description="c3p0" version="0.9.1.2">
       <bundle>wrap:mvn:c3p0/c3p0/0.9.1.2</bundle>
     </feature>
 
-    <feature name="castor" description="Castor :: Castor" version="1.1.2.1">
-      <bundle>wrap:mvn:org.codehaus.castor/castor/1.1.2.1</bundle>
+    <feature name="castor" description="Castor" version="1.1.2.1">
+      <bundle dependency="true">wrap:mvn:xerces/xercesImpl/2.9.1</bundle>
+      <bundle dependency="true">wrap:mvn:oro/oro/2.0.8</bundle>
+      <!-- We must manually specify the Import-Package directive here because Castor reflectively invokes Xerces -->
+      <bundle>wrap:mvn:org.codehaus.castor/castor/1.1.2.1$Import-Package=javax.naming,javax.naming.directory,javax.xml.parsers,org.apache.commons.logging,org.apache.oro.text.regex,org.apache.xerces.parsers,org.apache.xml.serialize,org.w3c.dom,org.xml.sax,org.xml.sax.helpers</bundle>
     </feature>
 
     <feature name="commons-io" description="Apache :: commons-io" version="2.4">
@@ -33,7 +36,7 @@
       <bundle>mvn:commons-lang/commons-lang/2.6</bundle>
     </feature>
 
-    <feature name="dnsjava" description="dnsjava :: dnsjava" version="2.1.3">
+    <feature name="dnsjava" description="dnsjava" version="2.1.3">
       <bundle dependency="true">wrap:mvn:org.dnsjava/dnsjava/2.1.3</bundle>
     </feature>
 
@@ -118,6 +121,9 @@
       <feature>opennms-core</feature>
       <feature>opennms-snmp</feature>
 
+      <!-- Needed for JSON annotations -->
+      <bundle dependency="true">mvn:org.codehaus.jackson/jackson-core-asl/1.9.13</bundle>
+
       <bundle>mvn:org.opennms/opennms-model/1.13.1-SNAPSHOT</bundle>
     </feature>
 
@@ -187,7 +193,7 @@
       <bundle>mvn:org.opennms.netmgt.sample/sample-storage-cassandra/1.13.1-SNAPSHOT</bundle>
     </feature>
 
-    <feature name="sample-storage-file" description="Sample Collection and Storage :: Cassandra" version="1.13.1-SNAPSHOT">
+    <feature name="sample-storage-file" description="Sample Collection and Storage :: File" version="1.13.1-SNAPSHOT">
       <configfile finalname="/etc/file-repo.xml">mvn:org.opennms.netmgt.sample/sampler-routes/1.13.1-SNAPSHOT/xml/file-repo</configfile>
       <feature>sample-api</feature>
       <bundle>blueprint:file:etc/file-repo.xml</bundle>
