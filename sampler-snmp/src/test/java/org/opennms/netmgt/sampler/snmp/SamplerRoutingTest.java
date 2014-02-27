@@ -29,20 +29,22 @@ public class SamplerRoutingTest extends CamelTestSupport {
 	private static URL url(String path) throws MalformedURLException {
 		return new URL("file:src/test/resources/" + path);
 	}
-	
-	public static class Utils {
+
+	public static class UrlNormalizer {
+
 		public URL toURL(String s) throws MalformedURLException {
 			URL url = new URL(s);
 			//System.err.printf("Converting String '%s' to url: '%s'\n", s, url);
 			return url;
 		}
+
 		public URL toURL(URL u) throws MalformedURLException {
 			//System.err.printf("No need to convert URL '%s' to a url\n", u);
 			return u;
 		}
 	}
-	
-	
+
+
 	@Override
 	protected JndiRegistry createRegistry() throws Exception {
 		JndiRegistry registry = super.createRegistry();
@@ -57,7 +59,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		registry.bind("collectdConfigurationService", new CollectdConfigurationService());;
 		registry.bind("snmpConfigurationService", new SingletonBeanFactory<SnmpConfiguration>());;
 		registry.bind("snmpMetricRepository", snmpMetricRepository);
-		registry.bind("utils", new Utils());
+		registry.bind("urlNormalizer", new UrlNormalizer());
 		
 		return registry;
 	}
@@ -77,13 +79,13 @@ public class SamplerRoutingTest extends CamelTestSupport {
 				
 				// Call this to retrieve a url in string form or URL form into the jaxb objects they represent
 				from("direct:parseXML")
-					.beanRef("utils", "toURL")
+					.beanRef("urlNormalizer")
 					.unmarshal(jaxb)
 				;
 				
 				// Call this to retrieve a url in string form or URL form into the json objects they represent
 				from("direct:parseJSON")
-					.beanRef("utils", "toURL")
+					.beanRef("urlNormalizer")
 					.unmarshal(json)
 				;
 				
@@ -268,10 +270,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		
 	}
 
-
 	private <T> T bean(String name,	Class<T> type) {
 		return context().getRegistry().lookupByNameAndType(name, type);
 	}
-
-
 }
