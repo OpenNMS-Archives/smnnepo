@@ -2,13 +2,17 @@
 	xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 	xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+	xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.1.0"
 	xsi:schemaLocation="
-		http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+		http://www.osgi.org/xmlns/blueprint/v1.0.0 
+		http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+
 		http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
-		https://svn.apache.org/repos/asf/aries/tags/blueprint-0.3.1/blueprint-cm/src/main/resources/org/apache/aries/blueprint/compendium/cm/blueprint-cm-1.1.0.xsd
-		http://www.osgi.org/xmlns/blueprint-ext/v1.1.0
-		https://svn.apache.org/repos/asf/aries/tags/blueprint-0.3.1/blueprint-core/src/main/resources/org/apache/aries/blueprint/ext/blueprint-ext.xsd"
->
+		http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd
+
+		http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.1.0
+		http://aries.apache.org/schemas/blueprint-ext/blueprint-ext-1.1.xsd
+">
 
   <!-- Override with an etc/org.opennms.netmgt.sample.config.configuration.snmp.cfg -->
   <cm:property-placeholder id="appConfig" persistent-id="org.opennms.netmgt.sampler.config.snmp" update-strategy="reload">
@@ -40,7 +44,7 @@
   <service ref="snmpAgentRepository" interface="org.opennms.netmgt.api.sample.AgentRepository">
     <service-properties>
       <entry key="protocol" value="SNMP"/>
-    </service-properties>  
+    </service-properties>
   </service>
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
