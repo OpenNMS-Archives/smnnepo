@@ -1,6 +1,5 @@
 package org.opennms.netmgt.sampler.snmp;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
@@ -56,7 +55,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 				);
 		
 		registry.bind("collectdConfigurationService", new CollectdConfigurationService());;
-		registry.bind("snmpConfigurationService", new SnmpConfigurationService());;
+		registry.bind("snmpConfigurationService", new SingletonBeanFactory<SnmpConfiguration>());;
 		registry.bind("snmpMetricRepository", snmpMetricRepository);
 		registry.bind("utils", new Utils());
 		
@@ -101,7 +100,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 				from("direct:loadCollectdConfiguration")
 					.transform(constant(url("collectd-configuration.xml")))
 					.to("direct:parseXML")
-					.beanRef("collectdConfigurationService", "setConfiguration")
+					.beanRef("collectdConfigurationService", "setInstance")
 				;
 
 				from("direct:loadDataCollectionConfig")
@@ -112,7 +111,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 				from("direct:loadSnmpConfig")
 					.transform(constant(url("snmp-config.xml")))
 					.to("direct:parseXML")
-					.beanRef("snmpConfigurationService", "setConfiguration")
+					.beanRef("snmpConfigurationService", "setInstance")
 				;
 				
 				from("direct:loadPackageServiceList")
@@ -195,7 +194,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		CollectdConfigurationService configSvc = bean("collectdConfigurationService", CollectdConfigurationService.class);
 		
 		assertNotNull(configSvc);
-		assertNotNull(configSvc.getConfiguration());
+		assertNotNull(configSvc.getInstance());
 		
 		
 
@@ -205,10 +204,10 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		
 		template.requestBody("direct:loadSnmpConfig", null, String.class);
 		
-		SnmpConfigurationService configSvc = bean("snmpConfigurationService", SnmpConfigurationService.class);
+		SingletonBeanFactory<SnmpConfiguration> configSvc = bean("snmpConfigurationService", SingletonBeanFactory.class);
 		
 		assertNotNull(configSvc);
-		assertNotNull(configSvc.getConfiguration());
+		assertNotNull(configSvc.getInstance());
 
 	}
 	@Test
@@ -252,7 +251,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		template.sendBody("seda:start", null);
 
 		CollectdConfigurationService configService = bean("collectdConfigurationService", CollectdConfigurationService.class);
-		SnmpConfigurationService snmpConfigurationService = bean("snmpConfigurationService", SnmpConfigurationService.class);
+		SingletonBeanFactory<SnmpConfiguration> snmpConfigurationService = bean("snmpConfigurationService", SingletonBeanFactory.class);
 		
 		System.err.println("Waiting");
 
@@ -262,10 +261,10 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		System.err.println("Finished waiting");
 
 		assertNotNull(configService);
-		assertNotNull(configService.getConfiguration());
+		assertNotNull(configService.getInstance());
 
 		assertNotNull(snmpConfigurationService);
-		assertNotNull(snmpConfigurationService.getConfiguration());
+		assertNotNull(snmpConfigurationService.getInstance());
 		
 	}
 

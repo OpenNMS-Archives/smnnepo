@@ -3,9 +3,8 @@ package org.opennms.netmgt.sampler.snmp;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
 
-public class CollectdConfigurationService {
+public class CollectdConfigurationService extends SingletonBeanFactory<CollectdConfiguration> {
 	
 	public static class PackageService {
 
@@ -103,16 +102,7 @@ public class CollectdConfigurationService {
 
 	}
 
-	private final AtomicReference<CollectdConfiguration> m_config = new AtomicReference<CollectdConfiguration>();
 	private final ConcurrentHashMap<PackageService, PackageAgentList> m_agentLists = new ConcurrentHashMap<PackageService, PackageAgentList>();
-	
-	public void setConfiguration(CollectdConfiguration config) {
-		m_config.set(config);
-	}
-	
-	public CollectdConfiguration getConfiguration() {
-		return m_config.get();
-	}
 	
 	public List<PackageService> getPackageServiceList() {
 		
