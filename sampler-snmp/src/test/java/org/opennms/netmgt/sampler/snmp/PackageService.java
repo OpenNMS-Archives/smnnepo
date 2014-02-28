@@ -1,27 +1,26 @@
 package org.opennms.netmgt.sampler.snmp;
 
+import org.opennms.netmgt.config.collectd.Service;
+
 public class PackageService {
 
 	private String m_packageName;
-	private String m_svcName;
-	private int m_millis;
-	private String m_filterName;
+	private Service m_service;
 
-	public PackageService(String packageName, String svcName, int millis, String filterName) {
+	public PackageService(String packageName, Service service) {
 		m_packageName = packageName;
-		m_svcName = svcName;
-		m_millis = millis;
-		m_filterName = filterName;
+		m_service = service;
 	}
 
 	public String getPackageName() {
 		return m_packageName;
 	}
 
-	public String getSvcName() {
-		return m_svcName;
+	public Service getService() {
+		return m_service;
 	}
 
+	/*
 	public int getMillis() {
 		return m_millis;
 	}
@@ -29,12 +28,12 @@ public class PackageService {
 	public String getFilterName() {
 		return m_filterName;
 	}
+	*/
 
 	@Override
 	public String toString() {
-		return "CollectionService [packageName=" + m_packageName
-				+ ", svcName=" + m_svcName + ", millis=" + m_millis
-				+ ", filterName=" + m_filterName + "]";
+		return getClass().getSimpleName() + "[packageName=" + m_packageName
+			+ ", svcName=" + m_service.getName() + ", millis=" + m_service.getInterval() + "]";
 	}
 
 	@Override
@@ -44,7 +43,7 @@ public class PackageService {
 		result = prime * result
 				+ ((m_packageName == null) ? 0 : m_packageName.hashCode());
 		result = prime * result
-				+ ((m_svcName == null) ? 0 : m_svcName.hashCode());
+				+ ((m_service == null) ? 0 : m_service.hashCode());
 		return result;
 	}
 
@@ -62,16 +61,11 @@ public class PackageService {
 				return false;
 		} else if (!m_packageName.equals(other.m_packageName))
 			return false;
-		if (m_svcName == null) {
-			if (other.m_svcName != null)
+		if (m_service == null) {
+			if (other.m_service != null)
 				return false;
-		} else if (!m_svcName.equals(other.m_svcName))
+		} else if (!m_service.equals(other.m_service))
 			return false;
 		return true;
 	}
-	
-	
-	
-
-
 }

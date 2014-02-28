@@ -1,9 +1,10 @@
 package org.opennms.netmgt.sampler.snmp;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.xml.bind.JAXBContext;
@@ -20,6 +21,8 @@ import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
 import org.opennms.netmgt.api.sample.support.SingletonBeanFactory;
 import org.opennms.netmgt.config.collectd.CollectdConfiguration;
+import org.opennms.netmgt.config.collectd.Package;
+import org.opennms.netmgt.config.collectd.Service;
 import org.opennms.netmgt.sampler.config.snmp.SnmpMetricRepository;
 import org.opennms.netmgt.sampler.snmp.ServiceAgent.ServiceAgentList;
 
@@ -74,6 +77,12 @@ public class SamplerRoutingTest extends CamelTestSupport {
 
 			@Override
 			public void configure() throws Exception {
+				
+				onException(IOException.class)
+					.handled(true)
+					//.transform().constant(null)
+					.stop()
+				;
 				
 				JAXBContext context = JAXBContext.newInstance(CollectdConfiguration.class, SnmpConfiguration.class);
 
@@ -150,13 +159,14 @@ public class SamplerRoutingTest extends CamelTestSupport {
 					.process(new Processor() {
 						@Override
 						public void process(Exchange exchange) throws Exception {
-							// TODO: Pull the packages out of the CollectdConfiguration
-							PackageService[] svcs = new PackageService[] {
-									new PackageService("example1", "SNMP", 300000, "example1"),
-									new PackageService("example1", "JMX", 300000, "example1")
-							};
-
-							exchange.getIn().setBody(Arrays.asList(svcs));
+							CollectdConfiguration config = exchange.getIn().getBody(CollectdConfiguration.class);
+							List<PackageService> retval = new ArrayList<PackageService>();
+							for (org.opennms.netmgt.config.collectd.Package pkg : config.getPackages()) {
+								for (Service svc : pkg.getServices()) {
+									retval.add(new PackageService(pkg.getName(), svc));
+								}
+							}
+							exchange.getIn().setBody(retval);
 						}
 					})
 					// For each package...
@@ -208,7 +218,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 				;
 
 				from("direct:getServiceAgents")
-					.transform().simple("file:src/test/resources/agents/${body.filterName}/${body.svcName}.json")
+					.transform().simple("file:src/test/resources/agents/${body.packageName}/${body.service.name}.json")
 					.to("direct:parseJSON")
 				;
 
@@ -284,9 +294,19 @@ public class SamplerRoutingTest extends CamelTestSupport {
 	@Test
 	public void testLoadServiceAgents() throws Exception {
 		
-		PackageService svc = new PackageService("example1", "SNMP", 300000, "example1");
+		Service svc = new Service();
+		svc.setInterval(1000L);
+		svc.setName("SNMP");
+		svc.setStatus("on");
+		svc.setUserDefined("false");
+
+		Package pkg = new Package();
+		pkg.setName("package1");
+		pkg.setServices(Collections.singletonList(svc));
 		
-		List<ServiceAgent> agents = template.requestBody("direct:loadServiceAgents", svc, ServiceAgentList.class);
+		PackageService packSvc = new PackageService("package1", svc);
+		
+		List<ServiceAgent> agents = template.requestBody("direct:loadServiceAgents", packSvc, ServiceAgentList.class);
 		
 		assertNotNull(agents);
 		assertEquals(3, agents.size());
@@ -296,10 +316,12 @@ public class SamplerRoutingTest extends CamelTestSupport {
 	@Test
 	public void testLoadPackageServiceList() throws Exception {
 		
-		PackageService svc = new PackageService("example1", "SNMP", 300000, "example1");
+		// Load the CollectdConfiguration
+		template.sendBody("direct:loadCollectdConfiguration", null);
 		
-		template.sendBody("seda:start", null);
+		// Fetch the loaded config
 		CollectdConfiguration collectConfig = template.requestBody("direct:collectdConfig", null, CollectdConfiguration.class);
+		// Pass it to the method that parses the config into a package/service object
 		AgentList agents = template.requestBody("direct:loadPackageServiceList", collectConfig, AgentList.class);
 		
 		assertNotNull(agents);
