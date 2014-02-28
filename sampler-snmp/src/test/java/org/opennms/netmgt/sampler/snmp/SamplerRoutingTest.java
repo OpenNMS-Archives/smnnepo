@@ -3,11 +3,14 @@ package org.opennms.netmgt.sampler.snmp;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.bind.JAXBContext;
 
+import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
+import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.jackson.JacksonDataFormat;
 import org.apache.camel.component.mock.MockEndpoint;
@@ -57,7 +60,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 			url("datacollection/dell.xml")
 		);
 		
-		registry.bind("collectdConfigurationService", new CollectdConfigurationService());;
+		registry.bind("collectdConfigurationService", new SingletonBeanFactory<CollectdConfiguration>());
 		registry.bind("snmpConfigurationService", new SingletonBeanFactory<SnmpConfiguration>());;
 		registry.bind("snmpMetricRepository", snmpMetricRepository);
 		registry.bind("urlNormalizer", new UrlNormalizer());
@@ -106,8 +109,8 @@ public class SamplerRoutingTest extends CamelTestSupport {
 					.multicast()
 						.parallelProcessing().to("direct:loadCollectdConfiguration","direct:loadDataCollectionConfig","direct:loadSnmpConfig")
 					.end()
-					.log("==== Configuration Loaded. ===")
-					.to("direct:schedulePackageServiceList")
+					.log("==== Configurations Loaded ====")
+					.to("direct:schedulerStart")
 					.to("mock:result")
 				;
 
@@ -131,11 +134,31 @@ public class SamplerRoutingTest extends CamelTestSupport {
 					.beanRef("snmpConfigurationService", "setInstance")
 				;
 				
-				// Get all of the services that are associated with the current package
+				from("direct:schedulerStart")
+					.to("direct:loadPackageServiceList")
+				;
+				
+				// Get all of the collection packages that are associated with the current package
 				from("direct:loadPackageServiceList")
-					.beanRef("collectdConfigurationService", "getPackageServiceList")
+					// Replace the current message with the CollectdConfiguration
+					.enrich("direct:collectdConfig")
+					// Process it into packages
+					.process(new Processor() {
+						@Override
+						public void process(Exchange exchange) throws Exception {
+							// TODO: Pull the packages out of the CollectdConfiguration
+							PackageService[] svcs = new PackageService[] {
+									new PackageService("example1", "SNMP", 300000, "example1"),
+									new PackageService("example1", "JMX", 300000, "example1")
+							};
+
+							exchange.getIn().setBody(Arrays.asList(svcs));
+						}
+					})
+					// For each package...
 					.split().body()
 						.log("PackageService: ${body}")
+						// Load the agents for the package
 						.to("seda:loadPackageAgents")
 						/*
 						.choice()
@@ -161,7 +184,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 					.to("seda:scheduleServiceAgents")
 				;
 				*/
-				
+
 				from("seda:loadPackageAgents")
 					.enrich("direct:getServiceAgents", new AggregationStrategy() {
 						
@@ -177,7 +200,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 							return pkgServiceExchange;
 						}
 					})
-					.beanRef("collectdConfigurationService", "setPackageAgentList")
+					//.beanRef("collectdConfigurationService", "setPackageAgentList")
 				;
 
 				from("direct:getServiceAgents")
@@ -224,7 +247,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		
 		template.requestBody("direct:loadCollectdConfiguration", null, String.class);
 		
-		CollectdConfigurationService configSvc = bean("collectdConfigurationService", CollectdConfigurationService.class);
+		SingletonBeanFactory<CollectdConfiguration> configSvc = bean("collectdConfigurationService", SingletonBeanFactory.class);
 		
 		assertNotNull(configSvc);
 		assertNotNull(configSvc.getInstance());
@@ -271,6 +294,8 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		
 		PackageService svc = new PackageService("example1", "SNMP", 300000, "example1");
 		
+		template.sendBody("seda:start", null);
+		CollectdConfiguration collectConfig = template.requestBody("direct:collectdConfig", null, CollectdConfiguration.class);
 		AgentList agents = template.requestBody("direct:loadPackageServiceList", collectConfig, AgentList.class);
 		
 		assertNotNull(agents);
@@ -289,18 +314,17 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		MockEndpoint scheduled = getMockEndpoint("mock:scheduled");
 		scheduled.expectedMessageCount(2);
 		
-		
 		//template.asyncRequestBody("seda:start", url("datacollection-config.xml"));
 		//template.asyncRequestBody("seda:start", null);
 		template.sendBody("seda:start", null);
+		result.await();
 
-		CollectdConfigurationService collectdConfig = bean("collectdConfigurationService", CollectdConfigurationService.class);
+		SingletonBeanFactory<CollectdConfiguration> collectdConfig = bean("collectdConfigurationService", SingletonBeanFactory.class);
 		SingletonBeanFactory<SnmpConfiguration> snmpConfig = bean("snmpConfigurationService", SingletonBeanFactory.class);
 		
 		System.err.println("Waiting");
 
-		result.await();
-		scheduled.await();
+		//scheduled.await();
 		
 		System.err.println("Finished waiting");
 
