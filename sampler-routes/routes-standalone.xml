@@ -1,23 +1,28 @@
-<bp:blueprint
-    xmlns="http://camel.apache.org/schema/blueprint"
-	xmlns:bp="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+<blueprint
+	xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+	xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.1.0"
 	xsi:schemaLocation="
-	    http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint-2.9.6.xsd
-		http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+		http://www.osgi.org/xmlns/blueprint/v1.0.0
+		http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+		
 		http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
-		https://svn.apache.org/repos/asf/aries/tags/blueprint-0.3.1/blueprint-cm/src/main/resources/org/apache/aries/blueprint/compendium/cm/blueprint-cm-1.1.0.xsd
-		http://www.osgi.org/xmlns/blueprint-ext/v1.1.0
-		https://svn.apache.org/repos/asf/aries/tags/blueprint-0.3.1/blueprint-core/src/main/resources/org/apache/aries/blueprint/ext/blueprint-ext.xsd"     
->
-   
-  <bp:reference id="snmpAgentRepository" interface="org.opennms.netmgt.api.sample.AgentRepository" filter="(protocol=SNMP)" />
-  <bp:reference id="snmpCollectionConfiguration" interface="org.opennms.netmgt.api.sample.CollectionConfiguration" filter="(protocol=SNMP)" />
-  <bp:reference id="sampleRepository" interface="org.opennms.netmgt.api.sample.SampleRepository" /> 
-  <bp:reference id="snmpCollector" interface="org.opennms.netmgt.sampler.snmp.SnmpCollector" />
+		http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd
+		
+		http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.1.0
+		http://aries.apache.org/schemas/blueprint-ext/blueprint-ext-1.1.xsd
 
-  <camelContext>
+		http://camel.apache.org/schema/blueprint
+		http://camel.apache.org/schema/blueprint/camel-blueprint-2.12.2.xsd
+">
+
+  <reference id="snmpAgentRepository" interface="org.opennms.netmgt.api.sample.AgentRepository" filter="(protocol=SNMP)" />
+  <reference id="snmpCollectionConfiguration" interface="org.opennms.netmgt.api.sample.CollectionConfiguration" filter="(protocol=SNMP)" />
+  <reference id="sampleRepository" interface="org.opennms.netmgt.api.sample.SampleRepository" /> 
+  <reference id="snmpCollector" interface="org.opennms.netmgt.sampler.snmp.SnmpCollector" />
+
+  <camelContext xmlns="http://camel.apache.org/schema/blueprint">
     
     <route id="addAgent">
       <from uri="seda:addAgent" />
@@ -59,4 +64,4 @@
     
   </camelContext>
 
-</bp:blueprint>
+</blueprint>
