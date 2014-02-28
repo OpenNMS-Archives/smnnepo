@@ -2,14 +2,25 @@ package org.opennms.netmgt.sampler.snmp;
 
 import java.util.ArrayList;
 
+/**
+ * JSON-serialized object representing an agent to run a collection on.
+ */
 public class ServiceAgent {
 	
+	@SuppressWarnings("serial")
 	public static class ServiceAgentList extends ArrayList<ServiceAgent> {};
 	
+	private String id;
 	private String m_address;
 	private int m_port;
 	private String m_serviceName;
 	
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
 	public String getAddress() {
 		return m_address;
 	}
