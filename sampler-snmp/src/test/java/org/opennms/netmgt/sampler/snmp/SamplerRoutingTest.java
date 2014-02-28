@@ -2,6 +2,7 @@ package org.opennms.netmgt.sampler.snmp;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,7 +31,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		return new URL("file:src/test/resources/" + path);
 	}
 
-	private static class AgentList extends ArrayList<Agent> {}
+	private static class AgentList extends ArrayList<ServiceAgent> {}
 
 	/**
 	 * This class will convert all incoming objects to URLs.
