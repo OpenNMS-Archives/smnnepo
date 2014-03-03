@@ -5,6 +5,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.xml.bind.JAXBContext;
@@ -66,10 +67,22 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		registry.bind("snmpConfiguration", new SingletonBeanFactory<SnmpConfiguration>());;
 		registry.bind("snmpMetricRepository", snmpMetricRepository);
 		registry.bind("urlNormalizer", new UrlNormalizer());
+		registry.bind("packageServiceSplitter", new PackageServiceSplitter());
 		
 		return registry;
 	}
 	
+	public static class PackageServiceSplitter  {
+		public List<Package> packageWithOneService(Package pkg) {
+			List<Package> retval = new ArrayList<Package>();
+			for (Service svc : pkg.getServices()) {
+				Package newPackage = new Package(pkg);
+				newPackage.setServices(Collections.singletonList(svc));
+				retval.add(newPackage);
+			}
+			return retval;
+		}
+	}
 
 	@Override
 	protected RouteBuilder createRouteBuilder() throws Exception {
@@ -148,63 +161,73 @@ public class SamplerRoutingTest extends CamelTestSupport {
 				;
 				
 				from("direct:schedulerStart")
-					.to("direct:loadPackageServiceList")
+					.to("direct:loadCollectionPackages")
 				;
 				
 				// Get all of the collection packages that are associated with the current package
-				from("direct:loadPackageServiceList")
+				from("direct:loadCollectionPackages")
 					// Replace the current message with the CollectdConfiguration
 					.enrich("direct:collectdConfig")
-					// Process it into packages
+					// Split the CollectdConfiguration into a list of the packages that it contains
+					.log("Parsing CollectdConfiguration with ${body.packages.size} package(s)")
+					.transform().simple("${body.packages}")
+					.split().body()
+					// Split the package into a package-per-service
+					.log("Parsing package ${body.name} with ${body.services.size} service(s)")
+					.split().method("packageServiceSplitter", "packageWithOneService")
+					/*
+					// Set a recipient list header that contains each service that the package contains
 					.process(new Processor() {
 						@Override
 						public void process(Exchange exchange) throws Exception {
-							CollectdConfiguration config = exchange.getIn().getBody(CollectdConfiguration.class);
-							List<PackageService> retval = new ArrayList<PackageService>();
-							for (org.opennms.netmgt.config.collectd.Package pkg : config.getPackages()) {
-								for (Service svc : pkg.getServices()) {
-									retval.add(new PackageService(pkg.getName(), svc));
-								}
+							HashSet<String> serviceRoutes = new HashSet<String>();
+							Package pkg = exchange.getIn().getBody(Package.class);
+							for (Service svc : pkg.getServices()) {
+								serviceRoutes.add("direct:loadAgentsFor" + svc.getName().trim());
 							}
-							exchange.getIn().setBody(retval);
+							if (serviceRoutes.size() > 0) {
+								exchange.getIn().setHeader("serviceRoutes", serviceRoutes);
+							}
 						}
 					})
-					// For each package...
-					.split().body()
-						.log("PackageService: ${body}")
-						// Load the agents for the package
-						.to("seda:loadPackageAgents")
+					.recipientList(header("serviceRoutes"))
+					*/
+					/*
+					.choice()
+						.when(header("SNMP").isEqualTo(true))
+							.to("direct:loadSnmpAgents")
+						.when(header("JMX").isEqualTo(true))
+							.to("direct:loadJmxAgents");
+						.otherwise()
+							.throwException(new UnsupportedOperationException("Cannot process service ${body}"))
+					*/
+					.choice()
+						.when(simple("${body.services[0].name} == 'SNMP'"))
+							.to("direct:loadSnmpAgents")
+						.when(property("${body.services[0].name == 'JMX'}"))
+							.to("direct:loadJmxAgents")
 						/*
-						.choice()
-							.when(body().isEqualTo("SNMP"))
-								.aggregate(new ArrayListAggregationStrategy())
-								//.setHeader("service", constant("SNMP"))
-								.beanRef("collectdConfiguration", "getPackageServiceList")
-								.setHeader("config", from("direct:collectdConfig"))
-								.to("seda:loadSnmpAgents")
-							.when(body().isEqualTo("JMX"))
-								.setHeader("service", constant("JMX"))
-								.to("seda:loadJmxAgents")
-							.otherwise()
-								.throwException(new UnsupportedOperationException("Cannot process service ${body}"))
-						.end()
+						.otherwise()
+							.throwException(new UnsupportedOperationException("Cannot process service ${body}"))
 						*/
 				;
-				
-				/*
-				from("seda:processPackageService")
-					.log("Processing Service: ${body}")
-					.to("direct:loadServiceAgents")
-					.to("seda:scheduleServiceAgents")
+
+				from("direct:loadSnmpAgents")
+					.log("Running direct:loadSnmpAgents")
+					.to("seda:loadPackageAgents")
 				;
-				*/
+
+				from("direct:loadJmxAgents")
+					.log("Running direct:loadJmxAgents")
+					.to("seda:loadPackageAgents")
+				;
 
 				from("seda:loadPackageAgents")
 					.enrich("direct:getServiceAgents", new AggregationStrategy() {
 						
 						@Override
 						public Exchange aggregate(Exchange pkgServiceExchange, Exchange svcAgentsExchange) {
-							PackageService pkgService = pkgServiceExchange.getIn().getBody(PackageService.class);
+							Package pkgService = pkgServiceExchange.getIn().getBody(Package.class);
 							List<ServiceAgent> svcAgents = svcAgentsExchange.getIn().getBody(ServiceAgentList.class);
 							
 							PackageAgentList pkgAgents = new PackageAgentList(pkgService, svcAgents);
@@ -214,16 +237,20 @@ public class SamplerRoutingTest extends CamelTestSupport {
 							return pkgServiceExchange;
 						}
 					})
-					//.beanRef("collectdConfiguration", "setPackageAgentList")
+					.log("Package: ${body.package}, Agents: ${body.agents}")
+					.to("direct:scheduleAgents")
 				;
 
 				from("direct:getServiceAgents")
-					.transform().simple("file:src/test/resources/agents/${body.packageName}/${body.service.name}.json")
+					.log("Parsing URL: file:src/test/resources/agents/${body.name}/${body.services[0].name}.json")
+					.transform().simple("file:src/test/resources/agents/${body.name}/${body.services[0].name}.json")
 					.to("direct:parseJSON")
 				;
-
+				
+				from("direct:scheduleAgents")
+					.log("TODO: IMPLEMENT direct:scheduleAgents")
+				;
 			}
-			
 		};
 	}
 	
@@ -304,9 +331,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		pkg.setName("package1");
 		pkg.setServices(Collections.singletonList(svc));
 		
-		PackageService packSvc = new PackageService("package1", svc);
-		
-		List<ServiceAgent> agents = template.requestBody("direct:loadServiceAgents", packSvc, ServiceAgentList.class);
+		List<ServiceAgent> agents = template.requestBody("seda:loadPackageAgents", pkg, ServiceAgentList.class);
 		
 		assertNotNull(agents);
 		assertEquals(3, agents.size());
@@ -316,17 +341,21 @@ public class SamplerRoutingTest extends CamelTestSupport {
 	@Test
 	public void testLoadPackageServiceList() throws Exception {
 		
+		MockEndpoint result = getMockEndpoint("mock:direct:scheduleAgents");
+		
+		result.expectedMessageCount(1);
+		
 		// Load the CollectdConfiguration
 		template.sendBody("direct:loadCollectdConfiguration", null);
 		
 		// Fetch the loaded config
 		CollectdConfiguration collectConfig = template.requestBody("direct:collectdConfig", null, CollectdConfiguration.class);
 		// Pass it to the method that parses the config into a package/service object
-		AgentList agents = template.requestBody("direct:loadPackageServiceList", collectConfig, AgentList.class);
-		
-		assertNotNull(agents);
-		assertEquals(3, agents.size());
-		
+		template.sendBody("direct:loadCollectionPackages", collectConfig);
+
+		for (Exchange exchange : result.getReceivedExchanges()) {
+			assertEquals(3, exchange.getIn().getBody(PackageAgentList.class).getAgents().size());
+		}
 	}
 	
 

@@ -2,18 +2,20 @@ package org.opennms.netmgt.sampler.snmp;
 
 import java.util.List;
 
+import org.opennms.netmgt.config.collectd.Package;
+
 public class PackageAgentList {
-	private PackageService m_packageService;
+	private Package m_package;
 	private List<ServiceAgent> m_agents;
 	
-	public PackageAgentList(PackageService packageService, List<ServiceAgent> agents) {
+	public PackageAgentList(Package packageService, List<ServiceAgent> agents) {
 		super();
-		m_packageService = packageService;
+		m_package = packageService;
 		m_agents = agents;
 	}
 
-	public PackageService getPackageService() {
-		return m_packageService;
+	public Package getPackage() {
+		return m_package;
 	}
 
 	public List<ServiceAgent> getAgents() {
