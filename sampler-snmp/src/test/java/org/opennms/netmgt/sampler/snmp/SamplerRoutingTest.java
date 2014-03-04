@@ -25,6 +25,7 @@ import org.opennms.netmgt.config.collectd.Package;
 import org.opennms.netmgt.config.collectd.Service;
 import org.opennms.netmgt.sampler.config.snmp.SnmpMetricRepository;
 import org.opennms.netmgt.sampler.snmp.ServiceAgent.ServiceAgentList;
+import org.opennms.netmgt.snmp.SnmpConfiguration;
 
 public class SamplerRoutingTest extends CamelTestSupport {
 	
@@ -109,9 +110,10 @@ public class SamplerRoutingTest extends CamelTestSupport {
 				onException(IOException.class)
 					.handled(true)
 					//.transform().constant(null)
+					.logStackTrace(true)
 					.stop()
 				;
-				
+
 				JAXBContext context = JAXBContext.newInstance(CollectdConfiguration.class, SnmpConfiguration.class);
 
 				JaxbDataFormat jaxb = new JaxbDataFormat(context);
