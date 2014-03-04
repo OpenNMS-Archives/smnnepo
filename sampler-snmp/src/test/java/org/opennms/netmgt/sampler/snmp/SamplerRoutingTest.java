@@ -5,13 +5,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 
 import javax.xml.bind.JAXBContext;
 
 import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
+import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.jackson.JacksonDataFormat;
 import org.apache.camel.component.mock.MockEndpoint;
@@ -34,8 +33,6 @@ public class SamplerRoutingTest extends CamelTestSupport {
 	private static URL url(String path) throws MalformedURLException {
 		return new URL("file:src/test/resources/" + path);
 	}
-
-	private static class AgentList extends ArrayList<ServiceAgent> {}
 
 	/**
 	 * This class will convert all incoming objects to URLs.
@@ -82,6 +79,11 @@ public class SamplerRoutingTest extends CamelTestSupport {
 			}
 			return retval;
 		}
+	}
+
+	@Override
+	public boolean isUseAdviceWith() {
+		return true;
 	}
 
 	@Override
@@ -175,50 +177,25 @@ public class SamplerRoutingTest extends CamelTestSupport {
 					// Split the package into a package-per-service
 					.log("Parsing package ${body.name} with ${body.services.size} service(s)")
 					.split().method("packageServiceSplitter", "packageWithOneService")
-					/*
-					// Set a recipient list header that contains each service that the package contains
-					.process(new Processor() {
-						@Override
-						public void process(Exchange exchange) throws Exception {
-							HashSet<String> serviceRoutes = new HashSet<String>();
-							Package pkg = exchange.getIn().getBody(Package.class);
-							for (Service svc : pkg.getServices()) {
-								serviceRoutes.add("direct:loadAgentsFor" + svc.getName().trim());
-							}
-							if (serviceRoutes.size() > 0) {
-								exchange.getIn().setHeader("serviceRoutes", serviceRoutes);
-							}
-						}
-					})
-					.recipientList(header("serviceRoutes"))
-					*/
-					/*
-					.choice()
-						.when(header("SNMP").isEqualTo(true))
-							.to("direct:loadSnmpAgents")
-						.when(header("JMX").isEqualTo(true))
-							.to("direct:loadJmxAgents");
-						.otherwise()
-							.throwException(new UnsupportedOperationException("Cannot process service ${body}"))
-					*/
+					// Route different service types to different routes
 					.choice()
 						.when(simple("${body.services[0].name} == 'SNMP'"))
-							.to("direct:loadSnmpAgents")
+							.to("seda:loadSnmpAgents")
 						.when(property("${body.services[0].name == 'JMX'}"))
-							.to("direct:loadJmxAgents")
+							.to("seda:loadJmxAgents")
 						/*
 						.otherwise()
 							.throwException(new UnsupportedOperationException("Cannot process service ${body}"))
 						*/
 				;
 
-				from("direct:loadSnmpAgents")
-					.log("Running direct:loadSnmpAgents")
+				from("seda:loadSnmpAgents")
+					.log("Running seda:loadSnmpAgents")
 					.to("seda:loadPackageAgents")
 				;
 
-				from("direct:loadJmxAgents")
-					.log("Running direct:loadJmxAgents")
+				from("seda:loadJmxAgents")
+					.log("Running seda:loadJmxAgents")
 					.to("seda:loadPackageAgents")
 				;
 
@@ -238,7 +215,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 						}
 					})
 					.log("Package: ${body.package}, Agents: ${body.agents}")
-					.to("direct:scheduleAgents")
+					.to("seda:scheduleAgents")
 				;
 
 				from("direct:getServiceAgents")
@@ -247,8 +224,8 @@ public class SamplerRoutingTest extends CamelTestSupport {
 					.to("direct:parseJSON")
 				;
 				
-				from("direct:scheduleAgents")
-					.log("TODO: IMPLEMENT direct:scheduleAgents")
+				from("seda:scheduleAgents")
+					.log("TODO: IMPLEMENT seda:scheduleAgents")
 				;
 			}
 		};
@@ -256,6 +233,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 	
 	@Test
 	public void testParseXML() throws Exception {
+		context.start();
 
 		SnmpConfiguration resultsUsingURL = template.requestBody("direct:parseXML", url("snmp-config.xml"), SnmpConfiguration.class);
 
@@ -270,6 +248,8 @@ public class SamplerRoutingTest extends CamelTestSupport {
 
 	@Test
 	public void testParseJSON() throws Exception {
+		context.start();
+
 		List<ServiceAgent> resultsUsingURL = template.requestBody("direct:parseJSON", url("agents/example1/SNMP.json"), ServiceAgentList.class);
 
 		//System.err.printf("Results: %s\n", resultsUsingURL);
@@ -285,6 +265,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 
 	@Test
 	public void testLoadCollectdConfiguration() throws Exception {
+		context.start();
 		
 		template.requestBody("direct:loadCollectdConfiguration", null, String.class);
 		
@@ -292,12 +273,11 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		
 		assertNotNull(configSvc);
 		assertNotNull(configSvc.getInstance());
-		
-		
-
 	}
+
 	@Test
 	public void testLoadSnmpConfig() throws Exception {
+		context.start();
 		
 		template.requestBody("direct:loadSnmpConfig", null, String.class);
 		
@@ -309,6 +289,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 	}
 	@Test
 	public void testLoadDataCollectionConfig() throws Exception {
+		context.start();
 		
 		template.requestBody("direct:loadDataCollectionConfig", null, String.class);
 		
@@ -320,7 +301,19 @@ public class SamplerRoutingTest extends CamelTestSupport {
 	}
 	@Test
 	public void testLoadServiceAgents() throws Exception {
-		
+		// Add mock endpoints to the route context
+		context.getRouteDefinitions().get(0).adviceWith(context, new AdviceWithRouteBuilder() {
+			@Override
+			public void configure() throws Exception {
+				mockEndpoints();
+			}
+		});
+		context.start();
+
+		// We should get 1 call to the scheduler endpoint
+		MockEndpoint endpoint = getMockEndpoint("mock:seda:scheduleAgents");
+		endpoint.setExpectedMessageCount(1);
+
 		Service svc = new Service();
 		svc.setInterval(1000L);
 		svc.setName("SNMP");
@@ -328,21 +321,35 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		svc.setUserDefined("false");
 
 		Package pkg = new Package();
-		pkg.setName("package1");
+		pkg.setName("example1");
 		pkg.setServices(Collections.singletonList(svc));
 		
-		List<ServiceAgent> agents = template.requestBody("seda:loadPackageAgents", pkg, ServiceAgentList.class);
+		template.requestBody("seda:loadSnmpAgents", pkg);
 		
-		assertNotNull(agents);
-		assertEquals(3, agents.size());
-		
+		assertMockEndpointsSatisfied();
+
+		// Make sure that we got one exchange to the scheduler
+		assertEquals(1, endpoint.getReceivedCounter());
+		// That contains 3 SNMP agent instances
+		for (Exchange exchange : endpoint.getReceivedExchanges()) {
+			PackageAgentList agents = exchange.getIn().getBody(PackageAgentList.class);
+			assertNotNull(agents);
+			assertEquals(3, agents.getAgents().size());
+		}
 	}
 	
 	@Test
 	public void testLoadPackageServiceList() throws Exception {
-		
-		MockEndpoint result = getMockEndpoint("mock:direct:scheduleAgents");
-		
+		// Add mock endpoints to the route context
+		context.getRouteDefinitions().get(0).adviceWith(context, new AdviceWithRouteBuilder() {
+			@Override
+			public void configure() throws Exception {
+				mockEndpoints();
+			}
+		});
+		context.start();
+
+		MockEndpoint result = getMockEndpoint("mock:seda:scheduleAgents");
 		result.expectedMessageCount(1);
 		
 		// Load the CollectdConfiguration
@@ -352,7 +359,10 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		CollectdConfiguration collectConfig = template.requestBody("direct:collectdConfig", null, CollectdConfiguration.class);
 		// Pass it to the method that parses the config into a package/service object
 		template.sendBody("direct:loadCollectionPackages", collectConfig);
-
+		
+		assertMockEndpointsSatisfied();
+		
+		assertEquals(1, result.getReceivedCounter());
 		for (Exchange exchange : result.getReceivedExchanges()) {
 			assertEquals(3, exchange.getIn().getBody(PackageAgentList.class).getAgents().size());
 		}
@@ -362,6 +372,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 
 	@Test(timeout=10000)
 	public void testStartup() throws Exception {
+		context.start();
 		
 		MockEndpoint result = getMockEndpoint("mock:result");
 		result.expectedMessageCount(1);
