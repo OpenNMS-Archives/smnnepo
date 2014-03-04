@@ -69,6 +69,11 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		return registry;
 	}
 	
+	/**
+	 * This class converts a single {@link Package} with multiple {@link Service} entries 
+	 * into multiple {@link Package} entries that each contain a single {@link Service}
+	 * entry.
+	 */
 	public static class PackageServiceSplitter  {
 		public List<Package> packageWithOneService(Package pkg) {
 			List<Package> retval = new ArrayList<Package>();
@@ -81,11 +86,18 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		}
 	}
 
+	/**
+	 * Delay calling context.start() so that you can attach an {@link AdviceWithRouteBuilder}
+	 * to the context before it starts.
+	 */
 	@Override
 	public boolean isUseAdviceWith() {
 		return true;
 	}
 
+	/**
+	 * Build the route for all of the config parsing messages.
+	 */
 	@Override
 	protected RouteBuilder createRouteBuilder() throws Exception {
 		return new RouteBuilder() {
@@ -93,6 +105,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 			@Override
 			public void configure() throws Exception {
 				
+				// Add exception handlers
 				onException(IOException.class)
 					.handled(true)
 					//.transform().constant(null)
@@ -103,7 +116,6 @@ public class SamplerRoutingTest extends CamelTestSupport {
 
 				JaxbDataFormat jaxb = new JaxbDataFormat(context);
 				JacksonDataFormat json = new JacksonDataFormat(ServiceAgentList.class);
-				//JacksonDataFormat json = new JacksonDataFormat();
 				
 				// Call this to retrieve a URL in string form or URL form into the JAXB objects they represent
 				from("direct:parseXML")
@@ -139,7 +151,6 @@ public class SamplerRoutingTest extends CamelTestSupport {
 					.log("==== Configurations Loaded ====")
 					// Launch the scheduler
 					.to("direct:schedulerStart")
-					.to("mock:result")
 				;
 
 				// TODO: Create a reload timer that will check for changes to the config
@@ -246,6 +257,9 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		assertNotNull(resultsUsingString);
 	}
 
+	/**
+	 * Test the Camel JSON parsing.
+	 */
 	@Test
 	public void testParseJSON() throws Exception {
 		context.start();
@@ -263,6 +277,9 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		assertEquals(3, resultsUsingString.size());
 	}
 
+	/**
+	 * Test loading the {@link CollectdConfiguration}.
+	 */
 	@Test
 	public void testLoadCollectdConfiguration() throws Exception {
 		context.start();
@@ -287,6 +304,10 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		assertNotNull(configSvc.getInstance());
 
 	}
+
+	/**
+	 * Test loading the {@link SnmpMetricRepository}.
+	 */
 	@Test
 	public void testLoadDataCollectionConfig() throws Exception {
 		context.start();
@@ -299,6 +320,10 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		assertNotNull(metricRepo.getMetric("ifInOctets"));
 		
 	}
+
+	/**
+	 * Test loading the {@link PackageAgentList} based on a given collection package.
+	 */
 	@Test
 	public void testLoadServiceAgents() throws Exception {
 		// Add mock endpoints to the route context
@@ -367,36 +392,35 @@ public class SamplerRoutingTest extends CamelTestSupport {
 			assertEquals(3, exchange.getIn().getBody(PackageAgentList.class).getAgents().size());
 		}
 	}
-	
 
-
-	@Test(timeout=10000)
+	@Test(timeout=15000)
 	public void testStartup() throws Exception {
+		// Add mock endpoints to the route context
+		context.getRouteDefinitions().get(0).adviceWith(context, new AdviceWithRouteBuilder() {
+			@Override
+			public void configure() throws Exception {
+				mockEndpoints();
+			}
+		});
 		context.start();
 		
-		MockEndpoint result = getMockEndpoint("mock:result");
+		MockEndpoint result = getMockEndpoint("mock:direct:schedulerStart");
 		result.expectedMessageCount(1);
 		
-		MockEndpoint scheduled = getMockEndpoint("mock:scheduled");
+		MockEndpoint scheduled = getMockEndpoint("mock:seda:scheduleAgents");
 		scheduled.expectedMessageCount(2);
 		
-		//template.asyncRequestBody("seda:start", url("datacollection-config.xml"));
-		//template.asyncRequestBody("seda:start", null);
 		template.sendBody("seda:start", null);
 		result.await();
-
+		
 		SingletonBeanFactory<CollectdConfiguration> collectdConfig = bean("collectdConfiguration", SingletonBeanFactory.class);
-		SingletonBeanFactory<SnmpConfiguration> snmpConfig = bean("snmpConfiguration", SingletonBeanFactory.class);
+		SingletonBeanFactory<SnmpConfiguration> snmpConfig = bean("snmpConfiguration", SingletonBeanFactory.class);		
 		
-		System.err.println("Waiting");
-
-		//scheduled.await();
+		assertMockEndpointsSatisfied();
 		
-		System.err.println("Finished waiting");
-
 		assertNotNull(collectdConfig);
 		assertNotNull(collectdConfig.getInstance());
-
+		
 		assertNotNull(snmpConfig);
 		assertNotNull(snmpConfig.getInstance());
 	}
