@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
@@ -48,7 +49,33 @@ public class SamplerRoutingTest extends CamelTestSupport {
 			return u;
 		}
 	}
+	
+	private static class PackageAgentAggregator implements AggregationStrategy {
+		@Override
+		public Exchange aggregate(Exchange pkgServiceExchange, Exchange svcAgentsExchange) {
+			Package pkgService = pkgServiceExchange.getIn().getBody(Package.class);
+			List<ServiceAgent> svcAgents = svcAgentsExchange.getIn().getBody(ServiceAgentList.class);
+			
+			PackageAgentList pkgAgents = new PackageAgentList(pkgService, svcAgents);
+			
+			pkgServiceExchange.getIn().setBody(pkgAgents);
+			
+			return pkgServiceExchange;
+		}
+	}
 
+	public static JaxbDataFormat jaxb() {
+		try {
+			JAXBContext context = JAXBContext.newInstance(CollectdConfiguration.class, SnmpConfiguration.class);
+			return new JaxbDataFormat(context);
+		} catch (JAXBException e) {
+			throw new IllegalStateException("Cannot initialize JAXB context: " + e.getMessage(), e);
+		}
+	}
+
+	public static JacksonDataFormat jackson() {
+		return new JacksonDataFormat(ServiceAgentList.class);
+	}
 
 	@Override
 	protected JndiRegistry createRegistry() throws Exception {
@@ -66,6 +93,8 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		registry.bind("snmpMetricRepository", snmpMetricRepository);
 		registry.bind("urlNormalizer", new UrlNormalizer());
 		registry.bind("packageServiceSplitter", new PackageServiceSplitter());
+		registry.bind("jaxb", jaxb());
+		registry.bind("jackson", jackson());
 		
 		return registry;
 	}
@@ -114,21 +143,16 @@ public class SamplerRoutingTest extends CamelTestSupport {
 					.stop()
 				;
 
-				JAXBContext context = JAXBContext.newInstance(CollectdConfiguration.class, SnmpConfiguration.class);
-
-				JaxbDataFormat jaxb = new JaxbDataFormat(context);
-				JacksonDataFormat json = new JacksonDataFormat(ServiceAgentList.class);
-				
 				// Call this to retrieve a URL in string form or URL form into the JAXB objects they represent
 				from("direct:parseXML")
 					.beanRef("urlNormalizer")
-					.unmarshal(jaxb)
+					.unmarshal("jaxb")
 				;
 				
 				// Call this to retrieve a URL in string form or URL form into the JSON objects they represent
 				from("direct:parseJSON")
 					.beanRef("urlNormalizer")
-					.unmarshal(json)
+					.unmarshal("jackson")
 				;
 
 				// Direct route to fetch the config
@@ -213,20 +237,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 				;
 
 				from("seda:loadPackageAgents")
-					.enrich("direct:getServiceAgents", new AggregationStrategy() {
-						
-						@Override
-						public Exchange aggregate(Exchange pkgServiceExchange, Exchange svcAgentsExchange) {
-							Package pkgService = pkgServiceExchange.getIn().getBody(Package.class);
-							List<ServiceAgent> svcAgents = svcAgentsExchange.getIn().getBody(ServiceAgentList.class);
-							
-							PackageAgentList pkgAgents = new PackageAgentList(pkgService, svcAgents);
-							
-							pkgServiceExchange.getIn().setBody(pkgAgents);
-							
-							return pkgServiceExchange;
-						}
-					})
+					.enrich("direct:getServiceAgents", new PackageAgentAggregator())
 					.log("Package: ${body.package}, Agents: ${body.agents}")
 					.to("seda:scheduleAgents")
 				;
