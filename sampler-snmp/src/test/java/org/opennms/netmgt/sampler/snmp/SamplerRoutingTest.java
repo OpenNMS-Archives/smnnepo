@@ -3,24 +3,18 @@ package org.opennms.netmgt.sampler.snmp;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.component.jackson.JacksonDataFormat;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.converter.jaxb.JaxbDataFormat;
 import org.apache.camel.impl.JndiRegistry;
-import org.apache.camel.processor.aggregate.AggregationStrategy;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
 import org.opennms.netmgt.api.sample.support.SingletonBeanFactory;
+import org.opennms.netmgt.api.sample.support.UrlNormalizer;
 import org.opennms.netmgt.config.collectd.CollectdConfiguration;
 import org.opennms.netmgt.config.collectd.Package;
 import org.opennms.netmgt.config.collectd.Service;
@@ -30,51 +24,8 @@ import org.opennms.netmgt.snmp.SnmpConfiguration;
 
 public class SamplerRoutingTest extends CamelTestSupport {
 	
-	public static final int AGENT_COUNT = 1;
-	
 	private static URL url(String path) throws MalformedURLException {
 		return new URL("file:src/test/resources/" + path);
-	}
-
-	/**
-	 * This class will convert all incoming objects to URLs.
-	 */
-	public static class UrlNormalizer {
-
-		public URL toURL(String s) throws MalformedURLException {
-			return new URL(s);
-		}
-
-		public URL toURL(URL u) {
-			return u;
-		}
-	}
-	
-	private static class PackageAgentAggregator implements AggregationStrategy {
-		@Override
-		public Exchange aggregate(Exchange pkgServiceExchange, Exchange svcAgentsExchange) {
-			Package pkgService = pkgServiceExchange.getIn().getBody(Package.class);
-			List<ServiceAgent> svcAgents = svcAgentsExchange.getIn().getBody(ServiceAgentList.class);
-			
-			PackageAgentList pkgAgents = new PackageAgentList(pkgService, svcAgents);
-			
-			pkgServiceExchange.getIn().setBody(pkgAgents);
-			
-			return pkgServiceExchange;
-		}
-	}
-
-	public static JaxbDataFormat jaxb() {
-		try {
-			JAXBContext context = JAXBContext.newInstance(CollectdConfiguration.class, SnmpConfiguration.class);
-			return new JaxbDataFormat(context);
-		} catch (JAXBException e) {
-			throw new IllegalStateException("Cannot initialize JAXB context: " + e.getMessage(), e);
-		}
-	}
-
-	public static JacksonDataFormat jackson() {
-		return new JacksonDataFormat(ServiceAgentList.class);
 	}
 
 	@Override
@@ -93,29 +44,12 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		registry.bind("snmpMetricRepository", snmpMetricRepository);
 		registry.bind("urlNormalizer", new UrlNormalizer());
 		registry.bind("packageServiceSplitter", new PackageServiceSplitter());
-		registry.bind("jaxb", jaxb());
-		registry.bind("jackson", jackson());
+		registry.bind("jaxb", DataFormatUtils.jaxb());
+		registry.bind("jackson", DataFormatUtils.jackson());
 		
 		return registry;
 	}
 	
-	/**
-	 * This class converts a single {@link Package} with multiple {@link Service} entries 
-	 * into multiple {@link Package} entries that each contain a single {@link Service}
-	 * entry.
-	 */
-	public static class PackageServiceSplitter  {
-		public List<Package> packageWithOneService(Package pkg) {
-			List<Package> retval = new ArrayList<Package>();
-			for (Service svc : pkg.getServices()) {
-				Package newPackage = new Package(pkg);
-				newPackage.setServices(Collections.singletonList(svc));
-				retval.add(newPackage);
-			}
-			return retval;
-		}
-	}
-
 	/**
 	 * Delay calling context.start() so that you can attach an {@link AdviceWithRouteBuilder}
 	 * to the context before it starts.
@@ -213,7 +147,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 					.split().body()
 					// Split the package into a package-per-service
 					.log("Parsing package ${body.name} with ${body.services.size} service(s)")
-					.split().method("packageServiceSplitter", "packageWithOneService")
+					.split(body(), new PackageServiceSplitter())
 					// Route different service types to different routes
 					.choice()
 						.when(simple("${body.services[0].name} == 'SNMP'"))

@@ -17,10 +17,180 @@
 		http://camel.apache.org/schema/blueprint/camel-blueprint-2.12.2.xsd
 ">
 
+<!-- 
   <reference id="snmpAgentRepository" interface="org.opennms.netmgt.api.sample.AgentRepository" filter="(protocol=SNMP)" />
   <reference id="snmpCollectionConfiguration" interface="org.opennms.netmgt.api.sample.CollectionConfiguration" filter="(protocol=SNMP)" />
   <reference id="sampleRepository" interface="org.opennms.netmgt.api.sample.SampleRepository" /> 
   <reference id="snmpCollector" interface="org.opennms.netmgt.sampler.snmp.SnmpCollector" />
+-->
+
+  <!-- Camel unmarshalling DataFormats -->
+  <bean id="jaxbDataFormat" class="org.opennms.netmgt.sampler.snmp.DataFormatUtils" factory-method="jaxb"/>
+  <bean id="jacksonDataFormat" class="org.opennms.netmgt.sampler.snmp.DataFormatUtils" factory-method="jackson"/>
+
+  <!-- Beans that hold a copy of a configuration object -->
+  <bean id="collectdConfiguration" class="org.opennms.netmgt.api.sample.support.SingletonBeanFactory"/>
+  <bean id="snmpConfiguration" class="org.opennms.netmgt.api.sample.support.SingletonBeanFactory"/>
+  <bean id="snmpMetricRepository" class="org.opennms.netmgt.sampler.config.snmp.SnmpMetricRepository">
+    <argument value="file:datacollection-config.xml"/>
+    <argument>
+      <array>
+        <value>file:datacollection/mib2.xml</value>
+        <value>file:datacollection/netsnmp.xml</value>
+        <value>file:datacollection/dell.xml</value>
+      </array>
+    </argument>
+  </bean>
+
+  <!-- Camel EIP helper beans -->
+  <bean id="urlNormalizer" class="org.opennms.netmgt.api.sample.support.UrlNormalizer"/>
+  <bean id="packageServiceSplitter" class="org.opennms.netmgt.sampler.snmp.PackageServiceSplitter"/>
+  <bean id="packageAgentAggregator" class="org.opennms.netmgt.sampler.snmp.PackageAgentAggregator"/>
+
+  <camelContext xmlns="http://camel.apache.org/schema/blueprint">
+    <!-- Add exception handlers -->
+    <onException>
+      <exception>java.io.IOException</exception>
+      <handled><constant>true</constant></handled>
+      <!-- .logStackTrace(true) -->
+      <stop/>
+    </onException>
+
+    <!-- Call this to retrieve a URL in string form or URL form into the JAXB objects they represent. -->
+    <route>
+      <from uri="direct:parseXML"/>
+      <bean ref="urlNormalizer"/>
+      <unmarshal ref="jaxbDataFormat"/>
+    </route>
+
+    <!-- Call this to retrieve a URL in string form or URL form into the JSON objects they represent. -->
+    <route>
+      <from uri="direct:parseJSON"/>
+      <bean ref="urlNormalizer"/>
+      <unmarshal ref="jacksonDataFormat"/>
+    </route>
+
+    <!-- Direct route to fetch the config -->
+    <route>
+      <from uri="direct:collectdConfig"/>
+      <bean ref="collectdConfiguration" method="getInstance"/>
+    </route>
+
+    <!-- Direct route to fetch the config -->
+    <route>
+      <from uri="direct:snmpConfig"/>
+      <bean ref="snmpConfiguration" method="getInstance"/>
+    </route>
+
+    <route>
+      <from uri="seda:start"/>
+      <!-- Load all of the configs -->
+      <multicast parallelProcessing="true">
+        <to uri="direct:loadCollectdConfiguration"/>
+        <to uri="direct:loadDataCollectionConfig"/>
+        <to uri="direct:loadSnmpConfig"/>
+      </multicast>
+      <log message="==== Configurations Loaded ===="/>
+      <!-- Launch the scheduler -->
+      <to uri="direct:schedulerStart"/>
+    </route>
+
+	<!-- TODO: Create a reload timer that will check for changes to the config -->
+    <route>
+      <from uri="direct:loadCollectdConfiguration"/>
+      <transform><constant>collectd-configuration.xml</constant></transform>
+      <to uri="direct:parseXML"/>
+      <bean ref="collectdConfiguration" method="setInstance"/>
+    </route>
+
+	<!-- TODO: Create a reload timer that will check for changes to the config -->
+    <route>
+      <from uri="direct:loadDataCollectionConfig"/>
+      <log message="Refreshing snmpMetricRepository"/>
+      <bean ref="snmpMetricRepository" method="refresh"/>
+    </route>
+
+	<!-- TODO: Create a reload timer that will check for changes to the config -->
+    <route>
+      <from uri="direct:loadSnmpConfig"/>
+      <transform><constant>snmp-config.xml</constant></transform>
+      <to uri="direct:parseXML"/>
+      <bean ref="snmpConfiguration" method="setInstance"/>
+    </route>
+
+    <route>
+      <from uri="direct:schedulerStart"/>
+      <to uri="direct:loadCollectionPackages"/>
+    </route>
+    
+    <!-- Get all of the collection packages that are associated with the current config -->
+    <route>
+      <from uri="direct:loadCollectionPackages"/>
+      <!-- Replace the current message with the CollectdConfiguration -->
+      <enrich uri="direct:collectdConfig"/>
+      <!-- Split the CollectdConfiguration into a list of the packages that it contains -->
+      <log message="Parsing CollectdConfiguration with ${body.packages.size} package(s)"/>
+      <transform><simple>${body.packages}</simple></transform>
+      <split>
+        <simple>${body}</simple>
+        <!-- Split the package into a package-per-service -->
+        <log message="Parsing package ${body.name} with ${body.services.size} service(s)"/>
+        <split strategyRef="packageServiceSplitter" strategyMethodName="packageWithOneService">
+          <simple>${body}</simple>
+          <!-- Route different service types to different routes -->
+          <choice>
+            <when>
+              <simple>${body.services[0].name} == 'SNMP'</simple>
+              <to uri="seda:loadSnmpAgents"/>
+            </when>
+            <when>
+              <simple>${body.services[0].name} == 'JMX'</simple>
+              <to uri="seda:loadJmxAgents"/>
+            </when>
+            <otherwise>
+              <!-- Throw exception? -->
+              <!-- throwException(new UnsupportedOperationException("Cannot process service ${body}")) -->
+            </otherwise>
+          </choice>
+        </split>
+      </split>
+    </route>
+
+    <route>
+      <from uri="seda:loadSnmpAgents"/>
+      <log message="Running seda:loadSnmpAgents"/>
+      <to uri="seda:loadPackageAgents"/>
+    </route>
+
+    <route>
+      <from uri="seda:loadJmxAgents"/>
+      <log message="Running seda:loadJmxAgents"/>
+      <to uri="seda:loadPackageAgents"/>
+    </route>
+
+    <route>
+      <from uri="seda:loadPackageAgents"/>
+      <enrich uri="direct:getServiceAgents" strategyRef="packageAgentAggregator"/>
+      <log message="Package: ${body.package}, Agents: ${body.agents}"/>
+      <to uri="seda:scheduleAgents"/>
+    </route>
+
+    <route>
+      <from uri="direct:getServiceAgents"/>
+      <log message="Parsing URL: file:src/test/resources/agents/${body.name}/${body.services[0].name}.json"/>
+      <transform>
+        <simple>file:src/test/resources/agents/${body.name}/${body.services[0].name}.json</simple>
+      </transform>
+      <to uri="direct:parseJSON"/>
+    </route>
+
+    <route>
+      <from uri="seda:scheduleAgents"/>
+      <log message="TODO: IMPLEMENT seda:scheduleAgents"/>
+    </route>
+
+  </camelContext>
+
 
   <camelContext xmlns="http://camel.apache.org/schema/blueprint">
     
