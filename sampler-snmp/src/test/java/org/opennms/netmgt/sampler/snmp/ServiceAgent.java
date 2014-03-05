@@ -14,6 +14,7 @@ public class ServiceAgent {
 	private String m_address;
 	private int m_port;
 	private String m_serviceName;
+	private String m_sysObjectId;
 	
 	public String getId() {
 		return id;
@@ -39,6 +40,10 @@ public class ServiceAgent {
 	public void setServiceName(String serviceName) {
 		m_serviceName = serviceName;
 	}
-	
-
+	public String getSysObjectId() {
+		return m_sysObjectId;
+	}
+	public void setSysObjectId(String sysObjectId) {
+		this.m_sysObjectId = sysObjectId;
+	}
 }
