@@ -47,6 +47,9 @@ public class SnmpMetricRepository implements MetricRepository, CollectionConfigu
 				urlStream = url.openStream();
 				JAXBElement<T> jaxbElement = m_unmarshaller.unmarshal(new StreamSource(urlStream), declaredType);
 				return jaxbElement == null ? null : jaxbElement.getValue();		
+			} catch (IOException e) {
+				s_log.warn("Could not unmarshal " + url.toString() + " as " + declaredType.getName(), e);
+				return null;
 			} finally {
 				if (urlStream != null) {
 					urlStream.close();
@@ -82,6 +85,7 @@ public class SnmpMetricRepository implements MetricRepository, CollectionConfigu
 	public SnmpMetricRepository(URL dataCollectionConfigURL, URL... dataCollectionGroupURLs) throws Exception {
 		m_dataCollectionConfigURL = dataCollectionConfigURL;
 		m_dataCollectionGroupURLs = dataCollectionGroupURLs;
+		refresh();
 	}
 	
 	
@@ -96,12 +100,15 @@ public class SnmpMetricRepository implements MetricRepository, CollectionConfigu
 		Map<String, Table> tableMap = new HashMap<String, Table>();
 		Map<String, Group> groupMap = new HashMap<String, Group>();
 
-		for(URL dataCollectionGroupURL : m_dataCollectionGroupURLs) {
-			DataCollectionGroup group = parser.getDataCollectionGroup(dataCollectionGroupURL);
-			group.gatherSymbols(typeMap, tableMap, groupMap);
-			dataCollectionGroups.put(group.getName(), group);
+		if (m_dataCollectionGroupURLs != null) {
+			for(URL dataCollectionGroupURL : m_dataCollectionGroupURLs) {
+				DataCollectionGroup group = parser.getDataCollectionGroup(dataCollectionGroupURL);
+				if (group != null) {
+					group.gatherSymbols(typeMap, tableMap, groupMap);
+					dataCollectionGroups.put(group.getName(), group);
+				}
+			}
 		}
-		
 		
 		for(DataCollectionGroup group : dataCollectionGroups.values()) {
 			group.initialize(typeMap, tableMap, groupMap);
@@ -109,24 +116,34 @@ public class SnmpMetricRepository implements MetricRepository, CollectionConfigu
 				
 
 		m_dataCollectionConfig = parser.getDataCollectionConfig(m_dataCollectionConfigURL);
-		m_dataCollectionConfig.initialize(dataCollectionGroups);
-		
+		if (m_dataCollectionConfig != null) {
+			m_dataCollectionConfig.initialize(dataCollectionGroups);
+		}
 	}
 	
 	
 	public SnmpCollectionRequest createRequestForAgent(SnmpAgent agent) {
 		
 		SnmpCollectionRequest request = new SnmpCollectionRequest(agent);
-		m_dataCollectionConfig.fillRequest(request);
+		if (m_dataCollectionConfig != null) {
+			m_dataCollectionConfig.fillRequest(request);
+		}
 		return request;
-
 	}
 
 	public Set<Metric> getMetrics(String groupName) {
-		return m_dataCollectionConfig.getMetricsForGroup(groupName);
+		if (m_dataCollectionConfig == null) {
+			return null;
+		} else {
+			return m_dataCollectionConfig.getMetricsForGroup(groupName);
+		}
 	}
 	
 	public Metric getMetric(String metricName) {
-		return m_dataCollectionConfig.getMetric(metricName);
+		if (m_dataCollectionConfig == null) {
+			return null;
+		} else {
+			return m_dataCollectionConfig.getMetric(metricName);
+		}
 	}
 }
