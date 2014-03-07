@@ -1,13 +1,12 @@
 package org.opennms.netmgt.sampler.scheduler;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.camel.component.mock.MockEndpoint;
+import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.junit.Test;
 import org.opennms.core.network.IPAddress;
 import org.opennms.netmgt.api.sample.PackageAgentList;
@@ -20,13 +19,23 @@ import org.opennms.netmgt.config.collectd.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SchedulerTest {
+public class SchedulerTest extends CamelBlueprintTestSupport {
     private static final Logger LOG = LoggerFactory.getLogger(SchedulerTest.class);
 
-    @Test
-    public void testInstantiation() {
-        final Scheduler scheduler = new Scheduler(1);
-        assertNotNull(scheduler);
+    @Override
+    public boolean isUseAdviceWith() {
+        return false;
+    }
+
+    @Override
+    public boolean isUseDebugger() {
+        return false;
+    }
+
+    // The location of our Blueprint XML file to be used for testing
+    @Override
+    protected String getBlueprintDescriptor() {
+        return "file:src/main/resources/OSGI-INF/blueprint/blueprint.xml";
     }
 
     @Test
@@ -34,18 +43,28 @@ public class SchedulerTest {
         final Scheduler scheduler = new Scheduler(1);
         final CountDownLatch latch = new CountDownLatch(5);
         scheduler.setDispatcher(new Dispatcher() {
-            @Override
-            public void dispatch(final CollectionRequest request) {
+            @Override public void dispatch(final CollectionRequest request) {
                 LOG.debug("Received request: {}", request);
                 latch.countDown();
             }
         });
 
         final List<ServiceAgent> agents = getAgents();
-
         final PackageAgentList agentSchedule = new PackageAgentList(getPackage(), agents);
         scheduler.onAgentSchedule(agentSchedule);
         assertTrue(latch.await(8, TimeUnit.SECONDS));
+    }
+
+    @Test
+    public void testScheduleAgentsWithCamel() throws Exception {
+        final MockEndpoint endpoint = getMockEndpoint("mock:dispatch", false);
+        endpoint.expectedMessageCount(5);
+
+        final List<ServiceAgent> agents = getAgents();
+        final PackageAgentList agentSchedule = new PackageAgentList(getPackage(), agents);
+        sendBody("seda:scheduleAgents", agentSchedule);
+        endpoint.await(8, TimeUnit.SECONDS);
+        endpoint.assertIsSatisfied();
     }
 
     protected List<ServiceAgent> getAgents() {

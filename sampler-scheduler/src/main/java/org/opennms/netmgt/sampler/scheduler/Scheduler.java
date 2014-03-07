@@ -15,6 +15,7 @@ public class Scheduler {
     private static final Logger LOG = LoggerFactory.getLogger(Scheduler.class);
     private final ScheduledExecutorService m_executor;
     private String m_scheduleEndpoint;
+    private String m_dispatcherEndpoint;
 
     @Produce(property="dispatcherEndpoint")
     Dispatcher m_dispatcher;
@@ -28,6 +29,13 @@ public class Scheduler {
     }
     public void setDispatcher(final Dispatcher dispatcher) {
         m_dispatcher = dispatcher;
+    }
+
+    public String getDispatcherEndpoint() {
+        return m_dispatcherEndpoint;
+    }
+    public void setDispatcherEndpoint(final String uri) {
+        m_dispatcherEndpoint = uri;
     }
 
     public String getScheduleEndpoint() {
