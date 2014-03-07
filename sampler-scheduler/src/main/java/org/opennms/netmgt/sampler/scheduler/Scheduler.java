@@ -6,8 +6,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.camel.Consume;
 import org.apache.camel.Produce;
-import org.opennms.netmgt.sampler.snmp.PackageAgentList;
-import org.opennms.netmgt.sampler.snmp.ServiceAgent;
+import org.opennms.netmgt.api.sample.PackageAgentList;
+import org.opennms.netmgt.api.sample.ServiceAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

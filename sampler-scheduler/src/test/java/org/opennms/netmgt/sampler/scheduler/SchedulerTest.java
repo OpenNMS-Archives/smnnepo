@@ -10,13 +10,13 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 import org.opennms.core.network.IPAddress;
+import org.opennms.netmgt.api.sample.PackageAgentList;
+import org.opennms.netmgt.api.sample.ServiceAgent;
 import org.opennms.netmgt.config.collectd.Filter;
 import org.opennms.netmgt.config.collectd.IncludeRange;
 import org.opennms.netmgt.config.collectd.Package;
 import org.opennms.netmgt.config.collectd.Parameter;
 import org.opennms.netmgt.config.collectd.Service;
-import org.opennms.netmgt.sampler.snmp.PackageAgentList;
-import org.opennms.netmgt.sampler.snmp.ServiceAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

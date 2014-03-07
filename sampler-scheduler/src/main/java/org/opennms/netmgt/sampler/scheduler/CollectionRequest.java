@@ -1,6 +1,6 @@
 package org.opennms.netmgt.sampler.scheduler;
 
-import org.opennms.netmgt.sampler.snmp.ServiceAgent;
+import org.opennms.netmgt.api.sample.ServiceAgent;
 
 
 public class CollectionRequest {
