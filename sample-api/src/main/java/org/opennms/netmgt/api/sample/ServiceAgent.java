@@ -57,4 +57,9 @@ public class ServiceAgent {
     public void setSysObjectId(String sysObjectId) {
         this.m_sysObjectId = sysObjectId;
     }
+
+    @Override
+    public String toString() {
+        return "ServiceAgent [id=" + id + ", address=" + m_address + ", port=" + m_port + ", serviceName=" + m_serviceName + ", sysObjectId=" + m_sysObjectId + "]";
+    }
 }
