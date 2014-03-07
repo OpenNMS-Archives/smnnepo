@@ -37,6 +37,16 @@
   <bean id="packageServiceSplitter" class="org.opennms.netmgt.sampler.config.internal.PackageServiceSplitter"/>
   <bean id="packageAgentAggregator" class="org.opennms.netmgt.sampler.config.internal.PackageAgentAggregator"/>
 
+  <!-- Register a whiteboard of schedulers where agents messages will be sent -->
+  <bean id="schedulingDispatcher" class="org.opennms.netmgt.api.sample.support.DispatcherWhiteboard">
+    <argument value="seda:scheduleAgents"/>
+
+    <property name="context" ref="blueprintBundleContext"/>
+    <property name="messageClassAsString" value="org.opennms.netmgt.api.sample.PackageAgentList"/>
+    <property name="serviceClassAsString" value="org.opennms.netmgt.api.sample.support.SchedulerService"/>
+    <property name="methodName" value="schedule"/>
+  </bean>
+
   <camelContext xmlns="http://camel.apache.org/schema/blueprint">
     <propertyPlaceholder location="blueprint:properties"/>
 
@@ -73,8 +83,6 @@
       <!-- Load all of the configs -->
       <multicast parallelProcessing="true">
         <to uri="direct:loadCollectdConfiguration"/>
-        <to uri="direct:loadDataCollectionConfig"/>
-        <to uri="direct:loadSnmpConfig"/>
       </multicast>
       <log message="==== Configurations Loaded ===="/>
       <!-- Launch the scheduler -->
@@ -155,17 +163,19 @@
 
     <route>
       <from uri="direct:getServiceAgents"/>
-      <log message="Parsing URL: file:src/test/resources/agents/${body.name}/${body.services[0].name}.json"/>
+      <log message="Parsing URL: file:{{opennms.home}}/agents/${body.name}/${body.services[0].name}.json"/>
       <transform>
         <simple>file:{{opennms.home}}/agents/${body.name}/${body.services[0].name}.json</simple>
       </transform>
       <to uri="direct:parseJSON"/>
     </route>
 
+    <!-- 
     <route>
       <from uri="seda:scheduleAgents"/>
       <log message="TODO: IMPLEMENT seda:scheduleAgents"/>
     </route>
+    -->
 
   </camelContext>
 

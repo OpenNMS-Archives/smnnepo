@@ -3,6 +3,7 @@ package org.opennms.netmgt.api.sample.support;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import org.apache.camel.Consume;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 
@@ -15,11 +16,18 @@ public class DispatcherWhiteboard {
 	private Class<?> messageClass;
 	private Class<?> serviceClass;
 	private String methodName = "dispatch";
+	private final String m_endpointUri;
 
 	private ServiceTracker tracker = null;
 	private Method method = null;
 
-	public DispatcherWhiteboard() {}
+	public DispatcherWhiteboard(String endpointUri) {
+		m_endpointUri = endpointUri;
+	}
+
+	public String getEndpointUri() {
+		return m_endpointUri;
+	}
 
 	public void setContext(BundleContext context) {
 		this.context = context;
@@ -33,12 +41,20 @@ public class DispatcherWhiteboard {
 		this.messageClass = messageClass;
 	}
 
+	public void setMessageClassAsString(String messageClass) throws ClassNotFoundException {
+		this.messageClass = Class.forName(messageClass);
+	}
+
 	public Class<?> getServiceClass() {
 		return serviceClass;
 	}
 
 	public void setServiceClass(Class<?> serviceClass) {
 		this.serviceClass = serviceClass;
+	}
+
+	public void setServiceClassAsString(String serviceClass) throws ClassNotFoundException {
+		this.serviceClass = Class.forName(serviceClass);
 	}
 
 	public String getMethodName() {
@@ -55,6 +71,7 @@ public class DispatcherWhiteboard {
 		}
 	}
 
+	@Consume(property="endpointUri")
 	public void dispatch(Object message) throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		if (tracker == null) {
 			tracker = new ServiceTracker(context, serviceClass, null);
@@ -65,8 +82,11 @@ public class DispatcherWhiteboard {
 			method = serviceClass.getMethod(methodName, messageClass);
 		}
 
-		for (Object service : tracker.getServices()) {
-			method.invoke(service, message);
+		Object[] services = tracker.getServices();
+		if (services != null && services.length > 0) {
+			for (Object service : tracker.getServices()) {
+				method.invoke(service, message);
+			}
 		}
 	}
 }
