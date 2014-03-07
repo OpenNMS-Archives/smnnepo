@@ -2,6 +2,7 @@ package org.opennms.netmgt.sampler.config.snmp;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.List;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.junit.Test;
 import org.opennms.netmgt.api.sample.support.SingletonBeanFactory;
@@ -139,15 +141,18 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
 	@Test
 	public void testLoadServiceAgents() throws Exception {
 		// Add mock endpoints to the route context
-		context.getRouteDefinitions().get(0).adviceWith(context, new AdviceWithRouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				mockEndpoints();
-			}
-		});
+		for (RouteDefinition route : new ArrayList<RouteDefinition>(context.getRouteDefinitions())) {
+			route.adviceWith(context, new AdviceWithRouteBuilder() {
+				@Override
+				public void configure() throws Exception {
+					mockEndpoints();
+				}
+			});
+		}
 		context.start();
 
 		// We should get 1 call to the scheduler endpoint
+		assertTrue(context.hasEndpoint("mock:seda:scheduleAgents") != null);
 		MockEndpoint endpoint = getMockEndpoint("mock:seda:scheduleAgents", false);
 		endpoint.setExpectedMessageCount(1);
 
@@ -178,16 +183,18 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
 	@Test
 	public void testLoadPackageServiceList() throws Exception {
 		// Add mock endpoints to the route context
-		context.getRouteDefinitions().get(0).adviceWith(context, new AdviceWithRouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				mockEndpoints();
-			}
-		});
+		for (RouteDefinition route : new ArrayList<RouteDefinition>(context.getRouteDefinitions())) {
+			route.adviceWith(context, new AdviceWithRouteBuilder() {
+				@Override
+				public void configure() throws Exception {
+					mockEndpoints();
+				}
+			});
+		}
 		context.start();
 
 		MockEndpoint result = getMockEndpoint("mock:seda:scheduleAgents", false);
-		//result.expectedMessageCount(1);
+		result.expectedMessageCount(1);
 		
 		// Load the CollectdConfiguration
 		template.sendBody("direct:loadCollectdConfiguration", null);
@@ -208,12 +215,14 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
 	@Test(timeout=15000)
 	public void testStartup() throws Exception {
 		// Add mock endpoints to the route context
-		context.getRouteDefinitions().get(0).adviceWith(context, new AdviceWithRouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				mockEndpoints();
-			}
-		});
+		for (RouteDefinition route : new ArrayList<RouteDefinition>(context.getRouteDefinitions())) {
+			route.adviceWith(context, new AdviceWithRouteBuilder() {
+				@Override
+				public void configure() throws Exception {
+					mockEndpoints();
+				}
+			});
+		}
 		context.start();
 		
 		MockEndpoint result = getMockEndpoint("mock:direct:schedulerStart", false);
