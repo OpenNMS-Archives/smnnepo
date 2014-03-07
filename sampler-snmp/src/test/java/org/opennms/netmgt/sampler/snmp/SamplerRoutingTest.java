@@ -147,7 +147,8 @@ public class SamplerRoutingTest extends CamelTestSupport {
 					.split().body()
 					// Split the package into a package-per-service
 					.log("Parsing package ${body.name} with ${body.services.size} service(s)")
-					.split(body(), new PackageServiceSplitter())
+					.process(new PackageServiceSplitter())
+					.split().body()
 					// Route different service types to different routes
 					.choice()
 						.when(simple("${body.services[0].name} == 'SNMP'"))
@@ -283,7 +284,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		context.start();
 
 		// We should get 1 call to the scheduler endpoint
-		MockEndpoint endpoint = getMockEndpoint("mock:seda:scheduleAgents");
+		MockEndpoint endpoint = getMockEndpoint("mock:seda:scheduleAgents", false);
 		endpoint.setExpectedMessageCount(1);
 
 		Service svc = new Service();
@@ -321,7 +322,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		});
 		context.start();
 
-		MockEndpoint result = getMockEndpoint("mock:seda:scheduleAgents");
+		MockEndpoint result = getMockEndpoint("mock:seda:scheduleAgents", false);
 		result.expectedMessageCount(1);
 		
 		// Load the CollectdConfiguration
@@ -351,10 +352,10 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		});
 		context.start();
 		
-		MockEndpoint result = getMockEndpoint("mock:direct:schedulerStart");
+		MockEndpoint result = getMockEndpoint("mock:direct:schedulerStart", false);
 		result.expectedMessageCount(1);
 		
-		MockEndpoint scheduled = getMockEndpoint("mock:seda:scheduleAgents");
+		MockEndpoint scheduled = getMockEndpoint("mock:seda:scheduleAgents", false);
 		scheduled.expectedMessageCount(2);
 		
 		template.sendBody("seda:start", null);

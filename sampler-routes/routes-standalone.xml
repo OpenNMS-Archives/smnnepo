@@ -17,6 +17,13 @@
 		http://camel.apache.org/schema/blueprint/camel-blueprint-2.12.2.xsd
 ">
 
+  <!-- Configuration properties -->
+  <cm:property-placeholder id="properties" persistent-id="org.opennms.netmgt.sampler.snmp" update-strategy="none">
+    <cm:default-properties>
+      <cm:property name="opennms.home" value="/opt/opennms"/>
+    </cm:default-properties>
+  </cm:property-placeholder>
+
 <!-- 
   <reference id="snmpAgentRepository" interface="org.opennms.netmgt.api.sample.AgentRepository" filter="(protocol=SNMP)" />
   <reference id="snmpCollectionConfiguration" interface="org.opennms.netmgt.api.sample.CollectionConfiguration" filter="(protocol=SNMP)" />
@@ -32,12 +39,12 @@
   <bean id="collectdConfiguration" class="org.opennms.netmgt.api.sample.support.SingletonBeanFactory"/>
   <bean id="snmpConfiguration" class="org.opennms.netmgt.api.sample.support.SingletonBeanFactory"/>
   <bean id="snmpMetricRepository" class="org.opennms.netmgt.sampler.config.snmp.SnmpMetricRepository">
-    <argument value="file:datacollection-config.xml"/>
+    <argument value="file:${opennms.home}/etc/datacollection-config.xml"/>
     <argument>
       <array>
-        <value>file:datacollection/mib2.xml</value>
-        <value>file:datacollection/netsnmp.xml</value>
-        <value>file:datacollection/dell.xml</value>
+        <value>file:${opennms.home}/etc/datacollection/mib2.xml</value>
+        <value>file:${opennms.home}/etc/datacollection/netsnmp.xml</value>
+        <value>file:${opennms.home}/etc/datacollection/dell.xml</value>
       </array>
     </argument>
   </bean>
@@ -48,6 +55,8 @@
   <bean id="packageAgentAggregator" class="org.opennms.netmgt.sampler.snmp.PackageAgentAggregator"/>
 
   <camelContext xmlns="http://camel.apache.org/schema/blueprint">
+    <propertyPlaceholder location="blueprint:properties"/>
+
     <!-- Add exception handlers -->
     <onException>
       <exception>java.io.IOException</exception>
@@ -98,7 +107,7 @@
 	<!-- TODO: Create a reload timer that will check for changes to the config -->
     <route>
       <from uri="direct:loadCollectdConfiguration"/>
-      <transform><constant>collectd-configuration.xml</constant></transform>
+      <transform><constant>file:{{opennms.home}}/etc/collectd-configuration.xml</constant></transform>
       <to uri="direct:parseXML"/>
       <bean ref="collectdConfiguration" method="setInstance"/>
     </route>
@@ -113,7 +122,7 @@
 	<!-- TODO: Create a reload timer that will check for changes to the config -->
     <route>
       <from uri="direct:loadSnmpConfig"/>
-      <transform><constant>snmp-config.xml</constant></transform>
+      <transform><constant>file:{{opennms.home}}/etc/snmp-config.xml</constant></transform>
       <to uri="direct:parseXML"/>
       <bean ref="snmpConfiguration" method="setInstance"/>
     </route>
@@ -135,7 +144,8 @@
         <simple>${body}</simple>
         <!-- Split the package into a package-per-service -->
         <log message="Parsing package ${body.name} with ${body.services.size} service(s)"/>
-        <split strategyRef="packageServiceSplitter" strategyMethodName="packageWithOneService">
+        <process ref="packageServiceSplitter"/>
+        <split>
           <simple>${body}</simple>
           <!-- Route different service types to different routes -->
           <choice>
@@ -158,6 +168,7 @@
 
     <route>
       <from uri="seda:loadSnmpAgents"/>
+      <log message="Loading package ${body.name} with ${body.services.size} service(s)"/>
       <log message="Running seda:loadSnmpAgents"/>
       <to uri="seda:loadPackageAgents"/>
     </route>
@@ -179,7 +190,7 @@
       <from uri="direct:getServiceAgents"/>
       <log message="Parsing URL: file:src/test/resources/agents/${body.name}/${body.services[0].name}.json"/>
       <transform>
-        <simple>file:src/test/resources/agents/${body.name}/${body.services[0].name}.json</simple>
+        <simple>file:{{opennms.home}}/agents/${body.name}/${body.services[0].name}.json</simple>
       </transform>
       <to uri="direct:parseJSON"/>
     </route>
@@ -193,6 +204,7 @@
 
 
   <camelContext xmlns="http://camel.apache.org/schema/blueprint">
+    <propertyPlaceholder location="blueprint:properties"/>
     
     <route id="addAgent">
       <from uri="seda:addAgent" />
