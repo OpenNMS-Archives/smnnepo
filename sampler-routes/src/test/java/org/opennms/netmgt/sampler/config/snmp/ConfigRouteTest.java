@@ -13,13 +13,13 @@ import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.junit.Test;
+import org.opennms.netmgt.api.sample.PackageAgentList;
+import org.opennms.netmgt.api.sample.ServiceAgent;
+import org.opennms.netmgt.api.sample.ServiceAgent.ServiceAgentList;
 import org.opennms.netmgt.api.sample.support.SingletonBeanFactory;
 import org.opennms.netmgt.config.collectd.CollectdConfiguration;
 import org.opennms.netmgt.config.collectd.Package;
 import org.opennms.netmgt.config.collectd.Service;
-import org.opennms.netmgt.sampler.snmp.PackageAgentList;
-import org.opennms.netmgt.sampler.snmp.ServiceAgent;
-import org.opennms.netmgt.sampler.snmp.ServiceAgent.ServiceAgentList;
 import org.opennms.netmgt.snmp.SnmpConfiguration;
 
 public class ConfigRouteTest extends CamelBlueprintTestSupport {

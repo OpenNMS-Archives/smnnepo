@@ -33,6 +33,12 @@
     </dependency>
     <dependency>
       <groupId>org.opennms.netmgt.sample</groupId>
+      <artifactId>sampler-config</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.opennms.netmgt.sample</groupId>
       <artifactId>sampler-config-snmp</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
@@ -56,29 +62,6 @@
       <groupId>org.opennms.dependencies</groupId>
       <artifactId>camel-dependencies</artifactId>
       <type>pom</type>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.camel</groupId>
-      <artifactId>camel-jaxb</artifactId>
-      <version>2.12.2</version>
-      <exclusions>
-        <exclusion>
-          <groupId>com.sun.xml.bind</groupId>
-          <artifactId>jaxb-impl</artifactId>
-        </exclusion>
-      </exclusions>
-      <!-- use the same version as your Camel core version -->
-    </dependency>
-	<dependency>
-      <groupId>org.apache.camel</groupId>
-      <artifactId>camel-jackson</artifactId>
-      <version>2.12.2</version>
-      <exclusions>
-        <exclusion>
-          <groupId>com.sun.xml.bind</groupId>
-          <artifactId>jaxb-impl</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.opennms.dependencies</groupId>

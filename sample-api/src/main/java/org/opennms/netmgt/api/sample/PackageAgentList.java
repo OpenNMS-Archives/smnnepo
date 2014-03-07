@@ -1,4 +1,4 @@
-package org.opennms.netmgt.sampler.snmp;
+package org.opennms.netmgt.api.sample;
 
 import java.util.List;
 

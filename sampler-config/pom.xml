@@ -25,13 +25,6 @@
   <packaging>bundle</packaging>
 
   <dependencies>
-    <!-- logback is a test dependencies only so tests can log -->
-    <!-- rely on pax logging to provide slf4j impl at runtime -->
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <scope>test</scope>
-    </dependency>
     <dependency>
       <groupId>org.opennms.netmgt.sample</groupId>
       <artifactId>sample-api</artifactId>
@@ -63,6 +56,29 @@
       <artifactId>org.osgi.compendium</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-jaxb</artifactId>
+      <version>2.12.2</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.sun.xml.bind</groupId>
+          <artifactId>jaxb-impl</artifactId>
+        </exclusion>
+      </exclusions>
+      <!-- use the same version as your Camel core version -->
+    </dependency>
+	<dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-jackson</artifactId>
+      <version>2.12.2</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.sun.xml.bind</groupId>
+          <artifactId>jaxb-impl</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
 
     <!-- Test Dependencies -->
     <dependency>
@@ -91,6 +107,13 @@
       <groupId>org.opennms.netmgt.sample</groupId>
       <artifactId>sample-test</artifactId>
       <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- logback is a test dependencies only so tests can log -->
+    <!-- rely on pax logging to provide slf4j impl at runtime -->
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

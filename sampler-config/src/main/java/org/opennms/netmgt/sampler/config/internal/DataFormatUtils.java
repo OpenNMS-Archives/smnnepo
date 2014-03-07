@@ -1,12 +1,12 @@
-package org.opennms.netmgt.sampler.snmp;
+package org.opennms.netmgt.sampler.config.internal;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
 import org.apache.camel.component.jackson.JacksonDataFormat;
 import org.apache.camel.converter.jaxb.JaxbDataFormat;
+import org.opennms.netmgt.api.sample.ServiceAgent.ServiceAgentList;
 import org.opennms.netmgt.config.collectd.CollectdConfiguration;
-import org.opennms.netmgt.sampler.snmp.ServiceAgent.ServiceAgentList;
 import org.opennms.netmgt.snmp.SnmpConfiguration;
 
 public abstract class DataFormatUtils {

@@ -1,11 +1,13 @@
-package org.opennms.netmgt.sampler.snmp;
+package org.opennms.netmgt.sampler.config.internal;
 
 import java.util.List;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.processor.aggregate.AggregationStrategy;
+import org.opennms.netmgt.api.sample.PackageAgentList;
+import org.opennms.netmgt.api.sample.ServiceAgent;
+import org.opennms.netmgt.api.sample.ServiceAgent.ServiceAgentList;
 import org.opennms.netmgt.config.collectd.Package;
-import org.opennms.netmgt.sampler.snmp.ServiceAgent.ServiceAgentList;
 
 public class PackageAgentAggregator implements AggregationStrategy {
 	@Override

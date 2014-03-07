@@ -1,4 +1,4 @@
-package org.opennms.netmgt.sampler.snmp;
+package org.opennms.netmgt.sampler.config.internal;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -15,13 +15,18 @@ import org.apache.camel.impl.JndiRegistry;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
+import org.opennms.netmgt.api.sample.PackageAgentList;
+import org.opennms.netmgt.api.sample.ServiceAgent;
+import org.opennms.netmgt.api.sample.ServiceAgent.ServiceAgentList;
 import org.opennms.netmgt.api.sample.support.SingletonBeanFactory;
 import org.opennms.netmgt.api.sample.support.UrlNormalizer;
 import org.opennms.netmgt.config.collectd.CollectdConfiguration;
 import org.opennms.netmgt.config.collectd.Package;
 import org.opennms.netmgt.config.collectd.Service;
+import org.opennms.netmgt.sampler.config.internal.DataFormatUtils;
+import org.opennms.netmgt.sampler.config.internal.PackageAgentAggregator;
+import org.opennms.netmgt.sampler.config.internal.PackageServiceSplitter;
 import org.opennms.netmgt.sampler.config.snmp.SnmpMetricRepository;
-import org.opennms.netmgt.sampler.snmp.ServiceAgent.ServiceAgentList;
 import org.opennms.netmgt.snmp.SnmpConfiguration;
 
 public class SamplerRoutingTest extends CamelTestSupport {
