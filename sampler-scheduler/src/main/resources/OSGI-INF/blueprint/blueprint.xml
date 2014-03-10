@@ -1,6 +1,9 @@
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+<blueprint
+    xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
 	xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.1.0"
+	xmlns:cb="http://camel.apache.org/schema/blueprint"
 	xsi:schemaLocation="
 		http://www.osgi.org/xmlns/blueprint/v1.0.0 
 		http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
@@ -16,9 +19,13 @@
 		<!-- thread pool size -->
 		<argument value="1" />
 		<property name="scheduleEndpoint" value="seda:scheduleAgents" />
-		<property name="dispatcherEndpoint" value="mock:dispatch" />
+		<property name="dispatcherEndpoint" value="seda:dispatch" />
 	</bean>
 
 	<camelContext xmlns="http://camel.apache.org/schema/blueprint">
+	    <route>
+	        <from uri="timer:bogus?repeatCount=1&amp;delay=0" />
+	        <log message="Blueprint camel context initialized." />
+	    </route>
 	</camelContext>
 </blueprint>
