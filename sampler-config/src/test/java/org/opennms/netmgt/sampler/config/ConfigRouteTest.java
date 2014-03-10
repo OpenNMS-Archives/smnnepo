@@ -8,6 +8,7 @@ import java.util.Dictionary;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
@@ -15,6 +16,7 @@ import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.apache.camel.util.KeyValueHolder;
+import org.junit.Before;
 import org.junit.Test;
 import org.opennms.netmgt.api.sample.PackageAgentList;
 import org.opennms.netmgt.api.sample.ServiceAgent;
@@ -33,6 +35,8 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
 	private static URL url(String path) throws MalformedURLException {
 		return new URL("file:" + OPENNMS_HOME + "/" + path);
 	}
+
+	private CountDownLatch m_schedulerServiceCalls = null;
 
 	@Override
 	public boolean isUseAdviceWith() {
@@ -54,7 +58,10 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
 		services.put(SchedulerService.class.getName(), new KeyValueHolder<Object,Dictionary>(new SchedulerService() {
 			@Override
 			public void schedule(PackageAgentList agents) {
-				
+				System.err.println("Calling SchedulerService.schedule()");
+				if (m_schedulerServiceCalls != null) {
+					m_schedulerServiceCalls.countDown();
+				}
 			}
 		}, new Properties()));
 	}
@@ -213,6 +220,8 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
 			});
 		}
 		context.start();
+		// Wait for one call to the scheduler service in a mock OSGi service
+		m_schedulerServiceCalls = new CountDownLatch(1);
 		
 		MockEndpoint result = getMockEndpoint("mock:direct:schedulerStart", false);
 		result.expectedMessageCount(1);
@@ -229,6 +238,7 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
 		
 		assertNotNull(collectdConfig);
 		assertNotNull(collectdConfig.getInstance());
+		m_schedulerServiceCalls.await();
 	}
 
 	private <T> T bean(String name,	Class<T> type) {
