@@ -6,16 +6,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
+import org.apache.camel.util.KeyValueHolder;
 import org.junit.Test;
 import org.opennms.netmgt.api.sample.PackageAgentList;
 import org.opennms.netmgt.api.sample.ServiceAgent;
 import org.opennms.netmgt.api.sample.ServiceAgent.ServiceAgentList;
+import org.opennms.netmgt.api.sample.support.SchedulerService;
 import org.opennms.netmgt.api.sample.support.SingletonBeanFactory;
 import org.opennms.netmgt.config.collectd.CollectdConfiguration;
 import org.opennms.netmgt.config.collectd.Package;
@@ -39,6 +43,20 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
 	public boolean isUseDebugger() {
 		// must enable debugger
 		return true;
+	}
+
+	/**
+	 * Register a mock OSGi {@link SchedulerService} so that we can make sure that
+	 * the scheduler whiteboard is working properly.
+	 */
+	@Override
+	protected void addServicesOnStartup(Map<String, KeyValueHolder<Object, Dictionary>> services) {
+		services.put(SchedulerService.class.getName(), new KeyValueHolder<Object,Dictionary>(new SchedulerService() {
+			@Override
+			public void schedule(PackageAgentList agents) {
+				
+			}
+		}, new Properties()));
 	}
 
 	// The location of our Blueprint XML file to be used for testing
