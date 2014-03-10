@@ -1,4 +1,4 @@
-package org.opennms.netmgt.sampler.scheduler;
+package org.opennms.netmgt.api.scheduler;
 
 import org.opennms.netmgt.api.sample.ServiceAgent;
 

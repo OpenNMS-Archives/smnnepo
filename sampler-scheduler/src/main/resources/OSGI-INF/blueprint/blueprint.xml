@@ -18,14 +18,21 @@
 	<bean id="scheduler" class="org.opennms.netmgt.sampler.scheduler.Scheduler">
 		<!-- thread pool size -->
 		<argument value="1" />
-		<property name="scheduleEndpoint" value="seda:scheduleAgents" />
-		<property name="dispatcherEndpoint" value="seda:dispatch" />
 	</bean>
 
+	<service id="schedulerService" ref="scheduler" interface="org.opennms.netmgt.api.sample.support.SchedulerService">
+   	</service>
+
+	<reference-list interface="org.opennms.netmgt.api.sample.support.Dispatcher" availability="optional" filter="(org.opennms.netmgt.sampler.scheduler.serviceName=*)">
+	    <reference-listener bind-method="onDispatcherBind" unbind-method="onDispatcherUnbind" ref="scheduler" />
+	</reference-list>
+
 	<camelContext xmlns="http://camel.apache.org/schema/blueprint">
-	    <route>
+	<!--
+	    	    <route>
 	        <from uri="timer:bogus?repeatCount=1&amp;delay=0" />
 	        <log message="Blueprint camel context initialized." />
 	    </route>
+	-->
 	</camelContext>
 </blueprint>
