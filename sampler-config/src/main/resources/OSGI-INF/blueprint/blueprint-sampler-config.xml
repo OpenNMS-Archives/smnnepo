@@ -25,8 +25,8 @@
   </cm:property-placeholder>
 
   <!-- Camel unmarshalling DataFormats -->
-  <bean id="jaxbDataFormat" class="org.opennms.netmgt.sampler.config.internal.DataFormatUtils" factory-method="jaxb"/>
-  <bean id="jacksonDataFormat" class="org.opennms.netmgt.sampler.config.internal.DataFormatUtils" factory-method="jackson"/>
+  <bean id="jaxbDataFormat" class="org.opennms.netmgt.sampler.config.DataFormatUtils" factory-method="jaxb"/>
+  <bean id="jacksonDataFormat" class="org.opennms.netmgt.sampler.config.DataFormatUtils" factory-method="jackson"/>
 
   <!-- Beans that hold a copy of a configuration object -->
   <bean id="collectdConfiguration" class="org.opennms.netmgt.api.sample.support.SingletonBeanFactory"/>
@@ -157,8 +157,11 @@
     <route>
       <from uri="seda:loadPackageAgents"/>
       <enrich uri="direct:getServiceAgents" strategyRef="packageAgentAggregator"/>
-      <log message="Package: ${body.package}, Agents: ${body.agents}"/>
-      <to uri="seda:scheduleAgents"/>
+      <filter>
+        <simple>${body.agents.size} &gt; 0</simple>
+        <log message="Package: ${body.package}, Agents: ${body.agents}"/>
+        <to uri="seda:scheduleAgents"/>
+      </filter>
     </route>
 
     <route>

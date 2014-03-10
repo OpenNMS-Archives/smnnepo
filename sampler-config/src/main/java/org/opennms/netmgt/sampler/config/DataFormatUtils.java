@@ -1,4 +1,4 @@
-package org.opennms.netmgt.sampler.config.internal;
+package org.opennms.netmgt.sampler.config;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;

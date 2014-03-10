@@ -23,7 +23,7 @@ import org.opennms.netmgt.api.sample.support.UrlNormalizer;
 import org.opennms.netmgt.config.collectd.CollectdConfiguration;
 import org.opennms.netmgt.config.collectd.Package;
 import org.opennms.netmgt.config.collectd.Service;
-import org.opennms.netmgt.sampler.config.internal.DataFormatUtils;
+import org.opennms.netmgt.sampler.config.DataFormatUtils;
 import org.opennms.netmgt.sampler.config.internal.PackageAgentAggregator;
 import org.opennms.netmgt.sampler.config.internal.PackageServiceSplitter;
 import org.opennms.netmgt.sampler.config.snmp.SnmpMetricRepository;

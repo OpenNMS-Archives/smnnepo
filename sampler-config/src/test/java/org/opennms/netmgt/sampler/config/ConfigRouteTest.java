@@ -200,7 +200,7 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
 		result.expectedMessageCount(1);
 		
 		MockEndpoint scheduled = getMockEndpoint("mock:seda:scheduleAgents", false);
-		scheduled.expectedMessageCount(2);
+		scheduled.expectedMessageCount(1);
 		
 		template.sendBody("direct:start", null);
 		result.await();

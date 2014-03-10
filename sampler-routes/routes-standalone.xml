@@ -32,8 +32,8 @@
 -->
 
   <!-- Camel unmarshalling DataFormats -->
-  <bean id="jaxbDataFormat" class="org.opennms.netmgt.sampler.config.internal.DataFormatUtils" factory-method="jaxb"/>
-  <bean id="jacksonDataFormat" class="org.opennms.netmgt.sampler.config.internal.DataFormatUtils" factory-method="jackson"/>
+  <bean id="jaxbDataFormat" class="org.opennms.netmgt.sampler.config.DataFormatUtils" factory-method="jaxb"/>
+  <bean id="jacksonDataFormat" class="org.opennms.netmgt.sampler.config.DataFormatUtils" factory-method="jackson"/>
 
   <!-- Beans that hold a copy of a configuration object -->
   <bean id="collectdConfiguration" class="org.opennms.netmgt.api.sample.support.SingletonBeanFactory"/>
