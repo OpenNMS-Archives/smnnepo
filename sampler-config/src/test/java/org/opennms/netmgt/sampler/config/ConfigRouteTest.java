@@ -16,9 +16,9 @@ import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.apache.camel.util.KeyValueHolder;
 import org.junit.Test;
+import org.opennms.netmgt.api.sample.Agent;
+import org.opennms.netmgt.api.sample.Agent.AgentList;
 import org.opennms.netmgt.api.sample.PackageAgentList;
-import org.opennms.netmgt.api.sample.ServiceAgent;
-import org.opennms.netmgt.api.sample.ServiceAgent.ServiceAgentList;
 import org.opennms.netmgt.api.sample.support.SchedulerService;
 import org.opennms.netmgt.api.sample.support.SingletonBeanFactory;
 import org.opennms.netmgt.config.collectd.CollectdConfiguration;
@@ -96,13 +96,13 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
 	public void testParseJSON() throws Exception {
 		context.start();
 
-		List<ServiceAgent> resultsUsingURL = template.requestBody("direct:parseJSON", url("agents/example1/SNMP.json"), ServiceAgentList.class);
+		List<Agent> resultsUsingURL = template.requestBody("direct:parseJSON", url("agents/example1/SNMP.json"), AgentList.class);
 
 		//System.err.printf("Results: %s\n", resultsUsingURL);
 		assertNotNull(resultsUsingURL);
 		assertEquals(3, resultsUsingURL.size());
 		
-		List<ServiceAgent> resultsUsingString = template.requestBody("direct:parseJSON", url("agents/example1/SNMP.json").toString(), ServiceAgentList.class);
+		List<Agent> resultsUsingString = template.requestBody("direct:parseJSON", url("agents/example1/SNMP.json").toString(), AgentList.class);
 
 		//System.err.printf("Results: %s\n", resultsUsingString);
 		assertNotNull(resultsUsingString);

@@ -1,17 +1,17 @@
 package org.opennms.netmgt.api.scheduler;
 
-import org.opennms.netmgt.api.sample.ServiceAgent;
+import org.opennms.netmgt.api.sample.Agent;
 
 
 public class CollectionRequest {
     private String m_service;
-    private ServiceAgent m_agent;
+    private Agent m_agent;
 
     public CollectionRequest() {
         
     }
 
-    public CollectionRequest(final String service, final ServiceAgent agent) {
+    public CollectionRequest(final String service, final Agent agent) {
         m_service = service;
         m_agent = agent;
     }

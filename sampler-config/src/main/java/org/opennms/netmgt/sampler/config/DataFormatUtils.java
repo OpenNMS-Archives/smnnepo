@@ -5,7 +5,7 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.camel.component.jackson.JacksonDataFormat;
 import org.apache.camel.converter.jaxb.JaxbDataFormat;
-import org.opennms.netmgt.api.sample.ServiceAgent.ServiceAgentList;
+import org.opennms.netmgt.api.sample.Agent.AgentList;
 import org.opennms.netmgt.config.collectd.CollectdConfiguration;
 import org.opennms.netmgt.snmp.SnmpConfiguration;
 
@@ -20,6 +20,6 @@ public abstract class DataFormatUtils {
 	}
 
 	public static JacksonDataFormat jackson() {
-		return new JacksonDataFormat(ServiceAgentList.class);
+		return new JacksonDataFormat(AgentList.class);
 	}
 }

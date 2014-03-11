@@ -13,8 +13,8 @@ import org.apache.camel.util.KeyValueHolder;
 import org.junit.Before;
 import org.junit.Test;
 import org.opennms.core.network.IPAddress;
+import org.opennms.netmgt.api.sample.Agent;
 import org.opennms.netmgt.api.sample.PackageAgentList;
-import org.opennms.netmgt.api.sample.ServiceAgent;
 import org.opennms.netmgt.api.sample.support.Dispatcher;
 import org.opennms.netmgt.api.sample.support.SchedulerService;
 import org.opennms.netmgt.api.scheduler.CollectionRequest;
@@ -64,7 +64,7 @@ public class SchedulerTest extends CamelBlueprintTestSupport {
         final Scheduler scheduler = new Scheduler(1);
         scheduler.setDispatcher("SNMP", m_latchDispatcher);
 
-        final List<ServiceAgent> agents = getAgents();
+        final List<Agent> agents = getAgents();
         final PackageAgentList agentSchedule = new PackageAgentList(getPackage(), agents);
         scheduler.schedule(agentSchedule);
         assertTrue(m_latchDispatcher.await(8, TimeUnit.SECONDS));
@@ -80,13 +80,13 @@ public class SchedulerTest extends CamelBlueprintTestSupport {
         assertTrue(m_latchDispatcher.await(8, TimeUnit.SECONDS));
     }
 
-    protected List<ServiceAgent> getAgents() {
-        final List<ServiceAgent> agents = new ArrayList<ServiceAgent>();
-        agents.add(new ServiceAgent(new IPAddress("192.168.0.1"), 161, "SNMP"));
-        agents.add(new ServiceAgent(new IPAddress("192.168.0.2"), 161, "SNMP"));
-        agents.add(new ServiceAgent(new IPAddress("192.168.0.3"), 161, "SNMP"));
-        agents.add(new ServiceAgent(new IPAddress("192.168.0.4"), 161, "SNMP"));
-        agents.add(new ServiceAgent(new IPAddress("192.168.0.5"), 161, "SNMP"));
+    protected List<Agent> getAgents() {
+        final List<Agent> agents = new ArrayList<Agent>();
+        agents.add(new Agent(new IPAddress("192.168.0.1"), 161, "SNMP"));
+        agents.add(new Agent(new IPAddress("192.168.0.2"), 161, "SNMP"));
+        agents.add(new Agent(new IPAddress("192.168.0.3"), 161, "SNMP"));
+        agents.add(new Agent(new IPAddress("192.168.0.4"), 161, "SNMP"));
+        agents.add(new Agent(new IPAddress("192.168.0.5"), 161, "SNMP"));
         return agents;
     }
 

@@ -6,8 +6,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.opennms.netmgt.api.sample.Agent;
 import org.opennms.netmgt.api.sample.PackageAgentList;
-import org.opennms.netmgt.api.sample.ServiceAgent;
 import org.opennms.netmgt.api.sample.support.Dispatcher;
 import org.opennms.netmgt.api.sample.support.SchedulerService;
 import org.opennms.netmgt.api.scheduler.CollectionRequest;
@@ -70,7 +70,7 @@ public class Scheduler implements SchedulerService {
         int count = 0;
         double offset = interval / (double)agentSchedule.getAgents().size();
 
-        for (final ServiceAgent agent : agentSchedule.getAgents()) {
+        for (final Agent agent : agentSchedule.getAgents()) {
             final CollectionRequest request = new CollectionRequest(service, agent);
             m_executor.scheduleAtFixedRate(new Runnable() {
                 @Override
