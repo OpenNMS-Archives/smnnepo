@@ -33,9 +33,10 @@ public class SchedulerTest extends CamelBlueprintTestSupport {
     private static final Logger LOG = LoggerFactory.getLogger(SchedulerTest.class);
     private LatchDispatcher m_latchDispatcher;
 
+    
     @Override
     protected String getBlueprintDescriptor() {
-        return "OSGI-INF/blueprint/blueprint.xml";
+        return "OSGI-INF/blueprint/blueprint.xml,OSGI-INF/blueprint/blueprint-test.xml";
     };
 
     @Override
@@ -70,7 +71,7 @@ public class SchedulerTest extends CamelBlueprintTestSupport {
     }
 
     @Test
-    public void testBundleStuff() throws Exception {
+    public void testScheduleAgentsFromBundle() throws Exception {
         context.start();
         final ServiceReference<SchedulerService> ref = getBundleContext().getServiceReference(SchedulerService.class);
         assertNotNull(ref);
