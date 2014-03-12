@@ -1,24 +1,32 @@
 package org.opennms.netmgt.sampler.config.snmp;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Dictionary;
-import java.util.List;
 
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
+import org.junit.Before;
 import org.junit.Test;
-import org.opennms.netmgt.api.sample.Agent;
-import org.opennms.netmgt.api.sample.Agent.AgentList;
 import org.opennms.netmgt.api.sample.support.SingletonBeanFactory;
-import org.opennms.netmgt.config.collectd.CollectdConfiguration;
 import org.opennms.netmgt.snmp.SnmpConfiguration;
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
 
 public class SnmpConfigRoutesTest extends CamelBlueprintTestSupport {
-	
+
 	private static final String OPENNMS_HOME = "src/test/resources";
 
 	private static URL url(String path) throws MalformedURLException {
 		return new URL("file:" + OPENNMS_HOME + "/" + path);
+	}
+
+	@Before
+	public void configureLogging() throws SecurityException, IOException {
+		LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+		lc.getLogger("org.apache.aries.blueprint").setLevel(Level.INFO);
 	}
 
 	@Override
@@ -55,56 +63,21 @@ public class SnmpConfigRoutesTest extends CamelBlueprintTestSupport {
 
 		//System.err.printf("Results: %s\n", resultsUsingURL);
 		assertNotNull(resultsUsingURL);
-		
+
 		SnmpConfiguration resultsUsingString = template.requestBody("direct:parseXML", "file:" + OPENNMS_HOME + "/etc/snmp-config.xml", SnmpConfiguration.class);
 
 		//System.err.printf("Results: %s\n", resultsUsingString);
 		assertNotNull(resultsUsingString);
 	}
 
-	/**
-	 * Test the Camel JSON parsing.
-	 */
-	@Test
-	public void testParseJSON() throws Exception {
-		context.start();
-
-		List<Agent> resultsUsingURL = template.requestBody("direct:parseJSON", url("agents/example1/SNMP.json"), AgentList.class);
-
-		//System.err.printf("Results: %s\n", resultsUsingURL);
-		assertNotNull(resultsUsingURL);
-		assertEquals(3, resultsUsingURL.size());
-		
-		List<Agent> resultsUsingString = template.requestBody("direct:parseJSON", url("agents/example1/SNMP.json").toString(), AgentList.class);
-
-		//System.err.printf("Results: %s\n", resultsUsingString);
-		assertNotNull(resultsUsingString);
-		assertEquals(3, resultsUsingString.size());
-	}
-
-	/**
-	 * Test loading the {@link CollectdConfiguration}.
-	 */
-	@Test
-	public void testLoadCollectdConfiguration() throws Exception {
-		context.start();
-		
-		template.requestBody("direct:loadCollectdConfiguration", null, String.class);
-		
-		SingletonBeanFactory<CollectdConfiguration> configSvc = bean("collectdConfiguration", SingletonBeanFactory.class);
-		
-		assertNotNull(configSvc);
-		assertNotNull(configSvc.getInstance());
-	}
-
 	@Test
 	public void testLoadSnmpConfig() throws Exception {
 		context.start();
-		
+
 		template.requestBody("direct:loadSnmpConfig", null, String.class);
-		
+
 		SingletonBeanFactory<SnmpConfiguration> configSvc = bean("snmpConfiguration", SingletonBeanFactory.class);
-		
+
 		assertNotNull(configSvc);
 		assertNotNull(configSvc.getInstance());
 
@@ -116,14 +89,14 @@ public class SnmpConfigRoutesTest extends CamelBlueprintTestSupport {
 	@Test
 	public void testLoadDataCollectionConfig() throws Exception {
 		context.start();
-		
+
 		template.requestBody("direct:loadDataCollectionConfig", null, String.class);
-		
+
 		SnmpMetricRepository metricRepo = bean("snmpMetricRepository", SnmpMetricRepository.class);
-		
+
 		assertNotNull(metricRepo);
 		assertNotNull(metricRepo.getMetric("ifInOctets"));
-		
+
 	}
 
 	private <T> T bean(String name,	Class<T> type) {

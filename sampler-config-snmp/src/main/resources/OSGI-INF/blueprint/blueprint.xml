@@ -73,6 +73,7 @@
     </service-properties>
   </service>
 
+  <!--
   <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
     <command  name="snmp:add-agent">
       <action class="org.opennms.netmgt.sampler.config.snmp.SnmpAddAgentCommand">
@@ -80,6 +81,7 @@
       </action>
     </command>
   </command-bundle>
+  -->
 
   <camelContext xmlns="http://camel.apache.org/schema/blueprint">
     <propertyPlaceholder location="blueprint:properties"/>
