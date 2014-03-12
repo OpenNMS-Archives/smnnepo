@@ -22,7 +22,7 @@
 
   <name>Sample Collection and Storage :: Routes</name>
 
-  <packaging>jar</packaging>
+  <packaging>pom</packaging>
   
   <build>
     <plugins>
