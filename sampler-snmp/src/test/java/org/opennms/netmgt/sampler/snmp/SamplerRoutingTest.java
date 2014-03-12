@@ -1,6 +1,7 @@
 package org.opennms.netmgt.sampler.snmp;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -11,13 +12,14 @@ import org.apache.camel.Exchange;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.apache.camel.impl.DefaultExchange;
 import org.apache.camel.impl.JndiRegistry;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
+import org.opennms.netmgt.api.sample.Agent;
+import org.opennms.netmgt.api.sample.Agent.AgentList;
 import org.opennms.netmgt.api.sample.PackageAgentList;
-import org.opennms.netmgt.api.sample.ServiceAgent;
-import org.opennms.netmgt.api.sample.ServiceAgent.ServiceAgentList;
 import org.opennms.netmgt.api.sample.support.SingletonBeanFactory;
 import org.opennms.netmgt.api.sample.support.UrlNormalizer;
 import org.opennms.netmgt.config.collectd.CollectdConfiguration;
@@ -217,19 +219,25 @@ public class SamplerRoutingTest extends CamelTestSupport {
 	 */
 	@Test
 	public void testParseJSON() throws Exception {
-		context.start();
+	    context.start();
 
-		List<ServiceAgent> resultsUsingURL = template.requestBody("direct:parseJSON", url("agents/example1/SNMP.json"), ServiceAgentList.class);
+	    final URL snmpUrl = url("agents/example1/SNMP.json");
 
-		//System.err.printf("Results: %s\n", resultsUsingURL);
-		assertNotNull(resultsUsingURL);
-		assertEquals(3, resultsUsingURL.size());
-		
-		List<ServiceAgent> resultsUsingString = template.requestBody("direct:parseJSON", url("agents/example1/SNMP.json").toString(), ServiceAgentList.class);
+	    final InputStream is = snmpUrl.openStream();
+	    final Exchange e = new DefaultExchange(context);
+	    final Object o = DataFormatUtils.jackson().unmarshal(e, is);
+	    System.err.println("o="+o);
+	    List<Agent> resultsUsingURL = template.requestBody("direct:parseJSON", snmpUrl, AgentList.class);
 
-		//System.err.printf("Results: %s\n", resultsUsingString);
-		assertNotNull(resultsUsingString);
-		assertEquals(3, resultsUsingString.size());
+	    //System.err.printf("Results: %s\n", resultsUsingURL);
+	    assertNotNull(resultsUsingURL);
+	    assertEquals(3, resultsUsingURL.size());
+
+	    List<Agent> resultsUsingString = template.requestBody("direct:parseJSON", snmpUrl.toString(), AgentList.class);
+
+	    //System.err.printf("Results: %s\n", resultsUsingString);
+	    assertNotNull(resultsUsingString);
+	    assertEquals(3, resultsUsingString.size());
 	}
 
 	/**

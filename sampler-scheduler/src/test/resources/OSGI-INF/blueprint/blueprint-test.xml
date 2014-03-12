@@ -15,15 +15,7 @@
 		http://aries.apache.org/schemas/blueprint-ext/blueprint-ext-1.1.xsd
 ">
 
-	<bean id="scheduler" class="org.opennms.netmgt.sampler.scheduler.Scheduler">
-		<!-- thread pool size -->
-		<argument value="1" />
-	</bean>
-
-	<service id="schedulerService" ref="scheduler" interface="org.opennms.netmgt.api.sample.support.SchedulerService">
-   	</service>
-
-	<reference-list interface="org.opennms.netmgt.api.sample.support.Dispatcher" availability="optional" filter="(org.opennms.netmgt.sampler.scheduler.serviceName=*)">
-	    <reference-listener bind-method="onDispatcherBind" unbind-method="onDispatcherUnbind" ref="scheduler" />
-	</reference-list>
+    <!-- for CamelBlueprintTestSupport to start, we at least need an empty camel context -->
+	<camelContext xmlns="http://camel.apache.org/schema/blueprint">
+	</camelContext>
 </blueprint>

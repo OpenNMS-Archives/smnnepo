@@ -1,25 +1,29 @@
 package org.opennms.netmgt.sampler.scheduler;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.camel.Consumer;
-import org.apache.camel.Endpoint;
-import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
+import org.apache.camel.util.KeyValueHolder;
 import org.junit.Before;
 import org.junit.Test;
 import org.opennms.core.network.IPAddress;
+import org.opennms.netmgt.api.sample.Agent;
 import org.opennms.netmgt.api.sample.PackageAgentList;
-import org.opennms.netmgt.api.sample.ServiceAgent;
+import org.opennms.netmgt.api.sample.support.Dispatcher;
+import org.opennms.netmgt.api.sample.support.SchedulerService;
+import org.opennms.netmgt.api.scheduler.CollectionRequest;
 import org.opennms.netmgt.config.collectd.Filter;
 import org.opennms.netmgt.config.collectd.IncludeRange;
 import org.opennms.netmgt.config.collectd.Package;
 import org.opennms.netmgt.config.collectd.Parameter;
 import org.opennms.netmgt.config.collectd.Service;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,19 +31,23 @@ import ch.qos.logback.classic.Level;
 
 public class SchedulerTest extends CamelBlueprintTestSupport {
     private static final Logger LOG = LoggerFactory.getLogger(SchedulerTest.class);
-    private CountDownLatch m_countdownLatch;
-    private Consumer m_consumer;
+    private LatchDispatcher m_latchDispatcher;
+
+    
+    @Override
+    protected String getBlueprintDescriptor() {
+        return "OSGI-INF/blueprint/blueprint.xml,OSGI-INF/blueprint/blueprint-test.xml";
+    };
 
     @Override
-    public boolean isUseAdviceWith() {
-        return true;
+    @SuppressWarnings("rawtypes")
+    protected void addServicesOnStartup(final Map<String, KeyValueHolder<Object, Dictionary>> services) {
+        final Properties props = new Properties();
+        props.put("org.opennms.netmgt.sampler.scheduler.serviceName", "SNMP");
+        m_latchDispatcher = new LatchDispatcher(5);
+        services.put(Dispatcher.class.getName(), new KeyValueHolder<Object,Dictionary>(m_latchDispatcher, props));
     }
-
-    @Override
-    public boolean isUseDebugger() {
-        return true;
-    }
-
+    
     @Before
     @Override
     public void setUp() throws Exception {
@@ -51,58 +59,34 @@ public class SchedulerTest extends CamelBlueprintTestSupport {
         super.setUp();
     }
 
-    // The location of our Blueprint XML file to be used for testing
-    @Override
-    protected String getBlueprintDescriptor() {
-        return "file:src/main/resources/OSGI-INF/blueprint/blueprint.xml";
-    }
-
     @Test
     public void testScheduleAgents() throws InterruptedException {
         final Scheduler scheduler = new Scheduler(1);
-        final CountDownLatch latch = new CountDownLatch(5);
-        scheduler.setDispatcher(new Dispatcher() {
-            @Override public void dispatch(final CollectionRequest request) {
-                LOG.debug("Received request: {}", request);
-                latch.countDown();
-            }
-        });
+        scheduler.setDispatcher("SNMP", m_latchDispatcher);
 
-        final List<ServiceAgent> agents = getAgents();
+        final List<Agent> agents = getAgents();
         final PackageAgentList agentSchedule = new PackageAgentList(getPackage(), agents);
-        scheduler.onAgentSchedule(agentSchedule);
-        assertTrue(latch.await(8, TimeUnit.SECONDS));
-    }
-
-    @Override
-    protected void doPostSetup() throws Exception {
-        m_countdownLatch = new CountDownLatch(5);
-        final Endpoint endpoint = context.getEndpoint("seda:dispatch");
-        m_consumer = endpoint.createConsumer(new Processor() {
-            @Override public void process(final Exchange exchange) throws Exception {
-                LOG.debug("process exchange: {}", exchange);
-                m_countdownLatch.countDown();
-            }
-        });
+        scheduler.schedule(agentSchedule);
+        assertTrue(m_latchDispatcher.await(8, TimeUnit.SECONDS));
     }
 
     @Test
-    public void testScheduleAgentsWithCamelDirectEndpoint() throws Exception {
-        m_consumer.start();
-
-        final List<ServiceAgent> agents = getAgents();
-        final PackageAgentList agentSchedule = new PackageAgentList(getPackage(), agents);
-        sendBody("seda:scheduleAgents", agentSchedule);
-        assertTrue(m_countdownLatch.await(8, TimeUnit.SECONDS));
+    public void testScheduleAgentsFromBundle() throws Exception {
+        context.start();
+        final ServiceReference<SchedulerService> ref = getBundleContext().getServiceReference(SchedulerService.class);
+        assertNotNull(ref);
+        final SchedulerService schedulerService = getBundleContext().getService(ref);
+        schedulerService.schedule(new PackageAgentList(getPackage(), getAgents()));
+        assertTrue(m_latchDispatcher.await(8, TimeUnit.SECONDS));
     }
 
-    protected List<ServiceAgent> getAgents() {
-        final List<ServiceAgent> agents = new ArrayList<ServiceAgent>();
-        agents.add(new ServiceAgent(new IPAddress("192.168.0.1"), 161, "SNMP"));
-        agents.add(new ServiceAgent(new IPAddress("192.168.0.2"), 161, "SNMP"));
-        agents.add(new ServiceAgent(new IPAddress("192.168.0.3"), 161, "SNMP"));
-        agents.add(new ServiceAgent(new IPAddress("192.168.0.4"), 161, "SNMP"));
-        agents.add(new ServiceAgent(new IPAddress("192.168.0.5"), 161, "SNMP"));
+    protected List<Agent> getAgents() {
+        final List<Agent> agents = new ArrayList<Agent>();
+        agents.add(new Agent(new IPAddress("192.168.0.1"), 161, "SNMP"));
+        agents.add(new Agent(new IPAddress("192.168.0.2"), 161, "SNMP"));
+        agents.add(new Agent(new IPAddress("192.168.0.3"), 161, "SNMP"));
+        agents.add(new Agent(new IPAddress("192.168.0.4"), 161, "SNMP"));
+        agents.add(new Agent(new IPAddress("192.168.0.5"), 161, "SNMP"));
         return agents;
     }
 
@@ -122,5 +106,22 @@ public class SchedulerTest extends CamelBlueprintTestSupport {
         pack.addService(snmp);
 
         return pack;
+    }
+
+    private static class LatchDispatcher implements Dispatcher {
+        private CountDownLatch m_latch;
+        public LatchDispatcher(final int start) {
+            m_latch = new CountDownLatch(start);
+        }
+
+        @Override
+        public void dispatch(final CollectionRequest request) {
+            LOG.debug("dispatch: {}", request);
+            m_latch.countDown();
+        }
+
+        public boolean await(final long timeout, final TimeUnit unit) throws InterruptedException {
+            return m_latch.await(timeout, unit);
+        }
     }
 }

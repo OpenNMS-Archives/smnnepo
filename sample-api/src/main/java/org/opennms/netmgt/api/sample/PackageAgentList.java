@@ -7,9 +7,9 @@ import org.opennms.netmgt.config.collectd.Package;
 
 public class PackageAgentList {
     private final Package m_package;
-    private final List<ServiceAgent> m_agents = new ArrayList<ServiceAgent>();
+    private final List<Agent> m_agents = new ArrayList<Agent>();
 
-    public PackageAgentList(Package packageService, List<ServiceAgent> agents) {
+    public PackageAgentList(Package packageService, List<Agent> agents) {
         super();
         m_package = packageService;
         if (agents != null) {
@@ -21,7 +21,7 @@ public class PackageAgentList {
         return m_package;
     }
 
-    public List<ServiceAgent> getAgents() {
+    public List<Agent> getAgents() {
         return m_agents;
     }
 
