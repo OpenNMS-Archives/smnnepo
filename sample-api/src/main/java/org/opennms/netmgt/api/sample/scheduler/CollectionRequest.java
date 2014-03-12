@@ -1,4 +1,4 @@
-package org.opennms.netmgt.api.scheduler;
+package org.opennms.netmgt.api.sample.scheduler;
 
 import org.opennms.netmgt.api.sample.Agent;
 

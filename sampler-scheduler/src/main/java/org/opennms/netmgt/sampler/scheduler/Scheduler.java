@@ -8,9 +8,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.opennms.netmgt.api.sample.Agent;
 import org.opennms.netmgt.api.sample.PackageAgentList;
+import org.opennms.netmgt.api.sample.scheduler.CollectionRequest;
 import org.opennms.netmgt.api.sample.support.Dispatcher;
 import org.opennms.netmgt.api.sample.support.SchedulerService;
-import org.opennms.netmgt.api.scheduler.CollectionRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
