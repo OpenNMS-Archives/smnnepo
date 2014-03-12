@@ -1,33 +1,59 @@
 <blueprint
 	xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
 	xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.1.0"
 	xsi:schemaLocation="
-		http://www.osgi.org/xmlns/blueprint/v1.0.0 
+		http://www.osgi.org/xmlns/blueprint/v1.0.0
 		http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
-
+		
 		http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
 		http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd
-
+		
 		http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.1.0
 		http://aries.apache.org/schemas/blueprint-ext/blueprint-ext-1.1.xsd
+
+		http://camel.apache.org/schema/blueprint
+		http://camel.apache.org/schema/blueprint/camel-blueprint-2.12.2.xsd
 ">
 
   <!-- Override with an etc/org.opennms.netmgt.sample.config.configuration.snmp.cfg -->
-  <cm:property-placeholder id="appConfig" persistent-id="org.opennms.netmgt.sampler.config.snmp" update-strategy="reload">
+  <!-- Configuration properties -->
+  <cm:property-placeholder id="properties" persistent-id="org.opennms.netmgt.sampler.config.snmp" update-strategy="none">
     <cm:default-properties>
+      <cm:property name="opennms.home" value="/opt/opennms"/>
       <cm:property name="datacollectionFile" value="/datacollection-config.xml" />
       <cm:property name="datacollectionDir" value="/datacollection" />
     </cm:default-properties>
   </cm:property-placeholder>
-  
+
+  <!-- Camel unmarshalling DataFormats -->
+  <bean id="jaxbDataFormat" class="org.opennms.netmgt.sampler.config.snmp.DataFormatUtils" factory-method="jaxb"/>
+
+  <!-- Beans that hold a copy of a configuration object -->
+  <bean id="snmpConfiguration" class="org.opennms.netmgt.api.sample.support.SingletonBeanFactory"/>
+  <bean id="snmpMetricRepository" class="org.opennms.netmgt.sampler.config.snmp.SnmpMetricRepository">
+    <argument value="file:${opennms.home}/etc/datacollection-config.xml"/>
+    <argument>
+      <array>
+        <value>file:${opennms.home}/etc/datacollection/mib2.xml</value>
+        <value>file:${opennms.home}/etc/datacollection/netsnmp.xml</value>
+        <value>file:${opennms.home}/etc/datacollection/dell.xml</value>
+      </array>
+    </argument>
+  </bean>
+
+  <!-- Camel EIP helper beans -->
+  <bean id="urlNormalizer" class="org.opennms.netmgt.api.sample.support.UrlNormalizer"/>
+
+  <!--
   <bean id="snmpMetricRepository" class="org.opennms.netmgt.sampler.config.snmp.SnmpMetricRepository">
   	<argument value="${datacollectionFile}" />
   	<argument value="${datacollectionDir}" />
   	<argument ref="blueprintBundle" />
   </bean>
-  
+  -->
+
   <service ref="snmpMetricRepository">
     <interfaces>
      <value>org.opennms.netmgt.api.sample.CollectionConfiguration</value>
@@ -47,12 +73,64 @@
     </service-properties>
   </service>
 
-    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
-        <command  name="snmp:add-agent">
-            <action class="org.opennms.netmgt.sampler.config.snmp.SnmpAddAgentCommand">
-              <property name="snmpAgentRepository" ref="snmpAgentRepository" />
-            </action>
-        </command>
-    </command-bundle>
+  <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
+    <command  name="snmp:add-agent">
+      <action class="org.opennms.netmgt.sampler.config.snmp.SnmpAddAgentCommand">
+        <property name="snmpAgentRepository" ref="snmpAgentRepository" />
+      </action>
+    </command>
+  </command-bundle>
+
+  <camelContext xmlns="http://camel.apache.org/schema/blueprint">
+    <propertyPlaceholder location="blueprint:properties"/>
+
+    <!-- Add exception handlers -->
+    <onException>
+      <exception>java.io.IOException</exception>
+      <handled><constant>true</constant></handled>
+      <!-- .logStackTrace(true) -->
+      <stop/>
+    </onException>
+
+    <!-- Call this to retrieve a URL in string form or URL form into the JAXB objects they represent. -->
+    <route>
+      <from uri="direct:parseXML"/>
+      <bean ref="urlNormalizer"/>
+      <unmarshal ref="jaxbDataFormat"/>
+    </route>
+
+    <!-- Direct route to fetch the config -->
+    <route>
+      <from uri="direct:snmpConfig"/>
+      <bean ref="snmpConfiguration" method="getInstance"/>
+    </route>
+
+    <route>
+      <from uri="direct:start"/>
+      <!-- Load all of the configs -->
+      <multicast parallelProcessing="true">
+        <to uri="direct:loadDataCollectionConfig"/>
+        <to uri="direct:loadSnmpConfig"/>
+      </multicast>
+      <log message="==== Configurations Loaded ===="/>
+      <!-- TODO: Do something else? -->
+    </route>
+
+	<!-- TODO: Create a reload timer that will check for changes to the config -->
+    <route>
+      <from uri="direct:loadDataCollectionConfig"/>
+      <log message="Refreshing snmpMetricRepository"/>
+      <bean ref="snmpMetricRepository" method="refresh"/>
+    </route>
+
+	<!-- TODO: Create a reload timer that will check for changes to the config -->
+    <route>
+      <from uri="direct:loadSnmpConfig"/>
+      <transform><constant>file:{{opennms.home}}/etc/snmp-config.xml</constant></transform>
+      <to uri="direct:parseXML"/>
+      <bean ref="snmpConfiguration" method="setInstance"/>
+    </route>
+
+  </camelContext>
 
 </blueprint>

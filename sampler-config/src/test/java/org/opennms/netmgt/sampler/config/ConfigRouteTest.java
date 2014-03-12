@@ -16,7 +16,6 @@ import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.apache.camel.util.KeyValueHolder;
-import org.junit.Before;
 import org.junit.Test;
 import org.opennms.netmgt.api.sample.Agent;
 import org.opennms.netmgt.api.sample.Agent.AgentList;
@@ -78,7 +77,7 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
 	@Override
 	protected String useOverridePropertiesWithConfigAdmin(Dictionary props) throws Exception {
 		props.put("opennms.home", OPENNMS_HOME);
-		return "org.opennms.netmgt.sampler.snmp";
+		return "org.opennms.netmgt.sampler.config";
 	}
 
 	@Test

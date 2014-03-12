@@ -18,7 +18,7 @@
 ">
 
   <!-- Configuration properties -->
-  <cm:property-placeholder id="properties" persistent-id="org.opennms.netmgt.sampler.snmp" update-strategy="none">
+  <cm:property-placeholder id="properties" persistent-id="org.opennms.netmgt.sampler.config" update-strategy="none">
     <cm:default-properties>
       <cm:property name="opennms.home" value="/opt/opennms"/>
     </cm:default-properties>
@@ -160,6 +160,7 @@
       <filter>
         <simple>${body.agents.size} &gt; 0</simple>
         <log message="Package: ${body.package}, Agents: ${body.agents}"/>
+        <!-- This endpoint is serviced by the schedulingDispatcher bean -->
         <to uri="seda:scheduleAgents"/>
       </filter>
     </route>
@@ -172,13 +173,6 @@
       </transform>
       <to uri="direct:parseJSON"/>
     </route>
-
-    <!-- 
-    <route>
-      <from uri="seda:scheduleAgents"/>
-      <log message="TODO: IMPLEMENT seda:scheduleAgents"/>
-    </route>
-    -->
 
   </camelContext>
 

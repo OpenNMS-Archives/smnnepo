@@ -75,7 +75,10 @@ public class SnmpMetricRepository implements MetricRepository, CollectionConfigu
 		
 		return urls.toArray(new URL[urls.size()]);
 	}
-	
+
+	/**
+	 * @deprecated Should be initialized with URIs for config files instead
+	 */
 	public SnmpMetricRepository(String dataCollectionPath, String dataCollectionDir, Bundle bundle) throws Exception {
 		this(bundle.getEntry(dataCollectionPath), findEntries(bundle, dataCollectionDir));
 	}

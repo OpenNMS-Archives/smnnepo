@@ -1,16 +1,19 @@
 package org.opennms.netmgt.api.sample.support;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.apache.camel.Consume;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class will convert all incoming objects to URLs.
  */
 public class DispatcherWhiteboard {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(DispatcherWhiteboard.class);
 
 	private BundleContext context;
 	private Class<?> messageClass;
@@ -72,7 +75,7 @@ public class DispatcherWhiteboard {
 	}
 
 	@Consume(property="endpointUri")
-	public void dispatch(Object message) throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+	public void dispatch(Object message) throws NoSuchMethodException, SecurityException {
 		if (tracker == null) {
 			tracker = new ServiceTracker(context, serviceClass, null);
 			tracker.open();
@@ -82,11 +85,17 @@ public class DispatcherWhiteboard {
 			method = serviceClass.getMethod(methodName, messageClass);
 		}
 
-		Object[] services = tracker.getServices();
-		if (services != null && services.length > 0) {
-			for (Object service : tracker.getServices()) {
-				method.invoke(service, message);
+		try {
+			Object[] services = tracker.getServices();
+			if (services != null && services.length > 0) {
+				for (Object service : tracker.getServices()) {
+					method.invoke(service, message);
+				}
 			}
+		} catch (Throwable e) {
+			// If anything goes wrong, log an error message
+			// TODO: Use a dead-letter channel?
+			LOG.warn("Message dispatch failed: " + e.getMessage(), e);
 		}
 	}
 }
