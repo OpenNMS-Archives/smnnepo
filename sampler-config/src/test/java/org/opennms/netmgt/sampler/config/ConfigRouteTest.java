@@ -84,12 +84,12 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
 	public void testParseXML() throws Exception {
 		context.start();
 
-		SnmpConfiguration resultsUsingURL = template.requestBody("direct:parseXML", new URL("file:" + OPENNMS_HOME + "/etc/snmp-config.xml"), SnmpConfiguration.class);
+		CollectdConfiguration resultsUsingURL = template.requestBody("direct:parseXML", new URL("file:" + OPENNMS_HOME + "/etc/collectd-configuration.xml"), CollectdConfiguration.class);
 
 		//System.err.printf("Results: %s\n", resultsUsingURL);
 		assertNotNull(resultsUsingURL);
 		
-		SnmpConfiguration resultsUsingString = template.requestBody("direct:parseXML", "file:" + OPENNMS_HOME + "/etc/snmp-config.xml", SnmpConfiguration.class);
+		CollectdConfiguration resultsUsingString = template.requestBody("direct:parseXML", "file:" + OPENNMS_HOME + "/etc/collectd-configuration.xml", CollectdConfiguration.class);
 
 		//System.err.printf("Results: %s\n", resultsUsingString);
 		assertNotNull(resultsUsingString);
