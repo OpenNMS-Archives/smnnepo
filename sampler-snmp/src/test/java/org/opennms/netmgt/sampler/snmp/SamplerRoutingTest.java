@@ -8,10 +8,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.jackson.JacksonDataFormat;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.apache.camel.converter.jaxb.JaxbDataFormat;
 import org.apache.camel.impl.DefaultExchange;
 import org.apache.camel.impl.JndiRegistry;
 import org.apache.camel.model.RouteDefinition;
@@ -25,7 +30,6 @@ import org.opennms.netmgt.api.sample.support.UrlNormalizer;
 import org.opennms.netmgt.config.collectd.CollectdConfiguration;
 import org.opennms.netmgt.config.collectd.Package;
 import org.opennms.netmgt.config.collectd.Service;
-import org.opennms.netmgt.sampler.config.DataFormatUtils;
 import org.opennms.netmgt.sampler.config.internal.PackageAgentAggregator;
 import org.opennms.netmgt.sampler.config.internal.PackageServiceSplitter;
 import org.opennms.netmgt.sampler.config.snmp.SnmpMetricRepository;
@@ -35,6 +39,21 @@ public class SamplerRoutingTest extends CamelTestSupport {
 	
 	private static URL url(String path) throws MalformedURLException {
 		return new URL("file:src/test/resources/" + path);
+	}
+
+	public static class DataFormatUtils {
+		public static JaxbDataFormat jaxb() {
+			try {
+				JAXBContext context = JAXBContext.newInstance(CollectdConfiguration.class, SnmpConfiguration.class);
+				return new JaxbDataFormat(context);
+			} catch (JAXBException e) {
+				throw new IllegalStateException("Cannot initialize JAXB context: " + e.getMessage(), e);
+			}
+		}
+
+		public static JacksonDataFormat jackson() {
+			return new JacksonDataFormat(AgentList.class);
+		}
 	}
 
 	@Override
