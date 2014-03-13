@@ -5,9 +5,10 @@ import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Set;
 
+import org.apache.camel.Exchange;
+import org.apache.camel.Processor;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
@@ -18,8 +19,6 @@ import org.junit.Test;
 import org.opennms.netmgt.api.sample.Agent;
 import org.opennms.netmgt.api.sample.Metric;
 import org.opennms.netmgt.api.sample.Resource;
-import org.opennms.netmgt.api.sample.Results;
-import org.opennms.netmgt.api.sample.Results.Row;
 import org.opennms.netmgt.api.sample.SampleRepository;
 import org.opennms.netmgt.api.sample.Timestamp;
 import org.opennms.netmgt.api.sample.support.SimpleFileRepository;
@@ -80,6 +79,8 @@ public class SnmpCollectorTest extends CamelTestSupport {
 			public void configure() throws Exception {
 
 				from("seda:collectAgent")
+					// Convert the generic Agent into an SnmpAgent
+					.bean(SnmpAgentProcessor.class)
 					// create a request for data collection for the agent
 					.beanRef("snmpMetricRepository", "createRequestForAgent")
 					// collect the data for the agent
@@ -98,6 +99,14 @@ public class SnmpCollectorTest extends CamelTestSupport {
 				;
 			}
 		};
+	}
+
+	public static class SnmpAgentProcessor implements Processor {
+		@Override
+		public void process(Exchange exchange) throws Exception {
+			Agent agent = exchange.getIn().getBody(Agent.class);
+			exchange.getIn().setBody(new SnmpAgent(agent));
+		}
 	}
 
 	@Test
@@ -119,9 +128,9 @@ public class SnmpCollectorTest extends CamelTestSupport {
 		Timestamp start = Timestamp.now();
 
 		for(int i = 1; i <= AGENT_COUNT; i++) {
-			SnmpAgent agent = new SnmpAgent(new InetSocketAddress("127.0.0." + String.valueOf(i), 161), String.valueOf(i));
-			agent.setSysObjectId(".1.3.6.1.4.1.8072.3.2.255");
-			agent.setCommunity("public");
+			Agent agent = new Agent(new InetSocketAddress("127.0.0." + String.valueOf(i), 161), "SNMP", String.valueOf(i));
+			agent.setParameter(SnmpAgent.PARAM_SYSOBJECTID, ".1.3.6.1.4.1.8072.3.2.255");
+			agent.setParameter(SnmpAgent.PARAM_COMMUNITY, "public");
 			template.sendBody("seda:collectAgent", agent);
 		}
 

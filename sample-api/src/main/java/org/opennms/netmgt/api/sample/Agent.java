@@ -4,6 +4,9 @@ import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -35,6 +38,8 @@ public class Agent implements Serializable {
     @XmlElement(name = "sysObjectId")
     protected String m_sysObjectId;
 
+    protected final Map<String,String> m_parameters = new HashMap<String,String>();
+
     public Agent() {
         m_serviceName = null;
         m_agentAddress = null;
@@ -47,6 +52,14 @@ public class Agent implements Serializable {
         m_port = agentAddress.getPort();
         m_serviceName = serviceName;
         m_agentId = (agentId == null) ? getFauxId() : agentId;
+    }
+
+    /**
+     * Copy constructor.
+     */
+    public Agent(final Agent agent) {
+        this(new InetSocketAddress(agent.getInetAddress(), agent.getPort()), agent.getServiceName(), agent.getId());
+        m_parameters.putAll(agent.getParameters());
     }
 
     @Deprecated
@@ -86,12 +99,16 @@ public class Agent implements Serializable {
         return m_serviceName;
     }
 
-    public String getSysObjectId() {
-        return m_sysObjectId;
+    public Map<String,String> getParameters() {
+        return Collections.unmodifiableMap(m_parameters);
     }
 
-    public void setSysObjectId(String sysObjectId) {
-        this.m_sysObjectId = sysObjectId;
+    public String getParameter(String key) {
+        return m_parameters.get(key);
+    }
+
+    public void setParameter(String key, String value) {
+        m_parameters.put(key, value);
     }
 
     @Override

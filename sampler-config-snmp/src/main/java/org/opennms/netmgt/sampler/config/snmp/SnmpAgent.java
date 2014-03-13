@@ -1,6 +1,5 @@
 package org.opennms.netmgt.sampler.config.snmp;
 
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import org.opennms.netmgt.api.sample.Agent;
@@ -8,55 +7,73 @@ import org.opennms.netmgt.api.sample.Agent;
 public class SnmpAgent extends Agent {
 	private static final long serialVersionUID = 1L;
 
-	private String m_community;
-	private String m_version = "v2c";
-	private int m_timeout = 800;
-	private int m_retries = 2;
+	public static final String SERVICE_NAME = "SNMP";
 
-	public SnmpAgent(InetSocketAddress agentAddress, String agentId) {
-		super(agentAddress, "SNMP", agentId);
+	public static final String PARAM_COMMUNITY = "community";
+	public static final String PARAM_RETRIES = "retries";
+	public static final String PARAM_SYSOBJECTID = "sysObjectId";
+	public static final String PARAM_TIMEOUT = "timeout";
+	public static final String PARAM_VERSION = "version";
+
+	public SnmpAgent(Agent agent) {
+		super(agent);
 	}
-	
+
+	@Deprecated
+	public SnmpAgent(InetSocketAddress agentAddress, String agentId) {
+		super(agentAddress, SERVICE_NAME, agentId);
+	}
+
+	public String getSysObjectId() {
+		return getParameter(PARAM_SYSOBJECTID);
+	}
+
+	public void setSysObjectId(String sysObjectId) {
+		setParameter(PARAM_SYSOBJECTID, sysObjectId);
+	}
+
 	public String getCommunity() {
-		return m_community;
+		return getParameter(PARAM_COMMUNITY);
 	}
 
 	public void setCommunity(String community) {
-		m_community = community;
+		setParameter(PARAM_COMMUNITY, community);
 	}
 
 	public String getVersion() {
-		return m_version;
+		String value = getParameter(PARAM_VERSION);
+		return value == null ? "v2c" : value;
 	}
 
 	public void setVersion(String version) {
-		m_version = version;
+		setParameter(PARAM_VERSION, version);
 	}
 
 	public int getTimeout() {
-		return m_timeout;
+		String value = getParameter(PARAM_TIMEOUT);
+		return value == null ? 800 : Integer.parseInt(value);
 	}
 
 	public void setTimeout(int timeout) {
-		m_timeout = timeout;
+		setParameter(PARAM_TIMEOUT, String.valueOf(timeout));
 	}
 
 	public int getRetries() {
-		return m_retries;
+		String value = getParameter(PARAM_RETRIES);
+		return value == null ? 2 : Integer.parseInt(value);
 	}
 
 	public void setRetries(int retries) {
-		m_retries = retries;
+		setParameter(PARAM_RETRIES, String.valueOf(retries));
 	}
 
 	@Override
 	public String toString() {
 		return getClass().getSimpleName() + "[" + super.toString() + ", name="+getId()
-				+ ", community=" + m_community
-				+ ", version=" + m_version
-				+ ", timeout=" + m_timeout
-				+ ", retries=" + m_retries
+				+ ", community=" + getCommunity()
+				+ ", version=" + getVersion()
+				+ ", timeout=" + getTimeout()
+				+ ", retries=" + getRetries()
 				+"]";
 	}
-
 }

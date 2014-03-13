@@ -9,20 +9,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class will convert all incoming objects to URLs.
+ * This class will redirect messages to the {@link DispatcherWhiteboard#m_endpointUri} URI
+ * to any OSGi services that are registered at the interface that is defined by the
+ * {@link #setMessageClassAsString(String)} method call.
  */
 public class DispatcherWhiteboard {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(DispatcherWhiteboard.class);
 
-	private BundleContext context;
-	private Class<?> messageClass;
-	private Class<?> serviceClass;
-	private String methodName = "dispatch";
+	private BundleContext m_context;
+	private Class<?> m_messageClass;
+	private Class<?> m_serviceClass;
+	private String m_methodName = "dispatch";
 	private final String m_endpointUri;
 
-	private ServiceTracker tracker = null;
-	private Method method = null;
+	private ServiceTracker m_tracker = null;
+	private Method m_method = null;
 
 	public DispatcherWhiteboard(String endpointUri) {
 		m_endpointUri = endpointUri;
@@ -33,63 +35,63 @@ public class DispatcherWhiteboard {
 	}
 
 	public void setContext(BundleContext context) {
-		this.context = context;
+		this.m_context = context;
 	}
 
 	public Class<?> getMessageClass() {
-		return messageClass;
+		return m_messageClass;
 	}
 
 	public void setMessageClass(Class<?> messageClass) {
-		this.messageClass = messageClass;
+		this.m_messageClass = messageClass;
 	}
 
 	public void setMessageClassAsString(String messageClass) throws ClassNotFoundException {
-		this.messageClass = Class.forName(messageClass);
+		this.m_messageClass = Class.forName(messageClass);
 	}
 
 	public Class<?> getServiceClass() {
-		return serviceClass;
+		return m_serviceClass;
 	}
 
 	public void setServiceClass(Class<?> serviceClass) {
-		this.serviceClass = serviceClass;
+		this.m_serviceClass = serviceClass;
 	}
 
 	public void setServiceClassAsString(String serviceClass) throws ClassNotFoundException {
-		this.serviceClass = Class.forName(serviceClass);
+		this.m_serviceClass = Class.forName(serviceClass);
 	}
 
 	public String getMethodName() {
-		return methodName;
+		return m_methodName;
 	}
 
 	public void setMethodName(String methodName) {
-		this.methodName = methodName;
+		this.m_methodName = methodName;
 	}
 
 	public void destroy() {
-		if (tracker != null) {
-			tracker.close();
+		if (m_tracker != null) {
+			m_tracker.close();
 		}
 	}
 
 	@Consume(property="endpointUri")
 	public void dispatch(Object message) throws NoSuchMethodException, SecurityException {
-		if (tracker == null) {
-			tracker = new ServiceTracker(context, serviceClass, null);
-			tracker.open();
+		if (m_tracker == null) {
+			m_tracker = new ServiceTracker(m_context, m_serviceClass, null);
+			m_tracker.open();
 		}
 
-		if (method == null) {
-			method = serviceClass.getMethod(methodName, messageClass);
+		if (m_method == null) {
+			m_method = m_serviceClass.getMethod(m_methodName, m_messageClass);
 		}
 
 		try {
-			Object[] services = tracker.getServices();
+			Object[] services = m_tracker.getServices();
 			if (services != null && services.length > 0) {
-				for (Object service : tracker.getServices()) {
-					method.invoke(service, message);
+				for (Object service : m_tracker.getServices()) {
+					m_method.invoke(service, message);
 				}
 			}
 		} catch (Throwable e) {
