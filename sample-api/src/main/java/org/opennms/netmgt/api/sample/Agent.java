@@ -96,7 +96,7 @@ public class Agent implements Serializable {
 
     @Override
     public String toString() {
-        return "SnmpAgent [id=" + m_agentId + ", address=" + m_agentAddress + ", port=" + m_port + ", serviceName=" + m_serviceName + ", sysObjectId=" + m_sysObjectId + "]";
+        return getClass().getSimpleName() + "[id=" + m_agentId + ", address=" + m_agentAddress + ", port=" + m_port + ", serviceName=" + m_serviceName + ", sysObjectId=" + m_sysObjectId + "]";
     };
 
     private String getFauxId() {

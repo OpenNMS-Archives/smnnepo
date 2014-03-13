@@ -8,33 +8,13 @@ import org.opennms.netmgt.api.sample.Agent;
 public class SnmpAgent extends Agent {
 	private static final long serialVersionUID = 1L;
 
-	private String m_systemObjId;
 	private String m_community;
 	private String m_version = "v2c";
 	private int m_timeout = 800;
 	private int m_retries = 2;
 
-	public SnmpAgent(InetSocketAddress agentAddress, String systemObjId, String agentId) {
+	public SnmpAgent(InetSocketAddress agentAddress, String agentId) {
 		super(agentAddress, "SNMP", agentId);
-		m_systemObjId = systemObjId;
-	}
-	
-	@Deprecated
-	public SnmpAgent(InetSocketAddress agentAddress, String systemObjId) {
-		this(agentAddress, systemObjId, null);
-	}
-	
-	@Deprecated
-	public SnmpAgent(InetAddress agentAddr, String systemObjId) {
-		this(new InetSocketAddress(agentAddr, 161), systemObjId);
-	}
-	
-	public String getSystemObjId() {
-		return m_systemObjId;
-	}
-
-	public void setSystemObjId(String systemObjId) {
-		m_systemObjId = systemObjId;
 	}
 	
 	public String getCommunity() {
@@ -71,12 +51,11 @@ public class SnmpAgent extends Agent {
 
 	@Override
 	public String toString() {
-		return "SnmpAgent[name="+getId()
+		return getClass().getSimpleName() + "[" + super.toString() + ", name="+getId()
 				+ ", community=" + m_community
 				+ ", version=" + m_version
 				+ ", timeout=" + m_timeout
 				+ ", retries=" + m_retries
-				+ ", sysOid="+m_systemObjId
 				+"]";
 	}
 

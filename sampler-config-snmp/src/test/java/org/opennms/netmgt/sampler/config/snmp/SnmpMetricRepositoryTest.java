@@ -143,7 +143,8 @@ public class SnmpMetricRepositoryTest {
     public void testBogusAgent() throws Exception {
 
         // bogus agent... no collection should match
-        SnmpAgent agent = new SnmpAgent(new InetSocketAddress("10.1.1.1", 161), ".666", "Smith");
+        SnmpAgent agent = new SnmpAgent(new InetSocketAddress("10.1.1.1", 161), "Smith");
+        agent.setSysObjectId(".666");
 
         SnmpCollectionRequest request = m_repository.createRequestForAgent(agent);
         assertNotNull(request);
@@ -160,7 +161,8 @@ public class SnmpMetricRepositoryTest {
     @Test
     public void testBrokenNetSNMPAgent() throws Exception {
 
-        SnmpAgent agent = new SnmpAgent(new InetSocketAddress("10.1.1.1", 161), ".0.1", "Smith");
+        SnmpAgent agent = new SnmpAgent(new InetSocketAddress("10.1.1.1", 161), "Smith");
+        agent.setSysObjectId(".0.1");
 
         SnmpCollectionRequest request = m_repository.createRequestForAgent(agent);
         assertNotNull(request);
@@ -178,7 +180,8 @@ public class SnmpMetricRepositoryTest {
     public void testCollectionTracker() throws Exception {
         InetSocketAddress agentAddress = new InetSocketAddress("10.1.1.1", 161);
 
-        final SnmpAgent agent = new SnmpAgent(agentAddress, ".666", "Smith");
+        final SnmpAgent agent = new SnmpAgent(agentAddress, "Smith");
+        agent.setSysObjectId(".666");
         final SnmpCollectionRequest request = m_repository.createRequestForAgent(agent);
 
         LOG.debug("groups: {}", request.getGroups());

@@ -99,7 +99,7 @@ public class SystemDef {
 	}
 	
 	public boolean matches(SnmpAgent agent) {
-		String systemObjId = agent.getSystemObjId();
+		String systemObjId = agent.getSysObjectId();
 		
 		return (m_sysoid == null && m_sysoidMask == null)
 			|| (m_sysoid != null && systemObjId.equals(m_sysoid))
