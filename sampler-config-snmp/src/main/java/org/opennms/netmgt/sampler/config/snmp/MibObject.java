@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.opennms.netmgt.api.sample.Metric;
 import org.opennms.netmgt.api.sample.MetricType;
+import org.opennms.netmgt.api.sample.NanValue;
 import org.opennms.netmgt.api.sample.Resource;
 import org.opennms.netmgt.api.sample.SampleSet;
 import org.opennms.netmgt.api.sample.SampleValue;
@@ -17,6 +18,9 @@ import org.opennms.netmgt.snmp.SingleInstanceTracker;
 import org.opennms.netmgt.snmp.SnmpInstId;
 import org.opennms.netmgt.snmp.SnmpObjId;
 import org.opennms.netmgt.snmp.SnmpResult;
+import org.opennms.netmgt.snmp.SnmpValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *  <mibObj oid=".1.3.6.1.2.1.10.132.2" instance="0" alias="coffeePotCapacity" type="integer" />
@@ -27,8 +31,9 @@ import org.opennms.netmgt.snmp.SnmpResult;
 @XmlRootElement(name="mibObj")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class MibObject {
-	
-	@XmlAttribute(name="oid")
+    protected static final Logger LOG = LoggerFactory.getLogger(MibObject.class);
+
+    @XmlAttribute(name="oid")
 	@XmlJavaTypeAdapter(SnmpObjIdXmlAdapter.class)
 	private SnmpObjId m_oid;
 	
@@ -94,7 +99,7 @@ public class MibObject {
 	}
 
 	public Metric createMetric() {
-		MetricType type = getMetricType();
+		final MetricType type = getMetricType();
 		if (type == null) return null;
 		return new Metric(getAlias(), type, m_group.getName());
 	}
@@ -104,7 +109,24 @@ public class MibObject {
             @Override
             protected void storeResult(final SnmpResult res) {
                 final Metric metric = createMetric();
-                final SampleValue<?> sampleValue = metric.getType().getValue(res.getValue().toBigInteger());
+                if (metric == null) {
+                    final String errorMessage = "Unable to create metric for SnmpResult " + res + "!";
+                    LOG.error(errorMessage + " (alias={}, metricType={}, group={})", getAlias(), getMetricType(), m_group);
+                    throw new IllegalArgumentException(errorMessage);
+                }
+                final MetricType type = metric.getType();
+                if (type == null) {
+                    final String errorMessage = "Unable to determine type for SnmpResult " + res + "!";
+                    LOG.error(errorMessage);
+                    throw new IllegalArgumentException(errorMessage);
+                }
+                final SnmpValue value = res.getValue();
+                final SampleValue<?> sampleValue;
+                if (value == null) {
+                    sampleValue = new NanValue();
+                } else {
+                    sampleValue = type.getValue(value.toBigInteger());
+                }
                 sampleSet.addMeasurement(resource, metric, sampleValue);
             }
         };
