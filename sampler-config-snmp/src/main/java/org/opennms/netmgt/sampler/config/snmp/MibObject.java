@@ -86,16 +86,18 @@ public class MibObject {
 	}
 
 	public MetricType getMetricType() {
-		String type = getType().toLowerCase();
-		if (type.startsWith("counter")) {
-			return MetricType.COUNTER;
-		} else if (type.startsWith("gauge")) {
-			return MetricType.GAUGE;
-		} else if (type.startsWith("integer")) {
-			return MetricType.GAUGE;
-		} else {
-			return null;
-		}
+	    final String type = getType().toLowerCase();
+	    if (type.startsWith("counter")) {
+	        return MetricType.COUNTER;
+	    } else if (type.startsWith("gauge")) {
+	        return MetricType.GAUGE;
+	    } else if (type.startsWith("integer")) {
+	        return MetricType.GAUGE;
+	    } else if (type.startsWith("timeticks")) {
+	        return MetricType.GAUGE;
+	    } else {
+	        return null;
+	    }
 	}
 
 	public Metric createMetric() {
@@ -111,7 +113,7 @@ public class MibObject {
                 final Metric metric = createMetric();
                 if (metric == null) {
                     final String errorMessage = "Unable to create metric for SnmpResult " + res + "!";
-                    LOG.error(errorMessage + " (alias={}, metricType={}, group={})", getAlias(), getMetricType(), m_group);
+                    LOG.error(errorMessage + " (type={}, alias={}, metricType={}, group={})", getType(), getAlias(), getMetricType(), m_group);
                     throw new IllegalArgumentException(errorMessage);
                 }
                 final MetricType type = metric.getType();
