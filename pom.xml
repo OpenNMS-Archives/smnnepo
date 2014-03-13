@@ -16,7 +16,7 @@
   <groupId>org.opennms.netmgt.sample</groupId>
   <artifactId>sample-parent</artifactId>
 
-  <name>Sample Collection and Storage</name>
+  <name>SMNnepO - Sample Collection and Storage</name>
   
   <packaging>pom</packaging>
 
