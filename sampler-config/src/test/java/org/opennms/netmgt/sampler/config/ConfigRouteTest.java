@@ -1,5 +1,6 @@
 package org.opennms.netmgt.sampler.config;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.apache.camel.util.KeyValueHolder;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opennms.netmgt.api.sample.Agent;
 import org.opennms.netmgt.api.sample.Agent.AgentList;
@@ -25,7 +27,10 @@ import org.opennms.netmgt.api.sample.support.SingletonBeanFactory;
 import org.opennms.netmgt.config.collectd.CollectdConfiguration;
 import org.opennms.netmgt.config.collectd.Package;
 import org.opennms.netmgt.config.collectd.Service;
-import org.opennms.netmgt.snmp.SnmpConfiguration;
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
 
 public class ConfigRouteTest extends CamelBlueprintTestSupport {
 	
@@ -36,6 +41,12 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
 	}
 
 	private CountDownLatch m_schedulerServiceCalls = null;
+
+	@BeforeClass
+	public static void configureLogging() throws SecurityException, IOException {
+		LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+		lc.getLogger("org.apache.aries.blueprint").setLevel(Level.INFO);
+	}
 
 	@Override
 	public boolean isUseAdviceWith() {

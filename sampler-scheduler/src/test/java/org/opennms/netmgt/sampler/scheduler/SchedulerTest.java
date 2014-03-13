@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.apache.camel.util.KeyValueHolder;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opennms.core.network.IPAddress;
 import org.opennms.netmgt.api.sample.Agent;
@@ -48,15 +48,13 @@ public class SchedulerTest extends CamelBlueprintTestSupport {
         services.put(Dispatcher.class.getName(), new KeyValueHolder<Object,Dictionary>(m_latchDispatcher, props));
     }
     
-    @Before
-    @Override
-    public void setUp() throws Exception {
+    @BeforeClass
+    public static void configureLogging() throws Exception {
         // bad bad bad!
         for (final String pack : new String[]{"org.apache.camel", "org.apache.aries"}) {
             final ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger)LoggerFactory.getLogger(pack);
             logger.setLevel(Level.INFO);
         }
-        super.setUp();
     }
 
     @Test

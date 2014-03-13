@@ -7,6 +7,7 @@ import java.util.Dictionary;
 
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opennms.netmgt.api.sample.support.SingletonBeanFactory;
 import org.opennms.netmgt.snmp.SnmpConfiguration;
@@ -23,8 +24,8 @@ public class SnmpConfigRoutesTest extends CamelBlueprintTestSupport {
 		return new URL("file:" + OPENNMS_HOME + "/" + path);
 	}
 
-	@Before
-	public void configureLogging() throws SecurityException, IOException {
+	@BeforeClass
+	public static void configureLogging() throws SecurityException, IOException {
 		LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
 		lc.getLogger("org.apache.aries.blueprint").setLevel(Level.INFO);
 	}
