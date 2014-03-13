@@ -19,10 +19,10 @@ public class SnmpCollectionRequest implements CollectionRequest<SnmpAgent> {
 	
 	private SnmpAgent m_agent;
 	
-	final private Map<String, ResourceType> m_typeMap = new HashMap<String, ResourceType>();
-	final private Map<String, List<Table>> m_tablesByResourceType = new HashMap<String, List<Table>>();
-	final private List<Table> m_tables = new ArrayList<Table>();
-	final private List<Group> m_groups = new ArrayList<Group>();
+	private final Map<String, ResourceType> m_typeMap = new HashMap<String, ResourceType>();
+	private final Map<String, List<Table>> m_tablesByResourceType = new HashMap<String, List<Table>>();
+	private final List<Table> m_tables = new ArrayList<Table>();
+	private final List<Group> m_groups = new ArrayList<Group>();
 
 	public SnmpCollectionRequest(SnmpAgent agent) {
 		m_agent = agent;

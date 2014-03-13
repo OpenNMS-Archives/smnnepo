@@ -95,7 +95,7 @@ public class ResourceType {
 	}
 
 	public void setColumns(Column[] columns) {
-		m_columns = columns;
+		m_columns = columns == null? null : columns.clone();
 	}
 	
 	public String toString() {

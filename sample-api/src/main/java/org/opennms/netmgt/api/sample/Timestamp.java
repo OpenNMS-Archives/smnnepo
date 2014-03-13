@@ -71,7 +71,9 @@ public class Timestamp implements Comparable<Timestamp>, Serializable {
 
 	@Override
 	public boolean equals(Object other) {
-		return asMillis() == ((Timestamp)other).asMillis();
+	    if (other == null) return false;
+	    if (!(other instanceof Timestamp)) return false;
+	    return asMillis() == ((Timestamp)other).asMillis();
 	}
 
 	@Override

@@ -29,5 +29,5 @@ public enum MetricType {
         }
     };
 
-    abstract public SampleValue<?> getValue(Number n);
+    public abstract SampleValue<?> getValue(Number n);
 }

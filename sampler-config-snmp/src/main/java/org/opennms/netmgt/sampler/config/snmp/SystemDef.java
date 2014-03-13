@@ -77,7 +77,7 @@ public class SystemDef {
 	}
 
 	public void setIncludes(String[] includes) {
-		m_includes = includes;
+		m_includes = includes == null? null : includes.clone();
 	}
 	
 	public void initialize(Map<String, Table> tableMap,	Map<String, Group> groupMap) {

@@ -44,8 +44,8 @@ public abstract class PropertiesUtils {
 	private static final String PLACEHOLDER_SUFFIX = "}";
     private static final String PLACEHOLDER_PREFIX = "${";
 
-    public static interface SymbolTable {
-		public String getSymbolValue(String symbol);
+    public interface SymbolTable {
+		String getSymbolValue(String symbol);
 	}
 	
 	private static class PropertyBasedSymbolTable implements SymbolTable {

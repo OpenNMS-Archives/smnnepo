@@ -28,7 +28,7 @@ public class CassandraAdapter extends SampleProcessor {
 
 	public CassandraAdapter(Resource resource, Metric[] metrics, ResultSet resultSet) {
 		m_resource = resource;
-		m_metrics = metrics;
+		m_metrics = metrics == null? null : metrics.clone();
 		m_resultIterator = resultSet.iterator();
 		if (m_resultIterator.hasNext()) {
 			m_peeked = m_resultIterator.next();

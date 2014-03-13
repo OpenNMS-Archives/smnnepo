@@ -5,6 +5,6 @@ import org.opennms.netmgt.sampler.config.snmp.SnmpCollectionRequest;
 
 public interface SnmpCollector {
 
-	public abstract SampleSet collect(SnmpCollectionRequest request) throws Exception;
+	abstract SampleSet collect(SnmpCollectionRequest request) throws Exception;
 
 }

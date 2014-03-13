@@ -17,13 +17,13 @@ import java.util.Set;
 public class SampleSet implements Serializable {
 	private static final long serialVersionUID	= 1L;
 
-	final private Timestamp m_timestamp;
+	private final Timestamp m_timestamp;
 
-	final private List<Sample> m_measurements;
+	private final List<Sample> m_measurements;
 
-	transient private Map<Resource, Map<String, LinkedList<Sample>>> m_byResourceGroup;
-	transient private Map<Resource, LinkedList<Sample>> m_byResource;
-	transient private Map<String, LinkedList<Sample>> m_byGroup;
+	private transient Map<Resource, Map<String, LinkedList<Sample>>> m_byResourceGroup;
+	private transient Map<Resource, LinkedList<Sample>> m_byResource;
+	private transient Map<String, LinkedList<Sample>> m_byGroup;
 
 	private boolean m_dirtyByResourceGroup = false;
 	private boolean m_dirtyByResource = false;

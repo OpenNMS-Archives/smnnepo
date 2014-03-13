@@ -5,5 +5,5 @@ import org.opennms.netmgt.api.sample.scheduler.CollectionRequest;
 
 public interface Dispatcher {
     @InOnly
-    public void dispatch(CollectionRequest request);
+    void dispatch(CollectionRequest request);
 }

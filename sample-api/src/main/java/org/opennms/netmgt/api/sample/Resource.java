@@ -40,7 +40,9 @@ public class Resource implements Comparable<Resource>, Serializable {
 
 	@Override
 	public boolean equals(Object other) {
-		return getIdentifier().equals(((Resource)other).getIdentifier());
+	    if (other == null) return false;
+	    if (!(other instanceof Resource)) return false;
+	    return getIdentifier().equals(((Resource)other).getIdentifier());
 	}
 
 	@Override

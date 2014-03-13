@@ -69,7 +69,7 @@ public class Table {
 	}
 
 	public void setColumns(Column[] columns) {
-		m_columns = columns;
+		m_columns = columns == null? null : columns.clone();
 	}
 
 	public void initialize(ResourceType type) {

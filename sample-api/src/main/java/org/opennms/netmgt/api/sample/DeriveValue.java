@@ -74,16 +74,4 @@ public class DeriveValue extends SampleValue<Long> {
 		// TODO Auto-generated method stub
 		return 0;
 	}
-
-	@Override
-	public boolean equals(Object o) {
-		// TODO: stubbed
-		return false;
-	}
-
-	@Override
-	public int hashCode() {
-		// TODO: stubbed
-		return 0;
-	}
 }

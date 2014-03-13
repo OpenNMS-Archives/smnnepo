@@ -33,7 +33,7 @@ public interface SampleRepository {
 	 *            a sequence of metrics to include in the results.
 	 * @return a {@link Results} instance containing the results of the search.
 	 */
-	public Results find(SampleProcessorBuilder builder, Timestamp start, Timestamp end, Resource resource, Metric... metrics);
+	Results find(SampleProcessorBuilder builder, Timestamp start, Timestamp end, Resource resource, Metric... metrics);
 	
-	public void save(SampleSet samples);
+	void save(SampleSet samples);
 }

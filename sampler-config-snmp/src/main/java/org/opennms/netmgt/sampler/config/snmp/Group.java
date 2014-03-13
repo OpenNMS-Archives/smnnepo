@@ -51,7 +51,7 @@ public class Group {
 	}
 
 	public void setMibObjects(MibObject[] mibObjects) {
-		m_mibObjects = mibObjects;
+		m_mibObjects = mibObjects == null? null : mibObjects.clone();
 	}
 
 	public void initialize() {

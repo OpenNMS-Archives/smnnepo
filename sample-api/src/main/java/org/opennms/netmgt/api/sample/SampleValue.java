@@ -101,4 +101,35 @@ public abstract class SampleValue<T extends Number> extends Number implements Co
 	public abstract SampleValue<?> divide(Number object);
 
 	public abstract MetricType getType();
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((m_value == null) ? 0 : m_value.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof SampleValue)) {
+            return false;
+        }
+        @SuppressWarnings("rawtypes")
+        final SampleValue other = (SampleValue) obj;
+        if (m_value == null) {
+            if (other.m_value != null) {
+                return false;
+            }
+        } else if (!m_value.equals(other.m_value)) {
+            return false;
+        }
+        return true;
+    }
 }
