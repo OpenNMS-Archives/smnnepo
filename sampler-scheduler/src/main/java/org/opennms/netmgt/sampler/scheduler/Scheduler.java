@@ -1,9 +1,12 @@
 package org.opennms.netmgt.sampler.scheduler;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.opennms.netmgt.api.sample.Agent;
@@ -23,6 +26,7 @@ public class Scheduler implements SchedulerService {
     private final ScheduledExecutorService m_executor;
 
     final ConcurrentHashMap<String,Dispatcher> m_dispatchers = new ConcurrentHashMap<String, Dispatcher>();
+    final ConcurrentHashMap<String,List<ScheduledFuture<?>>> m_schedules = new ConcurrentHashMap<String,List<ScheduledFuture<?>>>();
 
     public Scheduler(int poolSize) {
         m_executor = Executors.newScheduledThreadPool(poolSize);
@@ -65,18 +69,30 @@ public class Scheduler implements SchedulerService {
         LOG.debug("Scheduling agents: {}", agentSchedule);
         final Long interval = agentSchedule.getInterval();
         final String service = agentSchedule.getServiceName();
+        final String id = agentSchedule.getId();
 
         int count = 0;
         double offset = interval / (double)agentSchedule.getAgents().size();
 
+        if (m_schedules.containsKey(id)) {
+            for (final ScheduledFuture<?> future : m_schedules.get(id)) {
+                LOG.debug("Canceling: {}", future);
+                future.cancel(false);
+            }
+        }
+
+        final List<ScheduledFuture<?>> futures = new ArrayList<ScheduledFuture<?>>();
         for (final Agent agent : agentSchedule.getAgents()) {
-            m_executor.scheduleAtFixedRate(new Runnable() {
+            final ScheduledFuture<?> future = m_executor.scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
                     getDispatcher(service).dispatch(agent);
                 }
             }, (long)(count * offset), interval, TimeUnit.MILLISECONDS);
             count++;
+            futures.add(future);
         }
+        
+        m_schedules.put(id, futures);
     }
 }

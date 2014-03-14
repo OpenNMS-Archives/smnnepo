@@ -39,6 +39,11 @@ public class SchedulerTest extends CamelBlueprintTestSupport {
     };
 
     @Override
+    public boolean isCreateCamelContextPerClass() {
+        return false;
+    }
+
+    @Override
     @SuppressWarnings("rawtypes")
     protected void addServicesOnStartup(final Map<String, KeyValueHolder<Object, Dictionary>> services) {
         final Properties props = new Properties();
@@ -65,6 +70,7 @@ public class SchedulerTest extends CamelBlueprintTestSupport {
         final PackageAgentList agentSchedule = new PackageAgentList(getPackage(), agents);
         scheduler.schedule(agentSchedule);
         assertTrue(m_latchDispatcher.await(8, TimeUnit.SECONDS));
+        scheduler.schedule(new PackageAgentList(getPackage(), new ArrayList<Agent>()));
     }
 
     @Test

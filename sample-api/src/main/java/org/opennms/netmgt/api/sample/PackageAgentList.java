@@ -33,4 +33,13 @@ public class PackageAgentList {
         return m_package.getServices().get(0).getName();
     }
 
+    public String getId() {
+        return getPackage().getName() + "/" + getServiceName();
+    }
+
+    @Override
+    public String toString() {
+        return "PackageAgentList [package=" + m_package + ", agents=" + m_agents + "]";
+    }
+
 }
