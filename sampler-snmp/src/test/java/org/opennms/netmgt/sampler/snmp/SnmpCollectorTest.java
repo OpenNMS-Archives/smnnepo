@@ -1,6 +1,7 @@
 package org.opennms.netmgt.sampler.snmp;
 
 import java.io.File;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -16,6 +17,11 @@ import org.apache.camel.impl.JndiRegistry;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.opennms.core.test.TestContextAware;
+import org.opennms.core.test.TestContextAwareExecutionListener;
+import org.opennms.core.test.snmp.JUnitSnmpAgentExecutionListener;
+import org.opennms.core.test.snmp.annotations.JUnitSnmpAgent;
 import org.opennms.netmgt.api.sample.Agent;
 import org.opennms.netmgt.api.sample.Metric;
 import org.opennms.netmgt.api.sample.Resource;
@@ -27,12 +33,31 @@ import org.opennms.netmgt.sampler.config.snmp.SnmpMetricRepository;
 import org.opennms.netmgt.sampler.snmp.internal.DefaultSnmpCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestContext;
+import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-public class SnmpCollectorTest extends CamelTestSupport {
+@RunWith(SpringJUnit4ClassRunner.class)
+@TestExecutionListeners({
+	TestContextAwareExecutionListener.class,
+	JUnitSnmpAgentExecutionListener.class
+})
+@ContextConfiguration(locations={
+	"classpath:/snmpCollectorTest-context.xml"
+})
+public class SnmpCollectorTest extends CamelTestSupport implements TestContextAware {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(SnmpCollectorTest.class);
 
 	public static final int AGENT_COUNT = 1;
+	
+	private TestContext m_testContext;
+
+	@Override
+	public void setTestContext(TestContext testContext) {
+		m_testContext = testContext;
+	}
 
 	@Override
 	public boolean isUseAdviceWith() {
@@ -101,6 +126,9 @@ public class SnmpCollectorTest extends CamelTestSupport {
 		};
 	}
 
+	/**
+	 * Wrap an {@link Agent} instance in a {@link SnmpAgent} instance. 
+	 */
 	public static class SnmpAgentProcessor implements Processor {
 		@Override
 		public void process(Exchange exchange) throws Exception {
@@ -110,6 +138,7 @@ public class SnmpCollectorTest extends CamelTestSupport {
 	}
 
 	@Test
+	@JUnitSnmpAgent(resource="classpath:laptop.properties")
 	public void test() throws Exception {
 		// Add mock endpoints to the route context
 		for (RouteDefinition route : new ArrayList<RouteDefinition>(context.getRouteDefinitions())) {
@@ -128,7 +157,14 @@ public class SnmpCollectorTest extends CamelTestSupport {
 		Timestamp start = Timestamp.now();
 
 		for(int i = 1; i <= AGENT_COUNT; i++) {
-			Agent agent = new Agent(new InetSocketAddress("127.0.0." + String.valueOf(i), 161), "SNMP", String.valueOf(i));
+			Agent agent = new Agent(
+				new InetSocketAddress(
+					(InetAddress)m_testContext.getAttribute(JUnitSnmpAgentExecutionListener.IPADDRESS_KEY),
+					1161
+				),
+				"SNMP",
+				String.valueOf(i)
+			);
 			agent.setParameter(SnmpAgent.PARAM_SYSOBJECTID, ".1.3.6.1.4.1.8072.3.2.255");
 			agent.setParameter(SnmpAgent.PARAM_COMMUNITY, "public");
 			template.sendBody("seda:collectAgent", agent);
@@ -141,7 +177,18 @@ public class SnmpCollectorTest extends CamelTestSupport {
 		SampleRepository repository = context().getRegistry().lookupByNameAndType("sampleRepository", SampleRepository.class);
 		SnmpMetricRepository metricRepo = context().getRegistry().lookupByNameAndType("snmpMetricRepository", SnmpMetricRepository.class);
 
-		Resource resource = new Resource(new Agent(new InetSocketAddress("127.0.0.1", 161), "snmp"), "dskIndex", "/");
+		Resource resource = new Resource(
+			new Agent(
+				new InetSocketAddress(
+					(InetAddress)m_testContext.getAttribute(JUnitSnmpAgentExecutionListener.IPADDRESS_KEY),
+					1161
+				),
+				"SNMP",
+				"1"
+			),
+			"dskIndex",
+			"/"
+		);
 		Set<Metric> metricSet = metricRepo.getMetrics("net-snmp-disk");
 		assertNotNull(metricSet);
 		Metric[] metrics = metricSet.toArray(new Metric[0]);

@@ -25,13 +25,20 @@ import org.opennms.netmgt.api.sample.SampleProcessorBuilder;
 import org.opennms.netmgt.api.sample.SampleRepository;
 import org.opennms.netmgt.api.sample.SampleSet;
 import org.opennms.netmgt.api.sample.Timestamp;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * This class prints collected samples to a file. It appends new results to the end of the file.
+ */
 public class SimpleFileRepository implements SampleRepository {
 	
-	private static final String SEPERATOR = "$";
+	private static final Logger LOG = LoggerFactory.getLogger(SimpleFileRepository.class);
 	
-	private File m_attributesFile;
-	private File m_sampleFile;
+	private static final String SEPARATOR = "$";
+	
+	private final File m_attributesFile;
+	private final File m_sampleFile;
 	
 	public SimpleFileRepository(File attributesFile, File sampleFile) {
 		m_attributesFile = attributesFile;
@@ -45,20 +52,24 @@ public class SimpleFileRepository implements SampleRepository {
     		out = new PrintWriter(new BufferedWriter(new FileWriter(m_sampleFile, true)));
     		
             for(Sample m : samples.getSamples()) {
-                System.err.println(String.format(
+                LOG.info(String.format(
                 		"Saving Measurement: %s for %s at %s = %.1f",
                 		m.getMetric().getName(),
                 		m.getResource().getIdentifier(),
                 		m.getTimestamp().asDate(),
                 		m.getValue().doubleValue()));
-                out.printf("%s %s %d %s\n", m.getResource().getIdentifier(), m.getMetric().getName(), m.getTimestamp().convert(TimeUnit.SECONDS), m.getValue());
+                out.printf("%s %s %d %s%n", m.getResource().getIdentifier(), m.getMetric().getName(), m.getTimestamp().convert(TimeUnit.SECONDS), m.getValue());
             }
 
     		
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		} finally {
-			try { if (out != null) out.close(); } catch(Exception e) {}
+			try {
+				if (out != null) {
+					out.close(); 
+				} 
+			} catch(Throwable e) {}
 		}
     	
     	Properties attributes = loadAttributes();     
@@ -72,8 +83,8 @@ public class SimpleFileRepository implements SampleRepository {
     	storeAttributes(attributes);
     }
     
-    private String prefix(Resource r) {
-    	return r.getIdentifier()+SEPERATOR;
+    private static String prefix(Resource r) {
+    	return r.getIdentifier()+SEPARATOR;
     }
     
     private Properties loadAttributes() {
