@@ -6,6 +6,7 @@ import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Set;
 
 import org.apache.camel.Exchange;
@@ -25,6 +26,8 @@ import org.opennms.core.test.snmp.annotations.JUnitSnmpAgent;
 import org.opennms.netmgt.api.sample.Agent;
 import org.opennms.netmgt.api.sample.Metric;
 import org.opennms.netmgt.api.sample.Resource;
+import org.opennms.netmgt.api.sample.Results;
+import org.opennms.netmgt.api.sample.Results.Row;
 import org.opennms.netmgt.api.sample.SampleRepository;
 import org.opennms.netmgt.api.sample.Timestamp;
 import org.opennms.netmgt.api.sample.support.SimpleFileRepository;
@@ -79,11 +82,15 @@ public class SnmpCollectorTest extends CamelTestSupport implements TestContextAw
 		JndiRegistry registry = super.createRegistry();
 
 		SnmpMetricRepository repository = new SnmpMetricRepository(
-			url("datacollection-config.xml"), 
-			url("datacollection/mib2.xml"), 
+			url("datacollection-config.xml"),
+			url("datacollection/mib2.xml"),
 			url("datacollection/netsnmp.xml"),
 			url("datacollection/dell.xml")
 		);
+
+		// Delete the test files after the test completes
+		new File("target/attributes.properties").delete();
+		new File("target/samples.txt").delete();
 
 		SimpleFileRepository sampleRepository = new SimpleFileRepository(
 			new File("target/attributes.properties"),
@@ -177,6 +184,12 @@ public class SnmpCollectorTest extends CamelTestSupport implements TestContextAw
 		SampleRepository repository = context().getRegistry().lookupByNameAndType("sampleRepository", SampleRepository.class);
 		SnmpMetricRepository metricRepo = context().getRegistry().lookupByNameAndType("snmpMetricRepository", SnmpMetricRepository.class);
 
+		Set<Metric> metricSet = metricRepo.getMetrics("ucd-loadavg");
+		assertNotNull(metricSet);
+		Metric[] metrics = metricSet.toArray(new Metric[0]);
+		assertNotNull(metrics);
+		assertEquals(3, metrics.length);
+
 		Resource resource = new Resource(
 			new Agent(
 				new InetSocketAddress(
@@ -186,25 +199,16 @@ public class SnmpCollectorTest extends CamelTestSupport implements TestContextAw
 				"SNMP",
 				"1"
 			),
-			"dskIndex",
-			"/"
+			"node",
+			"ucd-loadavg"
 		);
-		Set<Metric> metricSet = metricRepo.getMetrics("net-snmp-disk");
-		assertNotNull(metricSet);
-		Metric[] metrics = metricSet.toArray(new Metric[0]);
-		assertNotNull(metrics);
-		assertEquals(4, metrics.length);
 
-		/*
-		
-		TODO: Doesn't work yet
-		
-		Results results = repository.find(null, start, end, resource, metrics);
+		// Retrieve all results from the repository that match the resource and metrics
+		Results results = repository.find(null, null, null, resource, metrics);
 		assertNotNull(results);
 		LOG.info("RESULTS: " + results);
 		Collection<Row> rows = results.getRows();
 		assertNotNull(rows);
 		assertEquals(1, rows.size());
-		*/
 	}
 }
