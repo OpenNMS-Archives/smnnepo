@@ -69,7 +69,6 @@ public class SchedulerTest extends CamelBlueprintTestSupport {
 
     @Test
     public void testScheduleAgentsFromBundle() throws Exception {
-        context.start();
         final ServiceReference<SchedulerService> ref = getBundleContext().getServiceReference(SchedulerService.class);
         assertNotNull(ref);
         final SchedulerService schedulerService = getBundleContext().getService(ref);

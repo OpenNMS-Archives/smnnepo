@@ -58,27 +58,27 @@ public class SnmpConfigRoutesTest extends CamelBlueprintTestSupport {
 
 	@Test
 	public void testParseXML() throws Exception {
-		context.start();
-
+	        System.err.printf("Starting testParseXML");
 		SnmpConfiguration resultsUsingURL = template.requestBody("direct:parseXML", new URL("file:" + OPENNMS_HOME + "/etc/snmp-config.xml"), SnmpConfiguration.class);
 
-		//System.err.printf("Results: %s\n", resultsUsingURL);
+		System.err.printf("Results Using URL: %s\n", resultsUsingURL);
 		assertNotNull(resultsUsingURL);
 
 		SnmpConfiguration resultsUsingString = template.requestBody("direct:parseXML", "file:" + OPENNMS_HOME + "/etc/snmp-config.xml", SnmpConfiguration.class);
 
-		//System.err.printf("Results: %s\n", resultsUsingString);
+		System.err.printf("Results Using String: %s\n", resultsUsingString);
 		assertNotNull(resultsUsingString);
 	}
 
 	@Test
 	public void testLoadSnmpConfig() throws Exception {
-		context.start();
+            System.err.printf("Starting testLoadSnmpConfig");
 
-		template.requestBody("direct:loadSnmpConfig", null, String.class);
+            template.requestBody("direct:loadSnmpConfig", null, String.class);
 
 		SingletonBeanFactory<SnmpConfiguration> configSvc = bean("snmpConfiguration", SingletonBeanFactory.class);
 
+		System.err.printf("configSvc: %s\n", configSvc);
 		assertNotNull(configSvc);
 		assertNotNull(configSvc.getInstance());
 
@@ -89,12 +89,12 @@ public class SnmpConfigRoutesTest extends CamelBlueprintTestSupport {
 	 */
 	@Test
 	public void testLoadDataCollectionConfig() throws Exception {
-		context.start();
-
+	    System.err.printf("Starting testLoadDataCollectionConfig");
 		template.requestBody("direct:loadDataCollectionConfig", null, String.class);
 
 		SnmpMetricRepository metricRepo = bean("snmpMetricRepository", SnmpMetricRepository.class);
 
+	            System.err.printf("metricRepo: %s\n", metricRepo);
 		assertNotNull(metricRepo);
 		assertNotNull(metricRepo.getMetric("ifInOctets"));
 
