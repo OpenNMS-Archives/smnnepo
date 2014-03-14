@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.opennms.netmgt.api.sample.Agent;
 import org.opennms.netmgt.api.sample.PackageAgentList;
-import org.opennms.netmgt.api.sample.scheduler.CollectionRequest;
 import org.opennms.netmgt.api.sample.support.Dispatcher;
 import org.opennms.netmgt.api.sample.support.SchedulerService;
 import org.slf4j.Logger;
@@ -17,8 +16,8 @@ import org.slf4j.LoggerFactory;
 public class Scheduler implements SchedulerService {
     private static final Logger LOG = LoggerFactory.getLogger(Scheduler.class);
     private static final Dispatcher NULL_DISPATCHER = new Dispatcher() {
-        @Override public void dispatch(final CollectionRequest request) {
-            LOG.debug("No dispatcher for scheduled request {}", request);
+        @Override public void dispatch(final Agent agent) {
+            LOG.debug("No dispatcher for scheduled request {}", agent);
         }
     };
     private final ScheduledExecutorService m_executor;
@@ -71,11 +70,10 @@ public class Scheduler implements SchedulerService {
         double offset = interval / (double)agentSchedule.getAgents().size();
 
         for (final Agent agent : agentSchedule.getAgents()) {
-            final CollectionRequest request = new CollectionRequest(service, agent);
             m_executor.scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
-                    getDispatcher(service).dispatch(request);
+                    getDispatcher(service).dispatch(agent);
                 }
             }, (long)(count * offset), interval, TimeUnit.MILLISECONDS);
             count++;

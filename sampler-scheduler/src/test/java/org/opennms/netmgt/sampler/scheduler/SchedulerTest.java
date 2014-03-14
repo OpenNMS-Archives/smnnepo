@@ -15,7 +15,6 @@ import org.junit.Test;
 import org.opennms.core.network.IPAddress;
 import org.opennms.netmgt.api.sample.Agent;
 import org.opennms.netmgt.api.sample.PackageAgentList;
-import org.opennms.netmgt.api.sample.scheduler.CollectionRequest;
 import org.opennms.netmgt.api.sample.support.Dispatcher;
 import org.opennms.netmgt.api.sample.support.SchedulerService;
 import org.opennms.netmgt.config.collectd.Filter;
@@ -113,8 +112,8 @@ public class SchedulerTest extends CamelBlueprintTestSupport {
         }
 
         @Override
-        public void dispatch(final CollectionRequest request) {
-            LOG.debug("dispatch: {}", request);
+        public void dispatch(final Agent agent) {
+            LOG.debug("dispatch: {}", agent);
             m_latch.countDown();
         }
 

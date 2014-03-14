@@ -1,9 +1,9 @@
 package org.opennms.netmgt.api.sample.support;
 
 import org.apache.camel.InOnly;
-import org.opennms.netmgt.api.sample.scheduler.CollectionRequest;
+import org.opennms.netmgt.api.sample.Agent;
 
 public interface Dispatcher {
     @InOnly
-    void dispatch(CollectionRequest request);
+    void dispatch(Agent agent);
 }
