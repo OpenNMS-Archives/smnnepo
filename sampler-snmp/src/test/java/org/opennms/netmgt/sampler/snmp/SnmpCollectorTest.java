@@ -207,7 +207,7 @@ public class SnmpCollectorTest extends CamelBlueprintTestSupport implements Test
 		);
 
 		// Retrieve all results from the repository that match the resource and metrics
-		Results results = m_sampleRepository.find(null, null, null, resource, metrics);
+		Results results = m_sampleRepository.find(null, start, end, resource, metrics);
 		assertNotNull(results);
 		LOG.info("RESULTS: " + results);
 		Collection<Row> rows = results.getRows();

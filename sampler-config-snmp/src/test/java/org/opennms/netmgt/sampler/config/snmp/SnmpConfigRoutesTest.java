@@ -1,7 +1,6 @@
 package org.opennms.netmgt.sampler.config.snmp;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Dictionary;
 
@@ -18,10 +17,6 @@ import ch.qos.logback.classic.LoggerContext;
 public class SnmpConfigRoutesTest extends CamelBlueprintTestSupport {
 
     private static final String OPENNMS_HOME = "src/test/resources";
-
-    private static URL url(String path) throws MalformedURLException {
-        return new URL("file:" + OPENNMS_HOME + "/" + path);
-    }
 
     @BeforeClass
     public static void configureLogging() throws SecurityException, IOException {

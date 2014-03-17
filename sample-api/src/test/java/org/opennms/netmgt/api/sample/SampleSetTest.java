@@ -8,17 +8,18 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
 public class SampleSetTest {
-	@SuppressWarnings("deprecation")
+
 	@Test
 	public void testSerialization() throws IOException, ClassNotFoundException {
 		Timestamp time = new Timestamp(System.currentTimeMillis(), TimeUnit.MILLISECONDS);
-		Resource resource = new Resource(new Agent(InetAddress.getLocalHost(), 80, "snmp"), "resource_type", "resource_name");
+		Resource resource = new Resource(new Agent(new InetSocketAddress(InetAddress.getLocalHost(), 80), "snmp", "1"), "resource_type", "resource_name");
 		Metric metric = new Metric("metric", MetricType.COUNTER, "metrics");
 		SampleSet samplesIn = new SampleSet(time);
 

@@ -1,7 +1,5 @@
 package org.opennms.netmgt.sampler.config.snmp;
 
-import java.net.InetSocketAddress;
-
 import org.opennms.netmgt.api.sample.Agent;
 
 public class SnmpAgent extends Agent {
@@ -17,11 +15,6 @@ public class SnmpAgent extends Agent {
 
 	public SnmpAgent(Agent agent) {
 		super(agent);
-	}
-
-	@Deprecated
-	public SnmpAgent(InetSocketAddress agentAddress, String agentId) {
-		super(agentAddress, SERVICE_NAME, agentId);
 	}
 
 	public String getSysObjectId() {

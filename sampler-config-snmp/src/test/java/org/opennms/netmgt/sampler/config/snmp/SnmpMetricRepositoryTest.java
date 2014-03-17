@@ -18,6 +18,7 @@ import java.util.concurrent.ThreadFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.opennms.netmgt.api.sample.Agent;
 import org.opennms.netmgt.api.sample.SampleSet;
 import org.opennms.netmgt.api.sample.Timestamp;
 import org.opennms.netmgt.snmp.AbstractSnmpValue;
@@ -143,13 +144,14 @@ public class SnmpMetricRepositoryTest {
     public void testBogusAgent() throws Exception {
 
         // bogus agent... no collection should match
-        SnmpAgent agent = new SnmpAgent(new InetSocketAddress("10.1.1.1", 161), "Smith");
-        agent.setSysObjectId(".666");
+        Agent agent = new Agent(new InetSocketAddress("10.1.1.1", 161), "Smith", "1");
+        agent.setParameter(SnmpAgent.PARAM_SYSOBJECTID, ".666");
+        SnmpAgent snmpAgent = new SnmpAgent(agent);
 
-        SnmpCollectionRequest request = m_repository.createRequestForAgent(agent);
+        SnmpCollectionRequest request = m_repository.createRequestForAgent(snmpAgent);
         assertNotNull(request);
 
-        assertSame(agent, request.getAgent());
+        assertSame(snmpAgent, request.getAgent());
 
         // gets the mib2 data since that's configured for everything
         assertEquals(2, request.getResourceTypes().size());
@@ -161,13 +163,14 @@ public class SnmpMetricRepositoryTest {
     @Test
     public void testBrokenNetSNMPAgent() throws Exception {
 
-        SnmpAgent agent = new SnmpAgent(new InetSocketAddress("10.1.1.1", 161), "Smith");
-        agent.setSysObjectId(".0.1");
+        Agent agent = new Agent(new InetSocketAddress("10.1.1.1", 161), "Smith", "1");
+        agent.setParameter(SnmpAgent.PARAM_SYSOBJECTID, ".0.1");
+        SnmpAgent snmpAgent = new SnmpAgent(agent);
 
-        SnmpCollectionRequest request = m_repository.createRequestForAgent(agent);
+        SnmpCollectionRequest request = m_repository.createRequestForAgent(snmpAgent);
         assertNotNull(request);
 
-        assertSame(agent, request.getAgent());
+        assertSame(snmpAgent, request.getAgent());
 
         System.err.println(request);
 
@@ -180,9 +183,10 @@ public class SnmpMetricRepositoryTest {
     public void testCollectionTracker() throws Exception {
         InetSocketAddress agentAddress = new InetSocketAddress("10.1.1.1", 161);
 
-        final SnmpAgent agent = new SnmpAgent(agentAddress, "Smith");
-        agent.setSysObjectId(".666");
-        final SnmpCollectionRequest request = m_repository.createRequestForAgent(agent);
+        Agent agent = new Agent(agentAddress, "Smith", "1");
+        agent.setParameter(SnmpAgent.PARAM_SYSOBJECTID, ".666");
+        SnmpAgent snmpAgent = new SnmpAgent(agent);
+        final SnmpCollectionRequest request = m_repository.createRequestForAgent(snmpAgent);
 
         LOG.debug("groups: {}", request.getGroups());
         LOG.debug("tables: {}", request.getTables());

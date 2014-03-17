@@ -8,8 +8,6 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.opennms.netmgt.config.collectd.Package;
 import org.opennms.netmgt.config.collectd.Service;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class converts a single {@link Package} with multiple {@link Service} entries 
@@ -17,7 +15,7 @@ import org.slf4j.LoggerFactory;
  * entry.
  */
 public class PackageServiceSplitter implements Processor {
-	private static final Logger LOG = LoggerFactory.getLogger(PackageServiceSplitter.class);
+	//private static final Logger LOG = LoggerFactory.getLogger(PackageServiceSplitter.class);
 
 	@Override
 	public void process(Exchange exchange) throws Exception {

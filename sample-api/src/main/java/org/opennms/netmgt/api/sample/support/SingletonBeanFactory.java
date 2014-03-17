@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class SingletonBeanFactory<T> {
 
-	private AtomicReference<T> m_instance = new AtomicReference();
+	private AtomicReference<T> m_instance = new AtomicReference<T>();
 	
 	public SingletonBeanFactory() {
 		m_instance.set(null);
