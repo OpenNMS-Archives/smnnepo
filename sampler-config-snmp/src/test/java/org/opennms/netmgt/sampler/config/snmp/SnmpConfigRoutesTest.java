@@ -48,7 +48,7 @@ public class SnmpConfigRoutesTest extends CamelBlueprintTestSupport {
     // The location of our Blueprint XML file to be used for testing
     @Override
     protected String getBlueprintDescriptor() {
-        return "file:src/main/resources/OSGI-INF/blueprint/blueprint.xml";
+        return "file:src/main/resources/OSGI-INF/blueprint/blueprint-sampler-config-snmp.xml";
     }
 
     /**
