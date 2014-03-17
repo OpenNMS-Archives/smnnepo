@@ -92,15 +92,15 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
 	}
 
 	@Test
-	public void testParseXML() throws Exception {
+	public void testParseCollectdXML() throws Exception {
 		context.start();
 
-		CollectdConfiguration resultsUsingURL = template.requestBody("direct:parseXML", new URL("file:" + OPENNMS_HOME + "/etc/collectd-configuration.xml"), CollectdConfiguration.class);
+		CollectdConfiguration resultsUsingURL = template.requestBody("direct:parseCollectdXML", new URL("file:" + OPENNMS_HOME + "/etc/collectd-configuration.xml"), CollectdConfiguration.class);
 
 		//System.err.printf("Results: %s\n", resultsUsingURL);
 		assertNotNull(resultsUsingURL);
 		
-		CollectdConfiguration resultsUsingString = template.requestBody("direct:parseXML", "file:" + OPENNMS_HOME + "/etc/collectd-configuration.xml", CollectdConfiguration.class);
+		CollectdConfiguration resultsUsingString = template.requestBody("direct:parseCollectdXML", "file:" + OPENNMS_HOME + "/etc/collectd-configuration.xml", CollectdConfiguration.class);
 
 		//System.err.printf("Results: %s\n", resultsUsingString);
 		assertNotNull(resultsUsingString);

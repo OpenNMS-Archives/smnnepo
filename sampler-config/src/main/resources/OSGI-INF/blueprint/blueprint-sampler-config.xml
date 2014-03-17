@@ -25,7 +25,7 @@
   </cm:property-placeholder>
 
   <!-- Camel unmarshalling DataFormats -->
-  <bean id="jaxbDataFormat" class="org.opennms.netmgt.sampler.config.DataFormatUtils" factory-method="jaxb"/>
+  <bean id="collectdConfigurationXMLFormat" class="org.opennms.netmgt.sampler.config.DataFormatUtils" factory-method="collectdConfigurationXml"/>
   <bean id="jacksonDataFormat" class="org.opennms.netmgt.sampler.config.DataFormatUtils" factory-method="jackson"/>
 
   <!-- Beans that hold a copy of a configuration object -->
@@ -60,9 +60,9 @@
 
     <!-- Call this to retrieve a URL in string form or URL form into the JAXB objects they represent. -->
     <route>
-      <from uri="direct:parseXML"/>
+      <from uri="direct:parseCollectdXML"/>
       <bean ref="urlNormalizer"/>
-      <unmarshal ref="jaxbDataFormat"/>
+      <unmarshal ref="collectdConfigurationXMLFormat"/>
     </route>
 
     <!-- Call this to retrieve a URL in string form or URL form into the JSON objects they represent. -->
@@ -93,7 +93,7 @@
     <route>
       <from uri="direct:loadCollectdConfiguration"/>
       <transform><constant>file:{{opennms.home}}/etc/collectd-configuration.xml</constant></transform>
-      <to uri="direct:parseXML"/>
+      <to uri="direct:parseCollectdXML"/>
       <bean ref="collectdConfiguration" method="setInstance"/>
     </route>
 

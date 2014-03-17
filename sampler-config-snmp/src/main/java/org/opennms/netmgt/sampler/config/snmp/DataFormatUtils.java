@@ -7,7 +7,7 @@ import org.apache.camel.converter.jaxb.JaxbDataFormat;
 import org.opennms.netmgt.snmp.SnmpConfiguration;
 
 public abstract class DataFormatUtils {
-	public static JaxbDataFormat jaxb() {
+	public static JaxbDataFormat snmpConfigurationXml() {
 		try {
 			JAXBContext context = JAXBContext.newInstance(SnmpConfiguration.class);
 			return new JaxbDataFormat(context);

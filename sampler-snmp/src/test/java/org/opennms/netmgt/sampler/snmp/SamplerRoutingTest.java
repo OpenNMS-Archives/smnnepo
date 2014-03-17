@@ -42,7 +42,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 	}
 
 	public static class DataFormatUtils {
-		public static JaxbDataFormat jaxb() {
+		public static JaxbDataFormat collectdConfigurationXml() {
 			try {
 				JAXBContext context = JAXBContext.newInstance(CollectdConfiguration.class, SnmpConfiguration.class);
 				return new JaxbDataFormat(context);
@@ -72,7 +72,8 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		registry.bind("snmpMetricRepository", snmpMetricRepository);
 		registry.bind("urlNormalizer", new UrlNormalizer());
 		registry.bind("packageServiceSplitter", new PackageServiceSplitter());
-		registry.bind("jaxb", DataFormatUtils.jaxb());
+                registry.bind("collectdConfigurationXml", DataFormatUtils.collectdConfigurationXml());
+                registry.bind("snmpConfigurationXml", org.opennms.netmgt.sampler.config.snmp.DataFormatUtils.snmpConfigurationXml());
 		registry.bind("jackson", DataFormatUtils.jackson());
 		
 		return registry;
@@ -106,11 +107,17 @@ public class SamplerRoutingTest extends CamelTestSupport {
 				;
 
 				// Call this to retrieve a URL in string form or URL form into the JAXB objects they represent
-				from("direct:parseXML")
+				from("direct:parseCollectdXML")
 					.beanRef("urlNormalizer")
-					.unmarshal("jaxb")
+					.unmarshal("collectdConfigurationXml")
 				;
 				
+                                // Call this to retrieve a URL in string form or URL form into the JAXB objects they represent
+                                from("direct:parseSnmpXML")
+                                        .beanRef("urlNormalizer")
+                                        .unmarshal("snmpConfigurationXml")
+                                ;
+                                
 				// Call this to retrieve a URL in string form or URL form into the JSON objects they represent
 				from("direct:parseJSON")
 					.beanRef("urlNormalizer")
@@ -144,7 +151,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 				// TODO: Create a reload timer that will check for changes to the config
 				from("direct:loadCollectdConfiguration")
 					.transform(constant(url("collectd-configuration.xml")))
-					.to("direct:parseXML")
+					.to("direct:parseCollectdXML")
 					.beanRef("collectdConfiguration", "setInstance")
 				;
 				
@@ -157,7 +164,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 				// TODO: Create a reload timer that will check for changes to the config
 				from("direct:loadSnmpConfig")
 					.transform(constant(url("snmp-config.xml")))
-					.to("direct:parseXML")
+					.to("direct:parseSnmpXML")
 					.beanRef("snmpConfiguration", "setInstance")
 				;
 				
@@ -219,15 +226,15 @@ public class SamplerRoutingTest extends CamelTestSupport {
 	}
 	
 	@Test
-	public void testParseXML() throws Exception {
+	public void testParseSnmpXML() throws Exception {
 		context.start();
 
-		SnmpConfiguration resultsUsingURL = template.requestBody("direct:parseXML", url("snmp-config.xml"), SnmpConfiguration.class);
+		SnmpConfiguration resultsUsingURL = template.requestBody("direct:parseSnmpXML", url("snmp-config.xml"), SnmpConfiguration.class);
 
 		//System.err.printf("Results: %s\n", resultsUsingURL);
 		assertNotNull(resultsUsingURL);
 		
-		SnmpConfiguration resultsUsingString = template.requestBody("direct:parseXML", url("snmp-config.xml").toString(), SnmpConfiguration.class);
+		SnmpConfiguration resultsUsingString = template.requestBody("direct:parseSnmpXML", url("snmp-config.xml").toString(), SnmpConfiguration.class);
 
 		//System.err.printf("Results: %s\n", resultsUsingString);
 		assertNotNull(resultsUsingString);

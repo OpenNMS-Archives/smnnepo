@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
@@ -20,7 +21,7 @@ import org.opennms.core.network.InetAddressXmlAdapter;
 @XmlRootElement(name="agent")
 @XmlAccessorType(XmlAccessType.NONE)
 public class Agent implements Serializable {
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 3L;
 
     @XmlElement(name="address")
     @XmlJavaTypeAdapter(InetAddressXmlAdapter.class)
@@ -35,9 +36,8 @@ public class Agent implements Serializable {
     @XmlElement(name="id")
     private final String m_agentId;
 
-    @XmlElement(name = "sysObjectId")
-    protected String m_sysObjectId;
-
+    @XmlElementWrapper(name="parameters")
+    @XmlElement(name="parameter")
     protected final Map<String,String> m_parameters = new HashMap<String,String>();
 
     public Agent() {
@@ -113,7 +113,7 @@ public class Agent implements Serializable {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[id=" + m_agentId + ", address=" + m_agentAddress + ", port=" + m_port + ", serviceName=" + m_serviceName + ", sysObjectId=" + m_sysObjectId + "]";
+        return getClass().getSimpleName() + "[id=" + m_agentId + ", address=" + m_agentAddress + ", port=" + m_port + ", serviceName=" + m_serviceName + ", parameters=" + m_parameters + "]";
     };
 
     private String getFauxId() {

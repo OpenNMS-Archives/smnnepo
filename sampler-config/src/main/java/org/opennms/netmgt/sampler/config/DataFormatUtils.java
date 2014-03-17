@@ -9,7 +9,7 @@ import org.opennms.netmgt.api.sample.Agent.AgentList;
 import org.opennms.netmgt.config.collectd.CollectdConfiguration;
 
 public abstract class DataFormatUtils {
-	public static JaxbDataFormat jaxb() {
+	public static JaxbDataFormat collectdConfigurationXml() {
 		try {
 			JAXBContext context = JAXBContext.newInstance(CollectdConfiguration.class);
 			return new JaxbDataFormat(context);

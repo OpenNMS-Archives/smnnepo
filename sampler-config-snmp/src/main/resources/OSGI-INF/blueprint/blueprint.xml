@@ -28,7 +28,7 @@
   </cm:property-placeholder>
 
   <!-- Camel unmarshalling DataFormats -->
-  <bean id="jaxbDataFormat" class="org.opennms.netmgt.sampler.config.snmp.DataFormatUtils" factory-method="jaxb"/>
+  <bean id="snmpConfigurationXmlFormat" class="org.opennms.netmgt.sampler.config.snmp.DataFormatUtils" factory-method="snmpConfigurationXml"/>
 
   <!-- Beans that hold a copy of a configuration object -->
   <bean id="snmpConfiguration" class="org.opennms.netmgt.api.sample.support.SingletonBeanFactory"/>
@@ -96,9 +96,9 @@
 
     <!-- Call this to retrieve a URL in string form or URL form into the JAXB objects they represent. -->
     <route>
-      <from uri="direct:parseXML"/>
+      <from uri="direct:parseSnmpXML"/>
       <bean ref="urlNormalizer"/>
-      <unmarshal ref="jaxbDataFormat"/>
+      <unmarshal ref="snmpConfigurationXmlFormat"/>
     </route>
 
     <!-- Direct route to fetch the config -->
@@ -129,7 +129,7 @@
     <route>
       <from uri="direct:loadSnmpConfig"/>
       <transform><constant>file:{{opennms.home}}/etc/snmp-config.xml</constant></transform>
-      <to uri="direct:parseXML"/>
+      <to uri="direct:parseSnmpXML"/>
       <bean ref="snmpConfiguration" method="setInstance"/>
     </route>
 

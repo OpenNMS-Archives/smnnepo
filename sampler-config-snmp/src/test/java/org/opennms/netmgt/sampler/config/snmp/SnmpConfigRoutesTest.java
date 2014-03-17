@@ -61,14 +61,14 @@ public class SnmpConfigRoutesTest extends CamelBlueprintTestSupport {
     }
 
     @Test
-    public void testParseXML() throws Exception {
-        System.err.printf("Starting testParseXML");
-        SnmpConfiguration resultsUsingURL = template.requestBody("direct:parseXML", new URL("file:" + OPENNMS_HOME + "/etc/snmp-config.xml"), SnmpConfiguration.class);
+    public void testParseSnmpXML() throws Exception {
+        System.err.printf("Starting testParseSnmpXML");
+        SnmpConfiguration resultsUsingURL = template.requestBody("direct:parseSnmpXML", new URL("file:" + OPENNMS_HOME + "/etc/snmp-config.xml"), SnmpConfiguration.class);
 
         System.err.printf("Results Using URL: %s\n", resultsUsingURL);
         assertNotNull(resultsUsingURL);
 
-        SnmpConfiguration resultsUsingString = template.requestBody("direct:parseXML", "file:" + OPENNMS_HOME + "/etc/snmp-config.xml", SnmpConfiguration.class);
+        SnmpConfiguration resultsUsingString = template.requestBody("direct:parseSnmpXML", "file:" + OPENNMS_HOME + "/etc/snmp-config.xml", SnmpConfiguration.class);
 
         System.err.printf("Results Using String: %s\n", resultsUsingString);
         assertNotNull(resultsUsingString);
