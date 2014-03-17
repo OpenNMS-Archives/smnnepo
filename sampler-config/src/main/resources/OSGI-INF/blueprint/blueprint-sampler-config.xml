@@ -42,8 +42,8 @@
     <argument value="seda:scheduleAgents"/>
 
     <property name="context" ref="blueprintBundleContext"/>
-    <property name="messageClassAsString" value="org.opennms.netmgt.api.sample.PackageAgentList"/>
-    <property name="serviceClassAsString" value="org.opennms.netmgt.api.sample.support.SchedulerService"/>
+    <property name="messageClass" value="org.opennms.netmgt.api.sample.PackageAgentList"/>
+    <property name="serviceClass" value="org.opennms.netmgt.api.sample.support.SchedulerService"/>
     <property name="methodName" value="schedule"/>
   </bean>
 

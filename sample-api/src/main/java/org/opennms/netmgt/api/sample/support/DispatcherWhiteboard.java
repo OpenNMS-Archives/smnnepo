@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This class will redirect messages to the {@link DispatcherWhiteboard#m_endpointUri} URI
  * to any OSGi services that are registered at the interface that is defined by the
- * {@link #setMessageClassAsString(String)} method call.
+ * {@link #setMessageClass(String)} method call.
  */
 public class DispatcherWhiteboard {
 	
@@ -46,7 +46,7 @@ public class DispatcherWhiteboard {
 		this.m_messageClass = messageClass;
 	}
 
-	public void setMessageClassAsString(String messageClass) throws ClassNotFoundException {
+	public void setMessageClass(String messageClass) throws ClassNotFoundException {
 		this.m_messageClass = Class.forName(messageClass);
 	}
 
@@ -58,7 +58,7 @@ public class DispatcherWhiteboard {
 		this.m_serviceClass = serviceClass;
 	}
 
-	public void setServiceClassAsString(String serviceClass) throws ClassNotFoundException {
+	public void setServiceClass(String serviceClass) throws ClassNotFoundException {
 		this.m_serviceClass = Class.forName(serviceClass);
 	}
 

@@ -1,6 +1,8 @@
-package org.opennms.netmgt.api.sample;
+package org.opennms.netmgt.api.sample.support;
 
 import org.apache.camel.Produce;
+import org.opennms.netmgt.api.sample.Agent;
+import org.opennms.netmgt.api.sample.Sampler;
 
 public class DefaultSampler implements Sampler {
 
