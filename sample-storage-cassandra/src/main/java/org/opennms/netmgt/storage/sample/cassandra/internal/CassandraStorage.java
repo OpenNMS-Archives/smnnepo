@@ -25,10 +25,10 @@ public abstract class CassandraStorage {
 	protected static final String	F_ENDPOINT		= "endpoint";
 	protected static final String	F_ATTRIBUTE		= "attribute";
 
-	protected final String m_cassandraHost;
-	protected final int m_cassandraPort;
-	protected final String m_cassandraKeyspace;
-	protected final Session m_session;
+	private final String m_cassandraHost;
+	private final int m_cassandraPort;
+	private final String m_cassandraKeyspace;
+	private final Session m_session;
 
 	public CassandraStorage(String cassandraHost, int cassandraPort, String cassandraKeyspace) {
 		m_cassandraHost = cassandraHost;

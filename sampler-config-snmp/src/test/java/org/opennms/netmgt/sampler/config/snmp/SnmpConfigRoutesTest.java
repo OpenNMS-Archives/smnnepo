@@ -49,6 +49,7 @@ public class SnmpConfigRoutesTest extends CamelBlueprintTestSupport {
     /**
      * Override 'opennms.home' with the test resource directory.
      */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     protected String useOverridePropertiesWithConfigAdmin(Dictionary props) throws Exception {
         props.put("opennms.home", OPENNMS_HOME);

@@ -94,7 +94,8 @@ public class SnmpCollectorTest extends CamelBlueprintTestSupport implements Test
 	/**
 	 * Override 'opennms.home' with the test resource directory.
 	 */
-	@Override
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+        @Override
 	protected String useOverridePropertiesWithConfigAdmin(Dictionary props) throws Exception {
 		props.put("opennms.home", "../sampler-config-snmp/src/test/resources");
 		return "org.opennms.netmgt.sampler.config.snmp";
@@ -121,7 +122,8 @@ public class SnmpCollectorTest extends CamelBlueprintTestSupport implements Test
 	/**
 	 * Register a mock OSGi {@link SampleRepository}.
 	 */
-	@Override
+	@SuppressWarnings("rawtypes")
+        @Override
 	protected void addServicesOnStartup(Map<String, KeyValueHolder<Object, Dictionary>> services) {
 		try {
 

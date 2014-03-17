@@ -2,6 +2,8 @@ package org.opennms.netmgt.storage.sample.cassandra.internal;
 
 import java.util.Arrays;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 public class Util{
     public static final double[] interpLinear(double[] x, double[] y, double[] xi) throws IllegalArgumentException {
         if (x.length != y.length) {
@@ -51,6 +53,7 @@ public class Util{
         return results;
     }
     
+    @SuppressFBWarnings("com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck")
     public static void main(String[] args) {
     	double[] x = {
     			0,

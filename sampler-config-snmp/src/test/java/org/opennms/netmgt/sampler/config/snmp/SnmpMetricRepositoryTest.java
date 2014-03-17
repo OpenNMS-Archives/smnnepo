@@ -197,7 +197,9 @@ public class SnmpMetricRepositoryTest {
         final SnmpWalker walker = new SnmpWalker(agentAddress.getAddress(), "TestWalker", 200, 10, tracker) {
 
             private int m_oidCount = 0;
+            @SuppressWarnings("unused")
             private int m_nonRepeaters;
+            @SuppressWarnings("unused")
             private int m_maxRepetitions;
             private SnmpObjId m_maxOid = null;
 

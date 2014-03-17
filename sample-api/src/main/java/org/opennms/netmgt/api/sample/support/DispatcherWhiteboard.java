@@ -23,7 +23,8 @@ public class DispatcherWhiteboard {
 	private String m_methodName = "dispatch";
 	private final String m_endpointUri;
 
-	private ServiceTracker m_tracker = null;
+	@SuppressWarnings("rawtypes")
+        private ServiceTracker m_tracker = null;
 	private Method m_method = null;
 
 	public DispatcherWhiteboard(String endpointUri) {
@@ -76,7 +77,8 @@ public class DispatcherWhiteboard {
 		}
 	}
 
-	@Consume(property="endpointUri")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+        @Consume(property="endpointUri")
 	public void dispatch(Object message) throws NoSuchMethodException, SecurityException {
 		if (m_tracker == null) {
 			m_tracker = new ServiceTracker(m_context, m_serviceClass, null);

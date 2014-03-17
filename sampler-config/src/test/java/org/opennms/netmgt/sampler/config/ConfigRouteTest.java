@@ -63,7 +63,8 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
 	 * Register a mock OSGi {@link SchedulerService} so that we can make sure that
 	 * the scheduler whiteboard is working properly.
 	 */
-	@Override
+	@SuppressWarnings("rawtypes")
+        @Override
 	protected void addServicesOnStartup(Map<String, KeyValueHolder<Object, Dictionary>> services) {
 		services.put(SchedulerService.class.getName(), new KeyValueHolder<Object,Dictionary>(new SchedulerService() {
 			@Override
@@ -85,7 +86,8 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
 	/**
 	 * Override 'opennms.home' with the test resource directory.
 	 */
-	@Override
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+        @Override
 	protected String useOverridePropertiesWithConfigAdmin(Dictionary props) throws Exception {
 		props.put("opennms.home", OPENNMS_HOME);
 		return "org.opennms.netmgt.sampler.config";

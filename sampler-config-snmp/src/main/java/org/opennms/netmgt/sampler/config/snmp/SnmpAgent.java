@@ -1,7 +1,5 @@
 package org.opennms.netmgt.sampler.config.snmp;
 
-import java.net.InetSocketAddress;
-
 import org.opennms.netmgt.api.sample.Agent;
 
 public class SnmpAgent extends Agent {
