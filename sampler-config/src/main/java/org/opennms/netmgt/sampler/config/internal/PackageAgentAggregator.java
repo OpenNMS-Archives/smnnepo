@@ -5,7 +5,7 @@ import java.util.List;
 import org.apache.camel.Exchange;
 import org.apache.camel.processor.aggregate.AggregationStrategy;
 import org.opennms.netmgt.api.sample.Agent;
-import org.opennms.netmgt.api.sample.Agent.AgentList;
+import org.opennms.netmgt.api.sample.AgentList;
 import org.opennms.netmgt.api.sample.PackageAgentList;
 import org.opennms.netmgt.config.collectd.Package;
 

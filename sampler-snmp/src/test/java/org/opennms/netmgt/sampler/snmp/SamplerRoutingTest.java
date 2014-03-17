@@ -1,12 +1,10 @@
 package org.opennms.netmgt.sampler.snmp;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -14,16 +12,13 @@ import javax.xml.bind.JAXBException;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.component.jackson.JacksonDataFormat;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.converter.jaxb.JaxbDataFormat;
-import org.apache.camel.impl.DefaultExchange;
 import org.apache.camel.impl.JndiRegistry;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
-import org.opennms.netmgt.api.sample.Agent;
-import org.opennms.netmgt.api.sample.Agent.AgentList;
+import org.opennms.netmgt.api.sample.AgentList;
 import org.opennms.netmgt.api.sample.PackageAgentList;
 import org.opennms.netmgt.api.sample.support.SingletonBeanFactory;
 import org.opennms.netmgt.api.sample.support.UrlNormalizer;
@@ -42,18 +37,14 @@ public class SamplerRoutingTest extends CamelTestSupport {
 	}
 
 	public static class DataFormatUtils {
-		public static JaxbDataFormat collectdConfigurationXml() {
-			try {
-				JAXBContext context = JAXBContext.newInstance(CollectdConfiguration.class, SnmpConfiguration.class);
-				return new JaxbDataFormat(context);
-			} catch (JAXBException e) {
-				throw new IllegalStateException("Cannot initialize JAXB context: " + e.getMessage(), e);
-			}
-		}
-
-		public static JacksonDataFormat jackson() {
-			return new JacksonDataFormat(AgentList.class);
-		}
+	    public static JaxbDataFormat jaxbXml() {
+	        try {
+	            final JAXBContext context = JAXBContext.newInstance(CollectdConfiguration.class, SnmpConfiguration.class, AgentList.class);
+	            return new JaxbDataFormat(context);
+	        } catch (final JAXBException e) {
+	            throw new IllegalStateException("Cannot initialize JAXB context: " + e.getMessage(), e);
+	        }
+	    }
 	}
 
 	@Override
@@ -72,9 +63,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		registry.bind("snmpMetricRepository", snmpMetricRepository);
 		registry.bind("urlNormalizer", new UrlNormalizer());
 		registry.bind("packageServiceSplitter", new PackageServiceSplitter());
-                registry.bind("collectdConfigurationXml", DataFormatUtils.collectdConfigurationXml());
-                registry.bind("snmpConfigurationXml", org.opennms.netmgt.sampler.config.snmp.DataFormatUtils.snmpConfigurationXml());
-		registry.bind("jackson", DataFormatUtils.jackson());
+                registry.bind("jaxbXml", DataFormatUtils.jaxbXml());
 		
 		return registry;
 	}
@@ -107,23 +96,11 @@ public class SamplerRoutingTest extends CamelTestSupport {
 				;
 
 				// Call this to retrieve a URL in string form or URL form into the JAXB objects they represent
-				from("direct:parseCollectdXML")
+				from("direct:parseJaxbXml")
 					.beanRef("urlNormalizer")
-					.unmarshal("collectdConfigurationXml")
+					.unmarshal("jaxbXml")
 				;
 				
-                                // Call this to retrieve a URL in string form or URL form into the JAXB objects they represent
-                                from("direct:parseSnmpXML")
-                                        .beanRef("urlNormalizer")
-                                        .unmarshal("snmpConfigurationXml")
-                                ;
-                                
-				// Call this to retrieve a URL in string form or URL form into the JSON objects they represent
-				from("direct:parseJSON")
-					.beanRef("urlNormalizer")
-					.unmarshal("jackson")
-				;
-
 				// Direct route to fetch the config
 				from("direct:collectdConfig")
 					.beanRef("collectdConfiguration", "getInstance")
@@ -151,7 +128,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 				// TODO: Create a reload timer that will check for changes to the config
 				from("direct:loadCollectdConfiguration")
 					.transform(constant(url("collectd-configuration.xml")))
-					.to("direct:parseCollectdXML")
+					.to("direct:parseJaxbXml")
 					.beanRef("collectdConfiguration", "setInstance")
 				;
 				
@@ -164,7 +141,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 				// TODO: Create a reload timer that will check for changes to the config
 				from("direct:loadSnmpConfig")
 					.transform(constant(url("snmp-config.xml")))
-					.to("direct:parseSnmpXML")
+					.to("direct:parseJaxbXml")
 					.beanRef("snmpConfiguration", "setInstance")
 				;
 				
@@ -207,15 +184,16 @@ public class SamplerRoutingTest extends CamelTestSupport {
 				;
 
 				from("seda:loadPackageAgents")
+                                        .log("Package before: ${body}")
 					.enrich("direct:getServiceAgents", new PackageAgentAggregator())
-					.log("Package: ${body.package}, Agents: ${body.agents}")
+					.log("Package after: ${body.package}, Agents: ${body.agents}")
 					.to("seda:scheduleAgents")
 				;
 
 				from("direct:getServiceAgents")
-					.log("Parsing URL: file:src/test/resources/agents/${body.name}/${body.services[0].name}.json")
-					.transform().simple("file:src/test/resources/agents/${body.name}/${body.services[0].name}.json")
-					.to("direct:parseJSON")
+					.log("Parsing URL: file:src/test/resources/agents/${body.name}/${body.services[0].name}.xml")
+					.transform().simple("file:src/test/resources/agents/${body.name}/${body.services[0].name}.xml")
+					.to("direct:parseJaxbXml")
 				;
 				
 				from("seda:scheduleAgents")
@@ -226,44 +204,35 @@ public class SamplerRoutingTest extends CamelTestSupport {
 	}
 	
 	@Test
-	public void testParseSnmpXML() throws Exception {
+	public void testParseSnmpXml() throws Exception {
 		context.start();
 
-		SnmpConfiguration resultsUsingURL = template.requestBody("direct:parseSnmpXML", url("snmp-config.xml"), SnmpConfiguration.class);
+		SnmpConfiguration resultsUsingURL = template.requestBody("direct:parseJaxbXml", url("snmp-config.xml"), SnmpConfiguration.class);
 
 		//System.err.printf("Results: %s\n", resultsUsingURL);
 		assertNotNull(resultsUsingURL);
 		
-		SnmpConfiguration resultsUsingString = template.requestBody("direct:parseSnmpXML", url("snmp-config.xml").toString(), SnmpConfiguration.class);
+		SnmpConfiguration resultsUsingString = template.requestBody("direct:parseJaxbXml", url("snmp-config.xml").toString(), SnmpConfiguration.class);
 
 		//System.err.printf("Results: %s\n", resultsUsingString);
 		assertNotNull(resultsUsingString);
 	}
 
-	/**
-	 * Test the Camel JSON parsing.
-	 */
 	@Test
-	public void testParseJSON() throws Exception {
+	public void testParseAgentXml() throws Exception {
 	    context.start();
 
-	    final URL snmpUrl = url("agents/example1/SNMP.json");
+            AgentList resultsUsingURL = template.requestBody("direct:parseJaxbXml", url("agents/example1/SNMP.xml"), AgentList.class);
 
-	    final InputStream is = snmpUrl.openStream();
-	    final Exchange e = new DefaultExchange(context);
-	    final Object o = DataFormatUtils.jackson().unmarshal(e, is);
-	    System.err.println("o="+o);
-	    List<Agent> resultsUsingURL = template.requestBody("direct:parseJSON", snmpUrl, AgentList.class);
+            //System.err.printf("Results: %s\n", resultsUsingURL);
+            assertNotNull(resultsUsingURL);
+            assertEquals(3, resultsUsingURL.size());
+            
+            AgentList resultsUsingString = template.requestBody("direct:parseJaxbXml", url("agents/example1/SNMP.xml").toString(), AgentList.class);
 
-	    //System.err.printf("Results: %s\n", resultsUsingURL);
-	    assertNotNull(resultsUsingURL);
-	    assertEquals(3, resultsUsingURL.size());
-
-	    List<Agent> resultsUsingString = template.requestBody("direct:parseJSON", snmpUrl.toString(), AgentList.class);
-
-	    //System.err.printf("Results: %s\n", resultsUsingString);
-	    assertNotNull(resultsUsingString);
-	    assertEquals(3, resultsUsingString.size());
+            //System.err.printf("Results: %s\n", resultsUsingString);
+            assertNotNull(resultsUsingString);
+            assertEquals(3, resultsUsingString.size());
 	}
 
 	/**

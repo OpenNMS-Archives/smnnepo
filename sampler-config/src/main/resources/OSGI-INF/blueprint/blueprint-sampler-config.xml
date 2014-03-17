@@ -25,8 +25,7 @@
   </cm:property-placeholder>
 
   <!-- Camel unmarshalling DataFormats -->
-  <bean id="collectdConfigurationXMLFormat" class="org.opennms.netmgt.sampler.config.DataFormatUtils" factory-method="collectdConfigurationXml"/>
-  <bean id="jacksonDataFormat" class="org.opennms.netmgt.sampler.config.DataFormatUtils" factory-method="jackson"/>
+  <bean id="jaxbXml" class="org.opennms.netmgt.sampler.config.DataFormatUtils" factory-method="jaxbXml"/>
 
   <!-- Beans that hold a copy of a configuration object -->
   <bean id="collectdConfiguration" class="org.opennms.netmgt.api.sample.support.SingletonBeanFactory"/>
@@ -60,16 +59,9 @@
 
     <!-- Call this to retrieve a URL in string form or URL form into the JAXB objects they represent. -->
     <route>
-      <from uri="direct:parseCollectdXML"/>
+      <from uri="direct:parseJaxbXml"/>
       <bean ref="urlNormalizer"/>
-      <unmarshal ref="collectdConfigurationXMLFormat"/>
-    </route>
-
-    <!-- Call this to retrieve a URL in string form or URL form into the JSON objects they represent. -->
-    <route>
-      <from uri="direct:parseJSON"/>
-      <bean ref="urlNormalizer"/>
-      <unmarshal ref="jacksonDataFormat"/>
+      <unmarshal ref="jaxbXml"/>
     </route>
 
     <!-- Direct route to fetch the config -->
@@ -93,7 +85,7 @@
     <route>
       <from uri="direct:loadCollectdConfiguration"/>
       <transform><constant>file:{{opennms.home}}/etc/collectd-configuration.xml</constant></transform>
-      <to uri="direct:parseCollectdXML"/>
+      <to uri="direct:parseJaxbXml"/>
       <bean ref="collectdConfiguration" method="setInstance"/>
     </route>
 
@@ -167,11 +159,11 @@
 
     <route>
       <from uri="direct:getServiceAgents"/>
-      <log message="Parsing URL: file:{{opennms.home}}/agents/${body.name}/${body.services[0].name}.json"/>
+      <log message="Parsing URL: file:{{opennms.home}}/agents/${body.name}/${body.services[0].name}.xml"/>
       <transform>
-        <simple>file:{{opennms.home}}/agents/${body.name}/${body.services[0].name}.json</simple>
+        <simple>file:{{opennms.home}}/agents/${body.name}/${body.services[0].name}.xml</simple>
       </transform>
-      <to uri="direct:parseJSON"/>
+      <to uri="direct:parseJaxbXml"/>
     </route>
 
   </camelContext>

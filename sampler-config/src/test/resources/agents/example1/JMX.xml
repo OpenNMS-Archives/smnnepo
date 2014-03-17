@@ -1,0 +1,17 @@
+<agents>
+    <agent>
+        <address>10.1.1.1</address>
+        <port>161</port>
+        <serviceName>JMX</serviceName>
+    </agent>
+    <agent>
+        <address>10.1.1.2</address>
+        <port>161</port>
+        <serviceName>JMX</serviceName>
+    </agent>
+    <agent>
+        <address>10.1.1.3</address>
+        <port>161</port>
+        <serviceName>JMX</serviceName>
+    </agent>
+</agents>

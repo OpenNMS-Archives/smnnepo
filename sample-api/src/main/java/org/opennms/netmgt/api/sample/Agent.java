@@ -3,7 +3,6 @@ package org.opennms.netmgt.api.sample;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -118,9 +117,5 @@ public class Agent implements Serializable {
 
     private String getFauxId() {
         return m_serviceName+":"+ m_agentAddress.getHostAddress()+":" + m_port;
-    }
-
-    public static class AgentList extends ArrayList<Agent> {
-        private static final long serialVersionUID = 1L;
     }
 }

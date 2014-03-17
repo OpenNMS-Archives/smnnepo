@@ -20,7 +20,7 @@ import org.apache.camel.util.KeyValueHolder;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opennms.netmgt.api.sample.Agent;
-import org.opennms.netmgt.api.sample.Agent.AgentList;
+import org.opennms.netmgt.api.sample.AgentList;
 import org.opennms.netmgt.api.sample.PackageAgentList;
 import org.opennms.netmgt.api.sample.support.SchedulerService;
 import org.opennms.netmgt.api.sample.support.SingletonBeanFactory;
@@ -92,34 +92,34 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
 	}
 
 	@Test
-	public void testParseCollectdXML() throws Exception {
+	public void testParseCollectdXml() throws Exception {
 		context.start();
 
-		CollectdConfiguration resultsUsingURL = template.requestBody("direct:parseCollectdXML", new URL("file:" + OPENNMS_HOME + "/etc/collectd-configuration.xml"), CollectdConfiguration.class);
+		CollectdConfiguration resultsUsingURL = template.requestBody("direct:parseJaxbXml", new URL("file:" + OPENNMS_HOME + "/etc/collectd-configuration.xml"), CollectdConfiguration.class);
 
-		//System.err.printf("Results: %s\n", resultsUsingURL);
+		System.err.printf("Results: %s\n", resultsUsingURL);
 		assertNotNull(resultsUsingURL);
+		assertEquals(5, resultsUsingURL.getPackages().size());
 		
-		CollectdConfiguration resultsUsingString = template.requestBody("direct:parseCollectdXML", "file:" + OPENNMS_HOME + "/etc/collectd-configuration.xml", CollectdConfiguration.class);
+		CollectdConfiguration resultsUsingString = template.requestBody("direct:parseJaxbXml", "file:" + OPENNMS_HOME + "/etc/collectd-configuration.xml", CollectdConfiguration.class);
 
-		//System.err.printf("Results: %s\n", resultsUsingString);
+		System.err.printf("Results: %s\n", resultsUsingString);
 		assertNotNull(resultsUsingString);
+                assertNotNull(resultsUsingString);
+                assertEquals(5, resultsUsingString.getPackages().size());
 	}
 
-	/**
-	 * Test the Camel JSON parsing.
-	 */
 	@Test
-	public void testParseJSON() throws Exception {
+	public void testParseAgentXml() throws Exception {
 		context.start();
 
-		List<Agent> resultsUsingURL = template.requestBody("direct:parseJSON", url("agents/example1/SNMP.json"), AgentList.class);
+		List<Agent> resultsUsingURL = template.requestBody("direct:parseJaxbXml", url("agents/example1/SNMP.xml"), AgentList.class);
 
 		//System.err.printf("Results: %s\n", resultsUsingURL);
 		assertNotNull(resultsUsingURL);
 		assertEquals(3, resultsUsingURL.size());
 		
-		List<Agent> resultsUsingString = template.requestBody("direct:parseJSON", url("agents/example1/SNMP.json").toString(), AgentList.class);
+		List<Agent> resultsUsingString = template.requestBody("direct:parseJaxbXml", url("agents/example1/SNMP.xml").toString(), AgentList.class);
 
 		//System.err.printf("Results: %s\n", resultsUsingString);
 		assertNotNull(resultsUsingString);
