@@ -14,12 +14,66 @@
 		http://aries.apache.org/schemas/blueprint-ext/blueprint-ext-1.1.xsd
 ">
 
+  <!-- Use OSGi to get service references to the SNMP metric configuration -->
+  <reference id="snmpMetricRepository" interface="org.opennms.netmgt.api.sample.CollectionConfiguration"/>
+  <reference id="metricRepository" interface="org.opennms.netmgt.api.sample.MetricRepository"/>
+
+  <!-- The collector that fetches the data from the agent -->
   <bean id="snmpCollector" class="org.opennms.netmgt.sampler.snmp.internal.DefaultSnmpCollector" />
-  
-  <service ref="snmpCollector" interface="org.opennms.netmgt.sampler.snmp.SnmpCollector">
+
+  <!-- Register a whiteboard of sample repositories where samples will be saved -->
+  <bean id="schedulingDispatcher" class="org.opennms.netmgt.api.sample.support.DispatcherWhiteboard">
+    <argument value="seda:saveToRepository"/>
+
+    <property name="context" ref="blueprintBundleContext"/>
+    <property name="messageClassAsString" value="org.opennms.netmgt.api.sample.SampleSet"/>
+    <property name="serviceClassAsString" value="org.opennms.netmgt.api.sample.SampleRepository"/>
+    <property name="methodName" value="save"/>
+  </bean>
+
+  <!-- Camel EIP helper beans -->
+  <bean id="snmpAgentProcessor" class="org.opennms.netmgt.sampler.snmp.internal.SnmpAgentProcessor" />
+
+  <!-- OSGi service that exposes this sampler as a scheduling target -->
+  <bean id="snmpSampler" class="org.opennms.netmgt.api.sample.DefaultSampler">
+    <property name="endpointUri" value="seda:collectAgent"/>
+  </bean>
+
+  <service ref="snmpSampler" interface="org.opennms.netmgt.api.sample.Sampler">
     <service-properties>
       <entry key="protocol" value="SNMP"/>
     </service-properties>
   </service>
- 
+
+  <camelContext xmlns="http://camel.apache.org/schema/blueprint">
+
+    <!-- Add exception handlers -->
+    <onException>
+      <exception>java.io.IOException</exception>
+      <handled><constant>true</constant></handled>
+      <!-- .logStackTrace(true) -->
+      <stop/>
+    </onException>
+
+    <route>
+      <from uri="seda:collectAgent"/>
+      <!-- Convert the generic Agent into an SnmpAgent -->
+      <bean ref="snmpAgentProcessor"/>
+      <!-- create a request for data collection for the agent -->
+      <bean ref="snmpMetricRepository" method="createRequestForAgent"/>
+      <!-- collect the data for the agent -->
+      <bean ref="snmpCollector" method="collect"/>
+      <log message="${body}"/>
+      <!-- forward the data to the listening queue -->
+      <to uri="seda:sampleSets"/>
+    </route>
+
+    <route>
+      <from uri="seda:sampleSets"/>
+      <!-- send it the persister -->
+      <to uri="seda:saveToRepository"/>
+      <!-- <to uri="seda:sampleSaved"/> -->
+    </route>
+
+  </camelContext>
 </blueprint>
