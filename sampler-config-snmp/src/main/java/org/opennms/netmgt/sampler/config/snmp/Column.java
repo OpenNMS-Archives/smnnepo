@@ -102,7 +102,7 @@ public class Column {
 	}
 	
 	private static class OctetFormatSpecifier {
-		private static Charset UTF_8 = Charset.forName("UTF-8"); 
+		private static final Charset UTF_8 = Charset.forName("UTF-8"); 
 		private boolean m_repeatIndicator = false;
 		private int m_octetCount = 2;
 		// 'a' for ascii, 'd' for decimal, 'x' for hex, 'o' for octal
