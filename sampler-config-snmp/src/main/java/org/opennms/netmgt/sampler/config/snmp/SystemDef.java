@@ -12,6 +12,10 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.opennms.netmgt.config.api.collection.IGroup;
+import org.opennms.netmgt.config.api.collection.ISystemDef;
+import org.opennms.netmgt.config.api.collection.ITable;
+
 
 /**
  *  <systemDef name="Enterprise">
@@ -26,123 +30,135 @@ import javax.xml.bind.annotation.XmlTransient;
  *
  */
 @XmlRootElement(name="datacollection-group")
-@XmlAccessorType(XmlAccessType.FIELD)
-public class SystemDef {
+@XmlAccessorType(XmlAccessType.NONE)
+public class SystemDef implements ISystemDef {
 
-	@XmlAttribute(name="name")
-	private String m_name;
-	
-	@XmlElement(name="sysoidMask")
-	private String m_sysoidMask;
-	
-	@XmlElement(name="sysoid")
-	private String m_sysoid;
-	
-	@XmlElementWrapper(name="collect")
-	@XmlElement(name="include")
-	private String[] m_includes;
-	
-	@XmlTransient
-	private Table[] m_tables;
-	
-	@XmlTransient
-	private Group[] m_groups;
+    @XmlAttribute(name="name")
+    private String m_name;
 
-	public String getName() {
-		return m_name;
-	}
+    @XmlElement(name="sysoidMask")
+    private String m_sysoidMask;
 
-	public void setName(String name) {
-		m_name = name;
-	}
+    @XmlElement(name="sysoid")
+    private String m_sysoid;
 
-	public String getSysoidMask() {
-		return m_sysoidMask;
-	}
+    @XmlElementWrapper(name="collect")
+    @XmlElement(name="include")
+    private String[] m_includes;
 
-	public void setSysoidMask(String sysoidMask) {
-		m_sysoidMask = sysoidMask;
-	}
+    @XmlTransient
+    private Table[] m_tables;
 
-	public String getSysoid() {
-		return m_sysoid;
-	}
+    @XmlTransient
+    private Group[] m_groups;
 
-	public void setSysoid(String sysoid) {
-		m_sysoid = sysoid;
-	}
+    @Override
+    public String getName() {
+        return m_name;
+    }
 
-	public String[] getIncludes() {
-		return m_includes;
-	}
+    public void setName(String name) {
+        m_name = name;
+    }
 
-	public void setIncludes(String[] includes) {
-		m_includes = includes == null? null : includes.clone();
-	}
-	
-	public void initialize(Map<String, Table> tableMap,	Map<String, Group> groupMap) {
-		List<Table> tables = new ArrayList<Table>();
-		List<Group> groups = new ArrayList<Group>();
-		for(String include : m_includes) {
-			if (tableMap.containsKey(include)) {
-				tables.add(tableMap.get(include));
-			} else if (groupMap.containsKey(include)) {
-				groups.add(groupMap.get(include));
-			} else {
-				throw new IllegalArgumentException("Unable to locate include " + include + " for systemDef " + getName());
-			}
-		}
-		
-		m_tables = tables.toArray(new Table[tables.size()]);
-		m_groups = groups.toArray(new Group[groups.size()]);
-		
-	}
-	
-	public boolean matches(SnmpAgent agent) {
-		String systemObjId = agent.getSysObjectId();
-		
-		return (m_sysoid == null && m_sysoidMask == null)
-			|| (m_sysoid != null && systemObjId.equals(m_sysoid))
-			|| (m_sysoidMask != null && systemObjId.startsWith(m_sysoidMask));
-	}
+    @Override
+    public String getSysoidMask() {
+        return m_sysoidMask;
+    }
 
-	public void fillRequest(SnmpCollectionRequest request) {
-		assertInitialized();
-		
-		if (!matches(request.getAgent())) return;
-		
-		for(Table table : m_tables) {
-			table.fillRequest(request);
-		}
-		
-		for(Group group : m_groups) {
-			group.fillRequest(request);
-		}
+    public void setSysoidMask(String sysoidMask) {
+        m_sysoidMask = sysoidMask;
+    }
 
-	}
+    @Override
+    public String getSysoid() {
+        return m_sysoid;
+    }
 
-	private void assertInitialized() {
-		if (m_tables == null || m_groups == null) {
-			throw new IllegalStateException("systemDef " + getName() + " is not initialized!");
-		}
-	}
+    public void setSysoid(String sysoid) {
+        m_sysoid = sysoid;
+    }
 
-	@Override
-	public String toString() {
-		StringBuilder buf = new StringBuilder("SystemDef[");
-		buf.append("name=").append(m_name).append(", ");
-		if (m_sysoid != null) {
-			buf.append("sysoid=").append(m_sysoid);
-		} else if (m_sysoidMask != null) {
-			buf.append("sysoidMask=").append(m_sysoidMask);
-		} else {
-			buf.append("No Match Criteria");
-		}
-		buf.append("]");
-		return buf.toString();
-	}
+    @Override
+    public String[] getIncludes() {
+        return m_includes;
+    }
 
-	
-	
-	
+    public void setIncludes(String[] includes) {
+        m_includes = includes == null? null : includes.clone();
+    }
+
+    public IGroup[] getGroups() {
+        return (IGroup[])m_groups;
+    }
+
+    public void setGroups(final IGroup[] groups) {
+        m_groups = Group.asGroups(groups);
+    }
+
+    public void initialize(final Map<String, ? extends ITable> tableMap, final Map<String, ? extends IGroup> groupMap) {
+        List<Table> tables = new ArrayList<Table>();
+        List<Group> groups = new ArrayList<Group>();
+        for(String include : m_includes) {
+            if (tableMap.containsKey(include)) {
+                tables.add(Table.asTable(tableMap.get(include)));
+            } else if (groupMap.containsKey(include)) {
+                groups.add(Group.asGroup(groupMap.get(include)));
+            } else {
+                throw new IllegalArgumentException("Unable to locate include " + include + " for systemDef " + getName());
+            }
+        }
+
+        m_tables = tables.toArray(new Table[tables.size()]);
+        m_groups = groups.toArray(new Group[groups.size()]);
+
+    }
+
+    public boolean matches(SnmpAgent agent) {
+        String systemObjId = agent.getSysObjectId();
+
+        return (m_sysoid == null && m_sysoidMask == null)
+                || (m_sysoid != null && systemObjId.equals(m_sysoid))
+                || (m_sysoidMask != null && systemObjId.startsWith(m_sysoidMask));
+    }
+
+    public void fillRequest(SnmpCollectionRequest request) {
+        assertInitialized();
+
+        if (!matches(request.getAgent())) return;
+
+        for(Table table : m_tables) {
+            table.fillRequest(request);
+        }
+
+        for(Group group : m_groups) {
+            group.fillRequest(request);
+        }
+
+    }
+
+    private void assertInitialized() {
+        if (m_tables == null || m_groups == null) {
+            throw new IllegalStateException("systemDef " + getName() + " is not initialized!");
+        }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder buf = new StringBuilder("SystemDef[");
+        buf.append("name=").append(m_name).append(", ");
+        if (m_sysoid != null) {
+            buf.append("sysoid=").append(m_sysoid);
+        } else if (m_sysoidMask != null) {
+            buf.append("sysoidMask=").append(m_sysoidMask);
+        } else {
+            buf.append("No Match Criteria");
+        }
+        buf.append("]");
+        return buf.toString();
+    }
+
+
+
+
 }

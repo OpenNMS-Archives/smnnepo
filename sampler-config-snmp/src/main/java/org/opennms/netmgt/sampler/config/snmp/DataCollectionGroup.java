@@ -10,113 +10,122 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.opennms.netmgt.api.sample.Metric;
+import org.opennms.netmgt.config.api.collection.IDataCollectionGroup;
+import org.opennms.netmgt.config.api.collection.IGroup;
+import org.opennms.netmgt.config.api.collection.IResourceType;
+import org.opennms.netmgt.config.api.collection.ISystemDef;
+import org.opennms.netmgt.config.api.collection.ITable;
 
 @XmlRootElement(name="datacollection-group")
-@XmlAccessorType(XmlAccessType.FIELD)
-public class DataCollectionGroup {
+@XmlAccessorType(XmlAccessType.NONE)
+public class DataCollectionGroup implements IDataCollectionGroup {
 
-	@XmlAttribute(name="name")
-	String m_name;
-	
-	@XmlElement(name="resourceType")
-	ResourceType[] m_resourceTypes = new ResourceType[0];
-	
-	@XmlElement(name="table")
-	Table[] m_tables = new Table[0];
-	
-	@XmlElement(name="group")
-	Group[] m_groups = new Group[0];
-	
-	@XmlElement(name="systemDef")
-	SystemDef[] m_systemDefs = new SystemDef[0];
+    @XmlAttribute(name="name")
+    String m_name;
 
-	public Group[] getGroups() {
-		return m_groups;
-	}
-	
-	public Table[] getTables() {
-		return m_tables;
-	}
+    @XmlElement(name="resourceType")
+    ResourceType[] m_resourceTypes = new ResourceType[0];
 
-	public SystemDef[] getSystemDefs() {
-		return m_systemDefs;
-	}
+    @XmlElement(name="table")
+    Table[] m_tables = new Table[0];
 
-	public ResourceType[] getResourceTypes() {
-		return m_resourceTypes;
-	}
+    @XmlElement(name="group")
+    Group[] m_groups = new Group[0];
 
-	public String getName() {
-		return m_name;
-	}
+    @XmlElement(name="systemDef")
+    SystemDef[] m_systemDefs = new SystemDef[0];
 
-	public void initialize(Map<String, ResourceType> typeMap, Map<String, Table> tableMap, Map<String, Group> groupMap) {
-		
-		for(Table table : m_tables) {
-			String typeName = table.getInstance();
-			ResourceType type = typeMap.get(typeName);
-			if (type == null) {
-				throw new IllegalArgumentException("Unable to locate resourceType " + typeName + " for table " + table.getName());
-			}
-			table.initialize(type);
-		}
-		
-		for (Group group : m_groups) {
-		    group.initialize();
-		}
+    @Override
+    public IGroup[] getGroups() {
+        return (IGroup[]) m_groups;
+    }
 
-		for(SystemDef systemDef : m_systemDefs) {
-			systemDef.initialize(tableMap, groupMap);
-		}
-	}
+    @Override
+    public ITable[] getTables() {
+        return (ITable[]) m_tables;
+    }
 
-	public void fillRequest(SnmpCollectionRequest request) {
-		for(SystemDef systemDef : m_systemDefs) {
-			systemDef.fillRequest(request);
-		}
-	}
+    @Override
+    public ISystemDef[] getSystemDefs() {
+        return (ISystemDef[]) m_systemDefs;
+    }
 
-	public void gatherSymbols(Map<String, ResourceType> typeMap, Map<String, Table> tableMap, Map<String, Group> groupMap) {
-		for(ResourceType resourceType : m_resourceTypes) {
-			typeMap.put(resourceType.getTypeName(), resourceType);
-		}
-		for(Table table : m_tables) {
-			tableMap.put(table.getName(), table);
-		}
-		for(Group group : m_groups) {
-			groupMap.put(group.getName(), group);
-		}
-	}
+    @Override
+    public IResourceType[] getResourceTypes() {
+        return m_resourceTypes;
+    }
 
-	public Set<Metric> getMetricsForGroup(String groupName) {
-		for(Table table : m_tables) {
-			if (groupName.equals(table.getName())) {
-				return table.getMetrics();
-			}
-		}
-		
-		for(Group group : m_groups) {
-			if (groupName.equals(group.getName())) {
-				return group.getMetrics();
-			}
-		}
-		
-		return null;
-	}
+    @Override
+    public String getName() {
+        return m_name;
+    }
 
-	public Metric getMetric(String metricName) {
-		for(Table table : m_tables) {
-			Metric metric = table.getMetric(metricName);
-			if (metric != null) { return metric; }
-		}
-		
-		for(Group group : m_groups) {
-			Metric metric = group.getMetric(metricName);
-			if (metric != null) { return metric; }
-		}
-		
-		return null;
-	}
+    public void initialize(final Map<String, ResourceType> typeMap, final Map<String, Table> tableMap, final Map<String, Group> groupMap) {
+        for(Table table : m_tables) {
+            final String typeName = table.getInstance();
+            final ResourceType type = typeMap.get(typeName);
+            if (type == null) {
+                throw new IllegalArgumentException("Unable to locate resourceType " + typeName + " for table " + table.getName());
+            }
+            table.initialize(type);
+        }
+
+        for (Group group : m_groups) {
+            group.initialize();
+        }
+
+        for(SystemDef systemDef : m_systemDefs) {
+            systemDef.initialize(tableMap, groupMap);
+        }
+    }
+
+    public void fillRequest(SnmpCollectionRequest request) {
+        for(SystemDef systemDef : m_systemDefs) {
+            systemDef.fillRequest(request);
+        }
+    }
+
+    public void gatherSymbols(final Map<String, ResourceType> typeMap, final Map<String, Table> tableMap, final Map<String, Group> groupMap) {
+        for(final ResourceType resourceType : m_resourceTypes) {
+            typeMap.put(resourceType.getTypeName(), resourceType);
+        }
+        for(final Table table : m_tables) {
+            tableMap.put(table.getName(), table);
+        }
+        for(final Group group : m_groups) {
+            groupMap.put(group.getName(), group);
+        }
+    }
+
+    public Set<Metric> getMetricsForGroup(String groupName) {
+        for(final Table table : m_tables) {
+            if (groupName.equals(table.getName())) {
+                return table.getMetrics();
+            }
+        }
+
+        for(final Group group : m_groups) {
+            if (groupName.equals(group.getName())) {
+                return group.getMetrics();
+            }
+        }
+
+        return null;
+    }
+
+    public Metric getMetric(String metricName) {
+        for(Table table : m_tables) {
+            Metric metric = table.getMetric(metricName);
+            if (metric != null) { return metric; }
+        }
+
+        for(Group group : m_groups) {
+            Metric metric = group.getMetric(metricName);
+            if (metric != null) { return metric; }
+        }
+
+        return null;
+    }
 
 
 }

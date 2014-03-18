@@ -14,6 +14,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.opennms.netmgt.api.sample.Metric;
 import org.opennms.netmgt.api.sample.Resource;
 import org.opennms.netmgt.api.sample.SampleSet;
+import org.opennms.netmgt.config.api.collection.IGroup;
+import org.opennms.netmgt.config.api.collection.IMibObject;
 import org.opennms.netmgt.snmp.AggregateTracker;
 import org.opennms.netmgt.snmp.Collectable;
 import org.opennms.netmgt.snmp.CollectionTracker;
@@ -29,62 +31,62 @@ import org.opennms.netmgt.snmp.CollectionTracker;
  *
  */
 @XmlRootElement(name="group")
-@XmlAccessorType(XmlAccessType.FIELD)
-public class Group {
-	
-	@XmlAttribute(name="name")
-	private String m_name;
-	
-	@XmlElement(name="mibObj")
-	private MibObject[] m_mibObjects = new MibObject[0];
+@XmlAccessorType(XmlAccessType.NONE)
+public class Group implements IGroup {
 
-	public String getName() {
-		return m_name;
-	}
+    @XmlAttribute(name="name")
+    private String m_name;
 
-	public void setName(String name) {
-		m_name = name;
-	}
+    @XmlElement(name="mibObj")
+    private MibObject[] m_mibObjects = new MibObject[0];
 
-	public MibObject[] getMibObjects() {
-		return m_mibObjects;
-	}
+    public String getName() {
+        return m_name;
+    }
 
-	public void setMibObjects(MibObject[] mibObjects) {
-		m_mibObjects = mibObjects == null? null : mibObjects.clone();
-	}
+    public void setName(String name) {
+        m_name = name;
+    }
 
-	public void initialize() {
-	    for (final MibObject mibObj : m_mibObjects) {
-	        mibObj.initialize(this);
-	    }
-	}
+    public IMibObject[] getMibObjects() {
+        return (IMibObject[]) m_mibObjects;
+    }
 
-	public void fillRequest(SnmpCollectionRequest request) {
-		request.addGroup(this);
-	}
+    public void setMibObjects(final IMibObject[] mibObjects) {
+        m_mibObjects = MibObject.asMibObjects(mibObjects);
+    }
 
-	public String toString() {
-		return getName();
-	}
+    public void initialize() {
+        for (final MibObject mibObj : m_mibObjects) {
+            mibObj.initialize(this);
+        }
+    }
 
-	public Set<Metric> getMetrics() {
-		Set<Metric> metrics = new HashSet<Metric>();
-		for(MibObject mibObj : m_mibObjects) {
-			Metric metric = mibObj.createMetric();
-			if (metric != null) { metrics.add(metric); }
-		}
-		return metrics;
-	}
+    public void fillRequest(SnmpCollectionRequest request) {
+        request.addGroup(this);
+    }
 
-	public Metric getMetric(String metricName) {
-		for(MibObject mibObj : m_mibObjects) {
-			if (mibObj.getAlias().equals(metricName)) {
-				return mibObj.createMetric();
-			}
-		}
-		return null;
-	}
+    public String toString() {
+        return getName();
+    }
+
+    public Set<Metric> getMetrics() {
+        Set<Metric> metrics = new HashSet<Metric>();
+        for(MibObject mibObj : m_mibObjects) {
+            Metric metric = mibObj.createMetric();
+            if (metric != null) { metrics.add(metric); }
+        }
+        return metrics;
+    }
+
+    public Metric getMetric(String metricName) {
+        for(MibObject mibObj : m_mibObjects) {
+            if (mibObj.getAlias().equals(metricName)) {
+                return mibObj.createMetric();
+            }
+        }
+        return null;
+    }
 
     public CollectionTracker createCollectionTracker(final SnmpAgent agent, final SampleSet sampleSet) {
         final Resource groupResource = new Resource(agent, "node", m_name);
@@ -95,5 +97,28 @@ public class Group {
         }
 
         return new AggregateTracker(trackers);
+    }
+
+    public static Group asGroup(final IGroup group) {
+        if (group == null) return null;
+
+        if (group instanceof Group) {
+            return (Group)group;
+        }
+
+        final Group newGroup = new Group();
+        newGroup.setName(group.getName());
+        newGroup.setMibObjects(group.getMibObjects());
+        return newGroup;
+    }
+
+    public static Group[] asGroups(final IGroup[] groups) {
+        if (groups == null) return null;
+        
+        final Group[] newGroups = new Group[groups.length];
+        for (int i=0; i < groups.length; i++) {
+            newGroups[i] = Group.asGroup(groups[i]);
+        }
+        return newGroups;
     }
 }

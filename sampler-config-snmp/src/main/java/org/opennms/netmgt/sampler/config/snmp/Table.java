@@ -16,6 +16,8 @@ import org.opennms.netmgt.api.sample.Metric;
 import org.opennms.netmgt.api.sample.Resource;
 import org.opennms.netmgt.api.sample.SampleSet;
 import org.opennms.netmgt.api.sample.SampleValue;
+import org.opennms.netmgt.config.api.collection.IColumn;
+import org.opennms.netmgt.config.api.collection.ITable;
 import org.opennms.netmgt.snmp.CollectionTracker;
 import org.opennms.netmgt.snmp.SnmpObjId;
 import org.opennms.netmgt.snmp.SnmpRowResult;
@@ -33,121 +35,154 @@ import org.opennms.netmgt.snmp.TableTracker;
  *
  */
 @XmlRootElement(name="table")
-@XmlAccessorType(XmlAccessType.FIELD)
-public class Table {
-	
-	@XmlAttribute(name="name")
-	private String m_name;
-	
-	@XmlAttribute(name="instance")
-	private String m_instance;
-	
-	@XmlElement(name="column")
-	private Column[] m_columns;
-	
-	@XmlTransient
-	private ResourceType m_resourceType;
+@XmlAccessorType(XmlAccessType.NONE)
+public class Table implements ITable {
 
-	public String getName() {
-		return m_name;
-	}
+    @XmlAttribute(name="name")
+    private String m_name;
 
-	public void setName(String name) {
-		m_name = name;
-	}
+    @XmlAttribute(name="instance")
+    private String m_instance;
 
-	public String getInstance() {
-		return m_instance;
-	}
+    @XmlAttribute(name="ifType")
+    private String m_ifType;
 
-	public void setInstance(String instance) {
-		m_instance = instance;
-	}
+    @XmlElement(name="column")
+    private Column[] m_columns;
 
-	public Column[] getColumns() {
-		return m_columns;
-	}
+    @XmlTransient
+    private ResourceType m_resourceType;
 
-	public void setColumns(Column[] columns) {
-		m_columns = columns == null? null : columns.clone();
-	}
+    public String getName() {
+        return m_name;
+    }
 
-	public void initialize(ResourceType type) {
-		m_resourceType = type;
-	}
+    public void setName(String name) {
+        m_name = name;
+    }
 
-	public void fillRequest(SnmpCollectionRequest request) {
-		assertInitialized();
-		request.addResourceType(m_resourceType);
-		request.addTable(this);
-	}
+    public String getInstance() {
+        return m_instance;
+    }
 
-	private void assertInitialized() {
-		if (m_resourceType == null) {
-			throw new IllegalStateException("Table " + getName() + " is not initialied!");
-		}
-	}
-	
-	public String toString() {
-		return getName();
-	}
-	
-	public CollectionTracker createCollectionTracker(final SnmpAgent agent, final SampleSet sampleSet) {
-		
-		//System.err.println("Creating Table tracker for table " + getName());
-		
-		List<SnmpObjId> snmpObjIds = new ArrayList<SnmpObjId>();
-		
-		for(Column resourceColumn : m_resourceType.getColumns()) {
-			snmpObjIds.add(resourceColumn.getOid());
-		}
-		
-		for(Column tableColumn : m_columns) {
-			snmpObjIds.add(tableColumn.getOid());
-		}
-		
-		SnmpObjId[] ids = snmpObjIds.toArray(new SnmpObjId[snmpObjIds.size()]);
-		return new TableTracker(ids) {
+    public void setInstance(String instance) {
+        m_instance = instance;
+    }
 
-			@Override
-			public void rowCompleted(SnmpRowResult row) {
-				//System.err.println("row completed: " + row);
-				Resource resource = m_resourceType.getResource(agent, row);
+    public String getIfType() {
+        return m_ifType;
+    }
+    
+    public void setIfType(final String ifType) {
+        m_ifType = ifType;
+    }
 
-				for(Column column : m_columns) {
-					Metric metric = column.createMetric(getName());
-					if (metric != null) { 
-						SnmpValue snmpValue = row.getValue(column.getOid());
+    @Override
+    public IColumn[] getColumns() {
+        return m_columns;
+    }
 
-						if (snmpValue != null) {
-							SampleValue<?> sampleValue = metric.getType().getValue(snmpValue.toBigInteger());
-							sampleSet.addMeasurement(resource, metric, sampleValue);
-						}
-					}
-				}
+    public void setColumns(final IColumn[] columns) {
+        if (columns == null) {
+            m_columns = null;
+            return;
+        }
+        final Column[] newColumns = new Column[columns.length];
+        for (int i=0; i < columns.length; i++) {
+            newColumns[i] = Column.asColumn(columns[i]);
+        }
+        m_columns = newColumns;
+    }
 
-			}
+    public void initialize(final ResourceType type) {
+        m_resourceType = type;
+    }
 
-		};
-	}
+    public void fillRequest(SnmpCollectionRequest request) {
+        assertInitialized();
+        request.addResourceType(m_resourceType);
+        request.addTable(this);
+    }
 
-	public Set<Metric> getMetrics() {
-		Set<Metric> metrics = new HashSet<Metric>();
-		for(Column column : m_columns) {
-			Metric metric = column.createMetric(getName());
-			// string columns do not represetn metrics and null is returned
-			if (metric != null) { metrics.add(metric); }
-		}
-		return metrics;
-	}
+    private void assertInitialized() {
+        if (m_resourceType == null) {
+            throw new IllegalStateException("Table " + getName() + " is not initialied!");
+        }
+    }
 
-	public Metric getMetric(String metricName) {
-		for(Column column : m_columns) {
-			if (column.getAlias().equals(metricName)) {
-				return column.createMetric(getName());
-			}
-		}
-		return null;
-	}
+    public String toString() {
+        return getName();
+    }
+
+    public CollectionTracker createCollectionTracker(final SnmpAgent agent, final SampleSet sampleSet) {
+
+        //System.err.println("Creating Table tracker for table " + getName());
+
+        List<SnmpObjId> snmpObjIds = new ArrayList<SnmpObjId>();
+
+        for(IColumn resourceColumn : m_resourceType.getColumns()) {
+            snmpObjIds.add(resourceColumn.getOid());
+        }
+
+        for(Column tableColumn : m_columns) {
+            snmpObjIds.add(tableColumn.getOid());
+        }
+
+        SnmpObjId[] ids = snmpObjIds.toArray(new SnmpObjId[snmpObjIds.size()]);
+        return new TableTracker(ids) {
+
+            @Override
+            public void rowCompleted(SnmpRowResult row) {
+                //System.err.println("row completed: " + row);
+                Resource resource = m_resourceType.getResource(agent, row);
+
+                for(Column column : m_columns) {
+                    Metric metric = column.createMetric(getName());
+                    if (metric != null) { 
+                        SnmpValue snmpValue = row.getValue(column.getOid());
+
+                        if (snmpValue != null) {
+                            SampleValue<?> sampleValue = metric.getType().getValue(snmpValue.toBigInteger());
+                            sampleSet.addMeasurement(resource, metric, sampleValue);
+                        }
+                    }
+                }
+
+            }
+
+        };
+    }
+
+    public Set<Metric> getMetrics() {
+        Set<Metric> metrics = new HashSet<Metric>();
+        for(Column column : m_columns) {
+            Metric metric = column.createMetric(getName());
+            // string columns do not represetn metrics and null is returned
+            if (metric != null) { metrics.add(metric); }
+        }
+        return metrics;
+    }
+
+    public Metric getMetric(String metricName) {
+        for(Column column : m_columns) {
+            if (column.getAlias().equals(metricName)) {
+                return column.createMetric(getName());
+            }
+        }
+        return null;
+    }
+
+    public static Table asTable(final ITable table) {
+        if (table == null) return null;
+        if (table instanceof Table) {
+            return (Table)table;
+        } else {
+            final Table newTable = new Table();
+            newTable.setName(table.getName());
+            newTable.setInstance(table.getInstance());
+            newTable.setColumns(table.getColumns());
+            return newTable;
+        }
+    }
 
 }

@@ -8,6 +8,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.opennms.netmgt.api.sample.Agent;
 import org.opennms.netmgt.api.sample.Resource;
+import org.opennms.netmgt.config.api.collection.IColumn;
+import org.opennms.netmgt.config.api.collection.IExpression;
+import org.opennms.netmgt.config.api.collection.IResourceType;
 import org.opennms.netmgt.sampler.config.snmp.PropertiesUtils.SymbolTable;
 import org.opennms.netmgt.snmp.SnmpObjId;
 import org.opennms.netmgt.snmp.SnmpRowResult;
@@ -16,10 +19,10 @@ import org.opennms.netmgt.snmp.SnmpValue;
 /**
  *  <resourceType name="hrStorageIndex" label="Storage (MIB-2 Host Resources)">
  *	  <resourceName>
- *      <template>${hrStorageDescr}</template>
+ *      <m_template>${hrStorageDescr}</m_template>
  *    </resourceName>
- *    <resourceLabel><template>${hrStorageDescr}</template></resourceLabel>
- *    <resourceKind><template>${hrStorageType}</template></resourceKind>
+ *    <resourceLabel><m_template>${hrStorageDescr}</m_template></resourceLabel>
+ *    <resourceKind><m_template>${hrStorageType}</m_template></resourceKind>
  *    <column oid=".1.3.6.1.2.1.25.2.3.1.2" alias="hrStorageType"  type="string" />
  *    <column oid=".1.3.6.1.2.1.25.2.3.1.3" alias="hrStorageDescr" type="string" />
  *  </resourceType>
@@ -29,114 +32,133 @@ import org.opennms.netmgt.snmp.SnmpValue;
  */
 
 @XmlRootElement(name="resourceType")
-@XmlAccessorType(XmlAccessType.FIELD)
-public class ResourceType {
-	
-	@XmlAttribute(name="name")
-	private String m_name;
-	
-	@XmlAttribute(name="label")
-	private String m_label;
-	
-	@XmlElement(name="resourceName")
-	private Expression m_resourceNameExpression;
-	
-	@XmlElement(name="resourceLabel")
-	private Expression m_resourceLabelExpression;
-	
-	@XmlElement(name="resourceKind")
-	private Expression m_resourceKindExpression;
-	
-	@XmlElement(name="column")
-	private Column[] m_columns = new Column[0];
+@XmlAccessorType(XmlAccessType.NONE)
+public class ResourceType implements IResourceType {
 
-	public String getTypeName() {
-		return m_name;
-	}
+    @XmlAttribute(name="name")
+    private String m_name;
 
-	public void setName(String name) {
-		m_name = name;
-	}
+    @XmlAttribute(name="label")
+    private String m_label;
 
-	public String getLabel() {
-		return m_label;
-	}
+    @XmlElement(name="resourceName")
+    private Expression m_resourceNameExpression;
 
-	public void setLabel(String label) {
-		m_label = label;
-	}
+    @XmlElement(name="resourceLabel")
+    private Expression m_resourceLabelExpression;
 
-	public Expression getResourceNameExpression() {
-		return m_resourceNameExpression;
-	}
+    @XmlElement(name="resourceKind")
+    private Expression m_resourceKindExpression;
 
-	public void setResourceNameExpression(Expression resourceNameExpression) {
-		m_resourceNameExpression = resourceNameExpression;
-	}
+    @XmlElement(name="column")
+    private Column[] m_columns = new Column[0];
 
-	public Expression getResourceLabelExpression() {
-		return m_resourceLabelExpression;
-	}
+    public ResourceType() {
+    }
 
-	public void setResourceLabelExpression(Expression resourceLabelExpression) {
-		m_resourceLabelExpression = resourceLabelExpression;
-	}
+    public String getTypeName() {
+        return m_name;
+    }
 
-	public Expression getResourceKindExpression() {
-		return m_resourceKindExpression;
-	}
+    public void setName(String name) {
+        m_name = name;
+    }
 
-	public void setResourceKindExpression(Expression resourceKindExpression) {
-		m_resourceKindExpression = resourceKindExpression;
-	}
+    public String getLabel() {
+        return m_label;
+    }
 
-	public Column[] getColumns() {
-		return m_columns;
-	}
+    public void setLabel(String label) {
+        m_label = label;
+    }
 
-	public void setColumns(Column[] columns) {
-		m_columns = columns == null? null : columns.clone();
-	}
-	
-	public String toString() {
-		return getTypeName();
-	}
+    public IExpression getResourceNameExpression() {
+        return m_resourceNameExpression;
+    }
 
-	public Resource getResource(Agent agent, SnmpRowResult row) {
-		String resourceName = createResourceName(row);
-		Resource resource = new Resource(agent, getTypeName(), resourceName);
-		
-		for(Column column : m_columns) {
-			SnmpValue val = row.getValue(column.getOid());
-			if (val != null) {
-				String attrValue = column.getValue(val);
-				resource.setAttribute(column.getAlias(), attrValue);
-			}
-		}
-		return resource;
-	}
-	
-	private String createResourceName(final SnmpRowResult row) {
-		String nameTemplate = getResourceNameExpression().getTemplate();
-		
-		SymbolTable symbolTable = new SymbolTable() {
-			
-			@Override
-			public String getSymbolValue(String symbol) {
-				for (Column column : m_columns) {
-					if ("index".equals(symbol)) {
-						return row.getInstance().toString();
-					} else if (column.getAlias().equals(symbol)) {
-						SnmpObjId base = column.getOid();
-						SnmpValue value = row.getValue(base);
-						return column.getValue(value);
-					}
-				}
-				return null;
-			}
-		};
-		return PropertiesUtils.substitute(nameTemplate, symbolTable);
-	}
-	
+    public void setResourceNameExpression(final IExpression expression) {
+        m_resourceNameExpression = Expression.asExpression(expression);
+    }
+
+    public Expression getResourceLabelExpression() {
+        return m_resourceLabelExpression;
+    }
+
+    public void setResourceLabelExpression(final IExpression expression) {
+        m_resourceLabelExpression = Expression.asExpression(expression);
+    }
+
+    public Expression getResourceKindExpression() {
+        return m_resourceKindExpression;
+    }
+
+    public void setResourceKindExpression(IExpression expression) {
+        m_resourceKindExpression = Expression.asExpression(expression);
+    }
+
+    public IColumn[] getColumns() {
+        return m_columns;
+    }
+
+    public void setColumns(final IColumn[] columns) {
+        m_columns = Column.asColumns(columns);
+    }
+
+    public String toString() {
+        return getTypeName();
+    }
+
+    public Resource getResource(Agent agent, SnmpRowResult row) {
+        String resourceName = createResourceName(row);
+        Resource resource = new Resource(agent, getTypeName(), resourceName);
+
+        for(Column column : m_columns) {
+            SnmpValue val = row.getValue(column.getOid());
+            if (val != null) {
+                String attrValue = column.getValue(val);
+                resource.setAttribute(column.getAlias(), attrValue);
+            }
+        }
+        return resource;
+    }
+
+    private String createResourceName(final SnmpRowResult row) {
+        String nameTemplate = getResourceNameExpression().getTemplate();
+
+        SymbolTable symbolTable = new SymbolTable() {
+
+            @Override
+            public String getSymbolValue(String symbol) {
+                for (Column column : m_columns) {
+                    if ("index".equals(symbol)) {
+                        return row.getInstance().toString();
+                    } else if (column.getAlias().equals(symbol)) {
+                        SnmpObjId base = column.getOid();
+                        SnmpValue value = row.getValue(base);
+                        return column.getValue(value);
+                    }
+                }
+                return null;
+            }
+        };
+        return PropertiesUtils.substitute(nameTemplate, symbolTable);
+    }
+
+    public static ResourceType asResourceType(final IResourceType type) {
+        if (type == null) return null;
+        if (type instanceof ResourceType) {
+            return (ResourceType)type;
+        } else {
+            final ResourceType newType = new ResourceType();
+            newType.setName(type.getTypeName());
+            newType.setLabel(type.getLabel());
+            newType.setResourceNameExpression(type.getResourceNameExpression());
+            newType.setResourceLabelExpression(type.getResourceLabelExpression());
+            newType.setResourceKindExpression(type.getResourceKindExpression());
+            newType.setColumns(type.getColumns());
+            return newType;
+        }
+    }
+
 
 }

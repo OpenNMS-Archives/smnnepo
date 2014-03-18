@@ -12,7 +12,9 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.opennms.netmgt.api.sample.Metric;
 import org.opennms.netmgt.api.sample.MetricType;
+import org.opennms.netmgt.config.api.collection.IColumn;
 import org.opennms.netmgt.snmp.SnmpObjId;
+import org.opennms.netmgt.snmp.SnmpObjIdXmlAdapter;
 import org.opennms.netmgt.snmp.SnmpValue;
 
 /**
@@ -23,7 +25,7 @@ import org.opennms.netmgt.snmp.SnmpValue;
  */
 @XmlRootElement(name="column")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Column {
+public class Column implements IColumn {
 
     private static final int BASE_10 = 10;
 
@@ -62,6 +64,14 @@ public class Column {
 
     public void setType(String type) {
         m_type = type;
+    }
+    
+    public String getDisplayHint() {
+        return m_displayHint;
+    }
+    
+    public void setDisplayHint(final String displayHint) {
+        m_displayHint = displayHint;
     }
 
     public MetricType getMetricType() {
@@ -346,6 +356,31 @@ public class Column {
         }
         return val.toDisplayString();
 
+    }
+
+    public static Column asColumn(final IColumn column) {
+        if (column == null) return null;
+
+        if (column instanceof Column) {
+            return (Column)column;
+        } else {
+            final Column newColumn = new Column();
+            newColumn.setOid(column.getOid());
+            newColumn.setAlias(column.getAlias());
+            newColumn.setType(column.getType());
+            newColumn.setDisplayHint(column.getDisplayHint());
+            return newColumn;
+        }
+    }
+
+    public static Column[] asColumns(final IColumn[] columns) {
+        if (columns == null) return null;
+
+        final Column[] newColumns = new Column[columns.length];
+        for (int i=0; i < columns.length; i++) {
+            newColumns[i] = Column.asColumn(columns[i]);
+        }
+        return newColumns;
     }
 
 }

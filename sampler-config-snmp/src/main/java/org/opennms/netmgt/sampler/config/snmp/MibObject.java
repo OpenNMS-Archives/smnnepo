@@ -13,10 +13,13 @@ import org.opennms.netmgt.api.sample.NanValue;
 import org.opennms.netmgt.api.sample.Resource;
 import org.opennms.netmgt.api.sample.SampleSet;
 import org.opennms.netmgt.api.sample.SampleValue;
+import org.opennms.netmgt.config.api.collection.IGroup;
+import org.opennms.netmgt.config.api.collection.IMibObject;
 import org.opennms.netmgt.snmp.CollectionTracker;
 import org.opennms.netmgt.snmp.SingleInstanceTracker;
 import org.opennms.netmgt.snmp.SnmpInstId;
 import org.opennms.netmgt.snmp.SnmpObjId;
+import org.opennms.netmgt.snmp.SnmpObjIdXmlAdapter;
 import org.opennms.netmgt.snmp.SnmpResult;
 import org.opennms.netmgt.snmp.SnmpValue;
 import org.slf4j.Logger;
@@ -29,8 +32,8 @@ import org.slf4j.LoggerFactory;
  *
  */
 @XmlRootElement(name="mibObj")
-@XmlAccessorType(XmlAccessType.FIELD)
-public class MibObject {
+@XmlAccessorType(XmlAccessType.NONE)
+public class MibObject implements IMibObject {
     protected static final Logger LOG = LoggerFactory.getLogger(MibObject.class);
 
     @XmlAttribute(name="oid")
@@ -81,8 +84,12 @@ public class MibObject {
 		m_instance = instance;
 	}
 	
-	public Group getGroup() {
-	    return m_group;
+	public IGroup getGroup() {
+	    return (IGroup) m_group;
+	}
+
+	public void setGroup(final IGroup group) {
+	    m_group = Group.asGroup(group);
 	}
 
 	public MetricType getMetricType() {
@@ -136,6 +143,27 @@ public class MibObject {
 
     public void initialize(final Group group) {
         m_group = group;
+    }
+
+    public static MibObject[] asMibObjects(final IMibObject[] mibObjects) {
+        if (mibObjects == null) return null;
+
+        final MibObject[] newMibObjects = new MibObject[mibObjects.length];
+        for (int i=0; i < mibObjects.length; i++) {
+            newMibObjects[i] = MibObject.asMibObject(mibObjects[i]);
+        }
+        return newMibObjects;
+    }
+
+    private static MibObject asMibObject(final IMibObject obj) {
+        if (obj == null) return null;
+        final MibObject mibObject = new MibObject();
+        mibObject.setOid(obj.getOid());
+        mibObject.setAlias(obj.getAlias());
+        mibObject.setType(obj.getType());
+        mibObject.setInstance(obj.getInstance());
+        mibObject.setGroup(obj.getGroup());
+        return mibObject;
     }
 	
 }
