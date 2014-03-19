@@ -1,13 +1,15 @@
 package org.opennms.netmgt.api.sample.support;
 
+import org.apache.camel.InOnly;
 import org.apache.camel.Produce;
 import org.opennms.netmgt.api.sample.Agent;
-import org.opennms.netmgt.api.sample.Sampler;
+import org.opennms.netmgt.api.sample.Dispatcher;
 
-public class DefaultSampler implements Sampler {
+@InOnly
+public class DefaultDispatcher implements Dispatcher {
 
 	@Produce(property="endpointUri")
-	Sampler proxy;
+	Dispatcher proxy;
 
 	private String m_endpointUri;
 
@@ -24,7 +26,7 @@ public class DefaultSampler implements Sampler {
 	 * specified by the {@link #m_endpointUri} property.
 	 */
 	@Override
-	public void collect(Agent agent) {
-		proxy.collect(agent);
+	public void dispatch(Agent agent) {
+		proxy.dispatch(agent);
 	}
 }

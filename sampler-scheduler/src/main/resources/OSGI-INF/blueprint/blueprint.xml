@@ -23,7 +23,7 @@
 	<service id="schedulerService" ref="scheduler" interface="org.opennms.netmgt.api.sample.support.SchedulerService">
    	</service>
 
-	<reference-list interface="org.opennms.netmgt.api.sample.support.Dispatcher" availability="optional" filter="(org.opennms.netmgt.sampler.scheduler.serviceName=*)">
+	<reference-list interface="org.opennms.netmgt.api.sample.Dispatcher" availability="optional" filter="(org.opennms.netmgt.sampler.scheduler.serviceName=*)">
 	    <reference-listener bind-method="onDispatcherBind" unbind-method="onDispatcherUnbind" ref="scheduler" />
 	</reference-list>
 </blueprint>

@@ -3,6 +3,7 @@ package org.opennms.netmgt.api.sample.support;
 import java.lang.reflect.Method;
 
 import org.apache.camel.Consume;
+import org.apache.camel.InOnly;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
@@ -13,6 +14,7 @@ import org.slf4j.LoggerFactory;
  * to any OSGi services that are registered at the interface that is defined by the
  * {@link #setMessageClass(String)} method call.
  */
+@InOnly
 public class DispatcherWhiteboard {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(DispatcherWhiteboard.class);

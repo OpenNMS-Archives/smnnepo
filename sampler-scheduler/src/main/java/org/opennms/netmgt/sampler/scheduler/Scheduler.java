@@ -10,8 +10,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.opennms.netmgt.api.sample.Agent;
+import org.opennms.netmgt.api.sample.Dispatcher;
 import org.opennms.netmgt.api.sample.PackageAgentList;
-import org.opennms.netmgt.api.sample.support.Dispatcher;
 import org.opennms.netmgt.api.sample.support.SchedulerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

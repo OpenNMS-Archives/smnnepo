@@ -35,11 +35,11 @@
   <bean id="snmpAgentProcessor" class="org.opennms.netmgt.sampler.snmp.internal.SnmpAgentProcessor" />
 
   <!-- OSGi service that exposes this sampler as a scheduling target -->
-  <bean id="snmpSampler" class="org.opennms.netmgt.api.sample.support.DefaultSampler">
+  <bean id="snmpSampler" class="org.opennms.netmgt.api.sample.support.DefaultDispatcher">
     <property name="endpointUri" value="seda:collectAgent"/>
   </bean>
 
-  <service ref="snmpSampler" interface="org.opennms.netmgt.api.sample.Sampler">
+  <service ref="snmpSampler" interface="org.opennms.netmgt.api.sample.Dispatcher">
     <service-properties>
       <entry key="protocol" value="SNMP"/>
     </service-properties>
