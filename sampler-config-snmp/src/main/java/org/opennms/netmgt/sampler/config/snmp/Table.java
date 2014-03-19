@@ -44,9 +44,6 @@ public class Table implements ITable {
     @XmlAttribute(name="instance")
     private String m_instance;
 
-    @XmlAttribute(name="ifType")
-    private String m_ifType;
-
     @XmlElement(name="column")
     private Column[] m_columns;
 
@@ -67,14 +64,6 @@ public class Table implements ITable {
 
     public void setInstance(String instance) {
         m_instance = instance;
-    }
-
-    public String getIfType() {
-        return m_ifType;
-    }
-    
-    public void setIfType(final String ifType) {
-        m_ifType = ifType;
     }
 
     @Override

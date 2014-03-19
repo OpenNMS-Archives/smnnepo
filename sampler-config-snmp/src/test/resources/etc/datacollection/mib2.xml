@@ -7,7 +7,7 @@
       <resourceKind><template>${ifType}</template></resourceKind>
       <column oid=".1.3.6.1.2.1.2.2.1.2"    alias="ifDescr"    type="string" />
       <column oid=".1.3.6.1.2.1.2.2.1.6"    alias="ifPhysAddr" type="string"  display-hint="1x:"/>
-      <colomn oid=".1.3.6.1.2.1.2.2.1.3"    alias="ifType"     type="string" /> 
+      <column oid=".1.3.6.1.2.1.2.2.1.3"    alias="ifType"     type="string" /> 
       <column oid=".1.3.6.1.2.1.31.1.1.1.1" alias="ifName"     type="string" />
     </resourceType>
 

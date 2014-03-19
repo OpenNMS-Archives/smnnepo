@@ -15,7 +15,6 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.opennms.netmgt.api.sample.Metric;
 import org.opennms.netmgt.config.api.collection.IDataCollectionGroup;
 import org.opennms.netmgt.config.api.collection.IGroupReference;
-import org.opennms.netmgt.config.api.collection.IRrd;
 import org.opennms.netmgt.config.api.collection.ISnmpCollection;
 
 @XmlRootElement(name="snmp-collection")
@@ -25,13 +24,10 @@ public class SnmpCollection implements ISnmpCollection {
     @XmlAttribute(name="name")
     private String m_name="default";
 
-    @XmlAttribute(name="snmpStorageFlag")
-    private String m_snmpStorageFlag;
-
     @XmlElement(name="include-collection")
     private GroupReference[] m_includedGroups;
 
-    @XmlTransient
+    @XmlElement(name="datacollection-group")
     private DataCollectionGroup[] m_dataCollectionGroups;
 
     @XmlElement(name="rrd")
@@ -43,11 +39,6 @@ public class SnmpCollection implements ISnmpCollection {
     }
 
     @Override
-    public String getSnmpStorageFlag() {
-        return m_snmpStorageFlag;
-    }
-
-    @Override
     public IGroupReference[] getIncludedGroups() {
         return m_includedGroups;
     }
@@ -55,11 +46,6 @@ public class SnmpCollection implements ISnmpCollection {
     @Override
     public IDataCollectionGroup[] getDataCollectionGroups() {
         return m_dataCollectionGroups;
-    }
-
-    @Override
-    public IRrd getRrd() {
-        return m_rrd;
     }
 
     public void initialize(Map<String, ? extends IDataCollectionGroup> availableGroups) {

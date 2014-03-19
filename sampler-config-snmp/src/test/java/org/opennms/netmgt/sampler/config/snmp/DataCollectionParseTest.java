@@ -100,7 +100,6 @@ public class DataCollectionParseTest {
         ISnmpCollection snmpCollection = dataCollection.getSnmpCollections()[0];
         assertNotNull(snmpCollection);
         assertEquals("default", snmpCollection.getName());
-        assertEquals("select", snmpCollection.getSnmpStorageFlag());
         assertNotNull(snmpCollection.getIncludedGroups());
         assertEquals(2, snmpCollection.getIncludedGroups().length);
 
