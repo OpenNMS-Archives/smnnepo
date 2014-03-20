@@ -1,12 +1,24 @@
-This is the repository for distributed experiments with OpenNMS
+This is the repository for distributed experiments with OpenNMS.
 
 Running the Standalone Sampler
 ==============================
 
 1. Build [OpenNMS master](http://github.com/OpenNMS/opennms.git)
-2. Build [SMNnepO](http://github.com/OpenNMS/smnnepo.git)
-3. Download and unpack [Karaf](http://karaf.apache.org/index/community/download.html)
-4. Run Karaf (bin/karaf)
-5. features:install mvn:org.opennms.netmgt.sample/karaf//xml
-6. features:install sampler-standalone
-7. add-agent -v 2c -c public -r 0 -t 3000 -p 161 172.20.1.107 .1
+1. Build [SMNnepO](http://github.com/OpenNMS/smnnepo.git)
+1. Download and unpack [Karaf](http://karaf.apache.org/index/community/download.html)
+1. Run Karaf (bin/karaf)
+1. Set the home directory for the general collection configuration and SNMP-specific configuration
+		config:edit org.opennms.netmgt.sampler.config
+		config:propset opennms.home ${your_source_dir}/sampler-config/src/test/resources
+		config:update
+		config:edit org.opennms.netmgt.sampler.config.snmp
+		config:propset opennms.home ${your_source_dir}/sampler-config-snmp/src/test/resources
+		config:update
+1. Install the SMNnepO feature repository in Karaf
+		features:install mvn:org.opennms.netmgt.sample/karaf//xml
+1. Install the config, scheduler, and SNMP modules
+		features:install sampler-config sampler-scheduler sampler-snmp
+1. ???
+
+add-agent -v 2c -c public -r 0 -t 3000 -p 161 172.20.1.107 .1
+

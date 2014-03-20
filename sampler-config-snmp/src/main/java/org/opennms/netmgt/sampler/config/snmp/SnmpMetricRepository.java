@@ -2,6 +2,7 @@ package org.opennms.netmgt.sampler.config.snmp;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -43,12 +44,12 @@ public class SnmpMetricRepository implements MetricRepository, CollectionConfigu
 		private <T> T parse(URL url, Class<T> declaredType) throws JAXBException, IOException {
 			InputStream urlStream = null;
 			try {
-				s_log.debug("Unmarshalling {} as {}", url, declaredType);
+				LOG.debug("Unmarshalling {} as {}", url, declaredType);
 				urlStream = url.openStream();
 				JAXBElement<T> jaxbElement = m_unmarshaller.unmarshal(new StreamSource(urlStream), declaredType);
 				return jaxbElement == null ? null : jaxbElement.getValue();		
 			} catch (IOException e) {
-				s_log.warn("Could not unmarshal " + url.toString() + " as " + declaredType.getName(), e);
+				LOG.warn("Could not unmarshal " + url.toString() + " as " + declaredType.getName(), e);
 				return null;
 			} finally {
 				if (urlStream != null) {
@@ -58,7 +59,7 @@ public class SnmpMetricRepository implements MetricRepository, CollectionConfigu
 		}
 	}
 	
-	private static Logger s_log = LoggerFactory.getLogger(SnmpMetricRepository.class); 
+	private static Logger LOG = LoggerFactory.getLogger(SnmpMetricRepository.class); 
 	
 	private final URL m_dataCollectionConfigURL;
 	private final URL[] m_dataCollectionGroupURLs;
@@ -91,6 +92,29 @@ public class SnmpMetricRepository implements MetricRepository, CollectionConfigu
 		refresh();
 	}
 	
+	/**
+	 * Load the specified data collection config file and then load all of the collection 
+	 * groups from a comma-separated string value.
+	 * 
+	 * @param dataCollectionConfigURL
+	 * @param groupURLs
+	 * @throws Exception
+	 */
+	public SnmpMetricRepository(URL dataCollectionConfigURL, String groupURLs) throws Exception {
+		m_dataCollectionConfigURL = dataCollectionConfigURL;
+		List<URL> urls = new ArrayList<URL>();
+		if (groupURLs != null && !"".equals(groupURLs)) {
+			for (String url : groupURLs.split(",")) {
+				try {
+					urls.add(new URL(url.trim()));
+				} catch (MalformedURLException e) {
+					LOG.warn("Invalid URL specified in {} configuration: {}", getClass().getSimpleName(), url);
+				}
+			}
+		}
+		m_dataCollectionGroupURLs = urls.toArray(new URL[0]);
+		refresh();
+	}
 	
 	public void refresh() throws JAXBException, IOException {
 		

@@ -14,7 +14,7 @@
 		http://aries.apache.org/schemas/blueprint-ext/blueprint-ext-1.1.xsd
 
 		http://camel.apache.org/schema/blueprint
-		http://camel.apache.org/schema/blueprint/camel-blueprint-2.12.2.xsd
+		http://camel.apache.org/schema/blueprint/camel-blueprint-2.12.3.xsd
 ">
 
   <!-- Override with an etc/org.opennms.netmgt.sample.config.configuration.snmp.cfg -->
@@ -22,8 +22,17 @@
   <cm:property-placeholder id="properties" persistent-id="org.opennms.netmgt.sampler.config.snmp" update-strategy="none">
     <cm:default-properties>
       <cm:property name="opennms.home" value="/opt/opennms"/>
-      <cm:property name="datacollectionFile" value="/datacollection-config.xml" />
-      <cm:property name="datacollectionDir" value="/datacollection" />
+
+      <!-- TODO: Figure out how to use the same type of token replacement in these strings -->
+
+      <cm:property name="snmpConfigUrl" value="file:{{opennms.home}}/etc/snmp-config.xml"/>
+
+      <cm:property name="datacollectionFileUrl" value="file:${opennms.home}/etc/datacollection-config.xml" />
+      <cm:property name="datacollectionGroupUrls" value="
+        file:${opennms.home}/etc/datacollection/mib2.xml,
+        file:${opennms.home}/etc/datacollection/netsnmp.xml,
+        file:${opennms.home}/etc/datacollection/dell.xml
+      "/>
     </cm:default-properties>
   </cm:property-placeholder>
 
@@ -33,26 +42,12 @@
   <!-- Beans that hold a copy of a configuration object -->
   <bean id="snmpConfiguration" class="org.opennms.netmgt.api.sample.support.SingletonBeanFactory"/>
   <bean id="snmpMetricRepository" class="org.opennms.netmgt.sampler.config.snmp.SnmpMetricRepository">
-    <argument value="file:${opennms.home}/etc/datacollection-config.xml"/>
-    <argument>
-      <array>
-        <value>file:${opennms.home}/etc/datacollection/mib2.xml</value>
-        <value>file:${opennms.home}/etc/datacollection/netsnmp.xml</value>
-        <value>file:${opennms.home}/etc/datacollection/dell.xml</value>
-      </array>
-    </argument>
+    <argument value="${datacollectionFileUrl}"/>
+    <argument value="${datacollectionGroupUrls}"/>
   </bean>
 
   <!-- Camel EIP helper beans -->
   <bean id="urlNormalizer" class="org.opennms.netmgt.api.sample.support.UrlNormalizer"/>
-
-  <!--
-  <bean id="snmpMetricRepository" class="org.opennms.netmgt.sampler.config.snmp.SnmpMetricRepository">
-  	<argument value="${datacollectionFile}" />
-  	<argument value="${datacollectionDir}" />
-  	<argument ref="blueprintBundle" />
-  </bean>
-  -->
 
   <service ref="snmpMetricRepository">
     <interfaces>
@@ -64,8 +59,7 @@
     </service-properties>
   </service>
 
-  <bean id="snmpAgentRepository" class="org.opennms.netmgt.sampler.config.snmp.SnmpAgentRepository">
-  </bean>
+  <bean id="snmpAgentRepository" class="org.opennms.netmgt.sampler.config.snmp.SnmpAgentRepository"/>
 
   <service ref="snmpAgentRepository" interface="org.opennms.netmgt.api.sample.AgentRepository">
     <service-properties>
@@ -128,7 +122,7 @@
 	<!-- TODO: Create a reload timer that will check for changes to the config -->
     <route>
       <from uri="direct:loadSnmpConfig"/>
-      <transform><constant>file:{{opennms.home}}/etc/snmp-config.xml</constant></transform>
+      <transform><constant>{{snmpConfigUrl}}</constant></transform>
       <to uri="direct:parseSnmpXML"/>
       <bean ref="snmpConfiguration" method="setInstance"/>
     </route>

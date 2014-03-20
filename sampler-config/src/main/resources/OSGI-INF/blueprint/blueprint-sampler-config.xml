@@ -14,13 +14,15 @@
 		http://aries.apache.org/schemas/blueprint-ext/blueprint-ext-1.1.xsd
 
 		http://camel.apache.org/schema/blueprint
-		http://camel.apache.org/schema/blueprint/camel-blueprint-2.12.2.xsd
+		http://camel.apache.org/schema/blueprint/camel-blueprint-2.12.3.xsd
 ">
 
   <!-- Configuration properties -->
   <cm:property-placeholder id="properties" persistent-id="org.opennms.netmgt.sampler.config" update-strategy="none">
     <cm:default-properties>
       <cm:property name="opennms.home" value="/opt/opennms"/>
+      <cm:property name="collectdConfigUrl" value="file:{{opennms.home}}/etc/collectd-configuration.xml"/>
+      <cm:property name="agentListUrl" value="file:{{opennms.home}}/agents"/>
     </cm:default-properties>
   </cm:property-placeholder>
 
@@ -84,7 +86,7 @@
 	<!-- TODO: Create a reload timer that will check for changes to the config -->
     <route>
       <from uri="direct:loadCollectdConfiguration"/>
-      <transform><constant>file:{{opennms.home}}/etc/collectd-configuration.xml</constant></transform>
+      <transform><constant>{{collectdConfigUrl}}</constant></transform>
       <to uri="direct:parseJaxbXml"/>
       <bean ref="collectdConfiguration" method="setInstance"/>
     </route>
@@ -159,10 +161,10 @@
 
     <route>
       <from uri="direct:getServiceAgents"/>
-      <log message="Parsing URL: file:{{opennms.home}}/agents/${body.name}/${body.services[0].name}.xml"/>
       <transform>
-        <simple>file:{{opennms.home}}/agents/${body.name}/${body.services[0].name}.xml</simple>
+        <simple>{{agentListUrl}}/${body.name}/${body.services[0].name}.xml</simple>
       </transform>
+      <log message="Parsing agents from URL: ${body}"/>
       <to uri="direct:parseJaxbXml"/>
     </route>
 
