@@ -18,7 +18,5 @@ Running the Standalone Sampler
 		features:install mvn:org.opennms.netmgt.sample/karaf//xml
 1. Install the config, scheduler, and SNMP modules
 		features:install sampler-config sampler-scheduler sampler-snmp
-1. ???
-
-add-agent -v 2c -c public -r 0 -t 3000 -p 161 172.20.1.107 .1
+1. Add agents to the ${your_source_dir}/sampler-config/src/test/resources directory (TODO: Make this easier)
 
