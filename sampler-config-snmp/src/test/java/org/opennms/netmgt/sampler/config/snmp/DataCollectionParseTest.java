@@ -38,7 +38,7 @@ public class DataCollectionParseTest {
     private static final String dataCollectionConfig =
             "<?xml version=\"1.0\"?>" + 
                     "<datacollection-config>" + 
-                    "    <snmp-collection name=\"default\" snmpStorageFlag=\"select\">" + 
+                    "    <snmp-collection name=\"default\">" + 
                     "        <include-collection dataCollectionGroup=\"MIB2\"/>" + 
                     "        <include-collection dataCollectionGroup=\"Net-SNMP\"/>" + 
                     "    </snmp-collection>" + 
