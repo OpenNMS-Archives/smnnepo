@@ -36,6 +36,10 @@
       <artifactId>org.opennms.core.snmp.api</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+    </dependency>
     <!--
     <dependency>
       <groupId>org.apache.karaf.shell</groupId>

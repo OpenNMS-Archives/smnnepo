@@ -10,7 +10,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 import org.opennms.netmgt.api.sample.Metric;
 import org.opennms.netmgt.config.api.collection.IDataCollectionGroup;
@@ -49,20 +48,20 @@ public class SnmpCollection implements ISnmpCollection {
     }
 
     public void initialize(Map<String, ? extends IDataCollectionGroup> availableGroups) {
-        List<IDataCollectionGroup> groupList = new ArrayList<IDataCollectionGroup>(m_includedGroups.length);
+        if (m_includedGroups != null) {
+            final List<IDataCollectionGroup> groupList = new ArrayList<IDataCollectionGroup>(m_includedGroups.length);
 
-        for(GroupReference ref : m_includedGroups) {
-            String groupName = ref.getDataCollectionGroup();
-            IDataCollectionGroup group = availableGroups.get(groupName);
-            if (group == null) {
-                throw new IllegalArgumentException("Unable to locate datacollection-group " + groupName);
+            for(final GroupReference ref : m_includedGroups) {
+                final String groupName = ref.getDataCollectionGroup();
+                final IDataCollectionGroup group = availableGroups.get(groupName);
+                if (group == null) {
+                    throw new IllegalArgumentException("Unable to locate datacollection-group " + groupName);
+                }
+                groupList.add(group);
             }
 
-            groupList.add(group);
-
+            m_dataCollectionGroups = groupList.toArray(new DataCollectionGroup[groupList.size()]);
         }
-
-        m_dataCollectionGroups = groupList.toArray(new DataCollectionGroup[groupList.size()]);
     }
 
     public void fillRequest(SnmpCollectionRequest request) {
