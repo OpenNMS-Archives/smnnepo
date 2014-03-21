@@ -72,12 +72,12 @@
       <bean ref="collectdConfiguration" method="getInstance"/>
     </route>
 
-    <route id="fireStart">
+    <route id="fireStartSamplerConfig">
       <from uri="timer://runOnce?repeatCount=1&amp;delay=10000" />
       <to uri="direct:start" />
     </route>
 
-    <route id="start">
+    <route id="startLoadCollectdConfiguration">
       <from uri="direct:start"/>
       <!-- Load all of the configs -->
       <multicast parallelProcessing="true">

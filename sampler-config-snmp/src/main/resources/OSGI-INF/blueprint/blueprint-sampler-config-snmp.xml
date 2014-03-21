@@ -101,6 +101,11 @@
       <bean ref="snmpConfiguration" method="getInstance"/>
     </route>
 
+    <route id="fireStartSamplerConfigSnmp">
+      <from uri="timer://runOnce?repeatCount=1&amp;delay=10000" />
+      <to uri="direct:start" />
+    </route>
+
     <route id="loadAllConfigs">
       <from uri="direct:start"/>
       <!-- Load all of the configs -->

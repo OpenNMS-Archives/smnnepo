@@ -21,7 +21,7 @@ Running the Standalone Sampler
 		config:update
 6. Install the SMNnepO feature repository in Karaf
 		features:addurl mvn:org.opennms.netmgt.sample/karaf//xml
-7. Install the config, scheduler, and SNMP modules
-		features:install -v sampler-config sampler-scheduler sampler-snmp
-1. Add agents to the ${your_source_dir}/sampler-config/src/test/resources directory (TODO: Make this easier)
+7. Install Camel, the config, scheduler, and SNMP modules
+		features:install -v camel sampler-config sampler-scheduler sampler-snmp
+8. Add agents to the ${your_source_dir}/sampler-config/src/test/resources directory (TODO: Make this easier)
 
