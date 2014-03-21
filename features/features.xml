@@ -71,7 +71,7 @@
 
     <feature name="spring-security" description="Spring Security :: Core" version="3.1.4.RELEASE">
       <!-- This is necessary for HTTP remoting -->
-      <feature version="3.2.3.RELEASE">spring-web</feature>
+      <feature version="[3.2,3.3)">spring-web</feature>
       <bundle dependency="true">mvn:commons-codec/commons-codec/1.7</bundle>
       <bundle>mvn:org.springframework.security/spring-security-core/3.1.4.RELEASE</bundle>
       <bundle>mvn:org.springframework.security/spring-security-remoting/3.1.4.RELEASE</bundle>
@@ -79,8 +79,8 @@
 
     <!-- OpenNMS features -->
     <feature name="opennms-core" description="OpenNMS :: Core" version="1.13.1-SNAPSHOT">
-      <feature version="3.2.3.RELEASE">spring</feature>
-      <feature version="3.2.3.RELEASE">spring-orm</feature>
+      <feature version="[3.2,3.3)">spring</feature>
+      <feature version="[3.2,3.3)">spring-orm</feature>
 
       <feature>castor</feature>
       <feature>commons-io</feature>
@@ -104,10 +104,10 @@
     </feature>
 
     <feature name="opennms-model" description="OpenNMS :: Model" version="1.13.1-SNAPSHOT">
-      <feature version="3.2.3.RELEASE">spring</feature>
-      <feature version="3.2.3.RELEASE">spring-jdbc</feature>
-      <feature version="3.2.3.RELEASE">spring-orm</feature>
-      <feature version="3.2.3.RELEASE">spring-tx</feature>
+      <feature version="[3.2,3.3)">spring</feature>
+      <feature version="[3.2,3.3)">spring-jdbc</feature>
+      <feature version="[3.2,3.3)">spring-orm</feature>
+      <feature version="[3.2,3.3)">spring-tx</feature>
 
       <feature version="3.1.4.RELEASE">spring-security</feature>
 
