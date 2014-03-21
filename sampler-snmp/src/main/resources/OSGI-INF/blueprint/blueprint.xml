@@ -55,7 +55,7 @@
       <stop/>
     </onException>
 
-    <route>
+    <route id="collectAgent">
       <from uri="seda:collectAgent"/>
       <!-- Convert the generic Agent into an SnmpAgent -->
       <bean ref="snmpAgentProcessor"/>
@@ -68,7 +68,7 @@
       <to uri="seda:sampleSets"/>
     </route>
 
-    <route>
+    <route id="sampleSet">
       <from uri="seda:sampleSets"/>
       <!-- send it the persister -->
       <to uri="seda:saveToRepository"/>

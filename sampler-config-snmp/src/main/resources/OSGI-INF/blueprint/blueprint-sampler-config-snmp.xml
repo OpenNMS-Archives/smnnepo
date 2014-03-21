@@ -89,19 +89,19 @@
     </onException>
 
     <!-- Call this to retrieve a URL in string form or URL form into the JAXB objects they represent. -->
-    <route>
+    <route id="parseSnmpXML">
       <from uri="direct:parseSnmpXML"/>
       <bean ref="urlNormalizer"/>
       <unmarshal ref="snmpConfigurationXmlFormat"/>
     </route>
 
     <!-- Direct route to fetch the config -->
-    <route>
+    <route id="snmpConfig">
       <from uri="direct:snmpConfig"/>
       <bean ref="snmpConfiguration" method="getInstance"/>
     </route>
 
-    <route>
+    <route id="loadAllConfigs">
       <from uri="direct:start"/>
       <!-- Load all of the configs -->
       <multicast parallelProcessing="true">
@@ -113,14 +113,14 @@
     </route>
 
 	<!-- TODO: Create a reload timer that will check for changes to the config -->
-    <route>
+    <route id="loadDataCollectionConfig">
       <from uri="direct:loadDataCollectionConfig"/>
       <log message="Refreshing snmpMetricRepository"/>
       <bean ref="snmpMetricRepository" method="refresh"/>
     </route>
 
 	<!-- TODO: Create a reload timer that will check for changes to the config -->
-    <route>
+    <route id="loadSnmpConfig">
       <from uri="direct:loadSnmpConfig"/>
       <transform><constant>{{snmpConfigUrl}}</constant></transform>
       <to uri="direct:parseSnmpXML"/>
