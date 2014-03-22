@@ -25,8 +25,8 @@ public class Scheduler implements SchedulerService {
     };
     private final ScheduledExecutorService m_executor;
 
-    final ConcurrentHashMap<String,Dispatcher> m_dispatchers = new ConcurrentHashMap<String, Dispatcher>();
-    final ConcurrentHashMap<String,List<ScheduledFuture<?>>> m_schedules = new ConcurrentHashMap<String,List<ScheduledFuture<?>>>();
+    private final ConcurrentHashMap<String,Dispatcher> m_dispatchers = new ConcurrentHashMap<String, Dispatcher>();
+    private final ConcurrentHashMap<String,List<ScheduledFuture<?>>> m_schedules = new ConcurrentHashMap<String,List<ScheduledFuture<?>>>();
 
     public Scheduler(int poolSize) {
         m_executor = Executors.newScheduledThreadPool(poolSize);

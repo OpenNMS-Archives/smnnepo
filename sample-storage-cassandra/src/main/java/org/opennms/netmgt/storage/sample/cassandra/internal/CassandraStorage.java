@@ -25,20 +25,14 @@ public abstract class CassandraStorage {
 	protected static final String	F_ENDPOINT		= "endpoint";
 	protected static final String	F_ATTRIBUTE		= "attribute";
 
-	private final String m_cassandraHost;
-	private final int m_cassandraPort;
-	private final String m_cassandraKeyspace;
 	private final Session m_session;
 
 	public CassandraStorage(String cassandraHost, int cassandraPort, String cassandraKeyspace) {
-		m_cassandraHost = cassandraHost;
-		m_cassandraPort = cassandraPort;
-		m_cassandraKeyspace = cassandraKeyspace;
 
-		LOG.info("Connecting to {}:{}...", m_cassandraHost, m_cassandraPort);
+		LOG.info("Connecting to {}:{}...", cassandraHost, cassandraPort);
 
-		Cluster cluster = Cluster.builder().withPort(m_cassandraPort).addContactPoint(m_cassandraHost).build();
-		m_session = cluster.connect(m_cassandraKeyspace);
+		Cluster cluster = Cluster.builder().withPort(cassandraPort).addContactPoint(cassandraHost).build();
+		m_session = cluster.connect(cassandraKeyspace);
 
 		LOG.info("Connected.");
 	}

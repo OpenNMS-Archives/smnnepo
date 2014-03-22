@@ -49,7 +49,7 @@ public abstract class PropertiesUtils {
 	}
 	
 	private static class PropertyBasedSymbolTable implements SymbolTable {
-		Properties m_properties;
+		private final Properties m_properties;
 		PropertyBasedSymbolTable(Properties properties) {
 			m_properties = properties;
 		}
@@ -59,7 +59,7 @@ public abstract class PropertiesUtils {
 	}
     
     private static class MapBasedSymbolTable implements SymbolTable {
-        Map<String,String> m_map;
+        private final Map<String,String> m_map;
         MapBasedSymbolTable(Map<String,String> properties) {
             m_map = properties;
         }

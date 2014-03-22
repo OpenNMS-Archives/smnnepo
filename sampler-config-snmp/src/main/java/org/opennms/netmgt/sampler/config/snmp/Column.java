@@ -163,37 +163,39 @@ public class Column implements IColumn {
         }
 
         public int apply(byte[] bytes, int index, StringBuilder buf) {
-            int repeat = hasRepeatIndicator() ? bytes[index++] : 1;
+            int myIndex = index;
+            int repeat = hasRepeatIndicator() ? bytes[myIndex++] : 1;
 
             for(int i = 0; i < repeat; i++) {
-                index = applyFormat(bytes, index, buf);
-                if (index < bytes.length && hasDisplaySeparator() && (!hasRepeatTerminator() || i < repeat-1)) {
+                myIndex = applyFormat(bytes, myIndex, buf);
+                if (myIndex < bytes.length && hasDisplaySeparator() && (!hasRepeatTerminator() || i < repeat-1)) {
                     buf.append(getDisplaySeparator());
                 }
             }
 
-            if (index < bytes.length && hasRepeatTerminator()) {
+            if (myIndex < bytes.length && hasRepeatTerminator()) {
                 buf.append(getRepeatTerminator());
             }
 
-            return index;
+            return myIndex;
         }
         private int applyFormat(byte[] bytes, int index, StringBuilder buf) {
+            int myIndex = index;
             if (getDisplayFormat() == 'a') {
-                for(int i = 0; i < getOctetCount() && index < bytes.length; i++) {
-                    buf.append((char)bytes[index++]);
+                for(int i = 0; i < getOctetCount() && myIndex < bytes.length; i++) {
+                    buf.append((char)bytes[myIndex++]);
                 }
             } else if (getDisplayFormat() == 't') {
-                int decodeLen = Math.min(getOctetCount(), bytes.length-index);
+                int decodeLen = Math.min(getOctetCount(), bytes.length-myIndex);
                 byte[] decode = new byte[decodeLen];
-                System.arraycopy(bytes, index, decode, 0, decodeLen);
+                System.arraycopy(bytes, myIndex, decode, 0, decodeLen);
                 String result = new String(decode, UTF_8);
                 buf.append(result);
-                index += decodeLen;
+                myIndex += decodeLen;
             } else {
                 long val = 0;
-                for(int i = 0; i < getOctetCount() && index < bytes.length; i++) {
-                    val = (val << 8) + (bytes[index++] & MAX_8BITS); 
+                for(int i = 0; i < getOctetCount() && myIndex < bytes.length; i++) {
+                    val = (val << 8) + (bytes[myIndex++] & MAX_8BITS); 
                 }
                 if (getDisplayFormat() == 'd') {
                     buf.append(Long.toString(val));
@@ -208,7 +210,7 @@ public class Column implements IColumn {
                     buf.append(Long.toOctalString(val));
                 }
             }
-            return index;
+            return myIndex;
         }
 
     }

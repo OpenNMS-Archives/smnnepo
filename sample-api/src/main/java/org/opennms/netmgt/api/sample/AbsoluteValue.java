@@ -49,7 +49,7 @@ public class AbsoluteValue extends SampleValue<Long> {
 	@Override
 	public long longValue() {
 		// TODO Auto-generated method stub
-		return m_value;
+		return getValue();
 	}
 
 	@Override

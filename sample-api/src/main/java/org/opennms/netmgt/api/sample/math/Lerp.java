@@ -4,9 +4,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
+import org.opennms.netmgt.api.sample.Metric;
 import org.opennms.netmgt.api.sample.NanValue;
 import org.opennms.netmgt.api.sample.Results.Row;
-import org.opennms.netmgt.api.sample.Metric;
 import org.opennms.netmgt.api.sample.Sample;
 import org.opennms.netmgt.api.sample.SampleProcessor;
 import org.opennms.netmgt.api.sample.SampleValue;
@@ -26,7 +26,7 @@ public class Lerp extends SampleProcessor {
 	private Row m_rowR = null;
 	private Row m_prevL = null;
 	private Timestamp m_currentStep = null;
-	private boolean initComplete = false;
+	private boolean m_initComplete = false;
 
 	public Lerp(final Timestamp start, final Timestamp finish, final long heartBeat, final long step) {
 		this(start, finish, heartBeat, step, STD_UNITS);
@@ -43,18 +43,19 @@ public class Lerp extends SampleProcessor {
 
 	@Override
 	public boolean hasNext() {
-		return (m_stepsIter.hasNext() || (m_currentStep != null));	// XXX: ???
+		// XXX: ???
+		return (m_stepsIter.hasNext() || (m_currentStep != null));
 	}
 
 	@Override
 	public Row next() {
 
-		if (!initComplete) {
+		if (!m_initComplete) {
 			m_rowL = nextRow();
 			m_prevL = m_rowL;
 			m_rowR = nextRow();
 			m_currentStep = m_stepsIter.next();
-			initComplete = true;
+			m_initComplete = true;
 		}
 
 		if (m_rowR == null) {
@@ -85,7 +86,8 @@ public class Lerp extends SampleProcessor {
 			
 			// When we're starting out...
 			if (xL.equals(m_prevL.getTimestamp())) {
-				storeInterpolatedSamples(r, m_rowL, m_rowR, m_currentStep, getMetrics());	// Backward
+				// Backward
+				storeInterpolatedSamples(r, m_rowL, m_rowR, m_currentStep, getMetrics());
 				stepAdvance();
 			}
 			else {
@@ -168,7 +170,7 @@ public class Lerp extends SampleProcessor {
 		);
 	}
 
-	private class Steps implements Iterable<Timestamp> {
+	private static final class Steps implements Iterable<Timestamp> {
 		private final Timestamp m_start;
 		private final Timestamp m_finish;
 		private final long m_step;

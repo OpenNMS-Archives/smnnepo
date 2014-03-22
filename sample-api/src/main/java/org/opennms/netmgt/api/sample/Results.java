@@ -14,11 +14,12 @@ import java.util.TreeSet;
 public class Results implements Iterable<Results.Row> {
 	
 	public static class Row implements Iterable<Sample> {
-		Resource m_resource;
-		Timestamp m_timestamp;
-		Map<Metric, Sample> m_cells = new HashMap<Metric, Sample>();
+		private final Resource m_resource;
+		private final Timestamp m_timestamp;
+		private final Map<Metric, Sample> m_cells = new HashMap<Metric, Sample>();
 
 		public Row(Resource resource, Timestamp timestamp) {
+			m_resource = resource;
 			m_timestamp = timestamp;
 		}
 

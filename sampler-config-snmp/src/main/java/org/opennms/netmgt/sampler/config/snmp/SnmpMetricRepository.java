@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 public class SnmpMetricRepository implements MetricRepository, CollectionConfiguration<SnmpAgent, SnmpCollectionRequest> {
 
     private static class Parser {
-        Unmarshaller m_unmarshaller;
+        private final Unmarshaller m_unmarshaller;
 
         public Parser() throws JAXBException {
             m_unmarshaller = JAXBContext.newInstance(DataCollectionConfig.class, DataCollectionGroup.class).createUnmarshaller();
@@ -53,7 +53,7 @@ public class SnmpMetricRepository implements MetricRepository, CollectionConfigu
                 final String userInfo = url.getUserInfo();
                 if (userInfo != null && userInfo.contains(":")) {
                     final String basicAuth = "Basic " + new String(new Base64().encode(userInfo.getBytes()));
-                    connection.setRequestProperty ("Authorization", basicAuth);
+                    connection.setRequestProperty("Authorization", basicAuth);
                 }
 
                 connection.connect();
@@ -128,7 +128,7 @@ public class SnmpMetricRepository implements MetricRepository, CollectionConfigu
         refresh();
     }
 
-    public void refresh() throws JAXBException, IOException {
+    public final void refresh() throws JAXBException, IOException {
 
         Parser parser = new Parser();
 

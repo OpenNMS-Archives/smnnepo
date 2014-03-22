@@ -9,7 +9,7 @@ import org.opennms.netmgt.api.sample.Dispatcher;
 public class DefaultDispatcher implements Dispatcher {
 
 	@Produce(property="endpointUri")
-	Dispatcher proxy;
+	Dispatcher m_proxy;
 
 	private String m_endpointUri;
 
@@ -27,6 +27,6 @@ public class DefaultDispatcher implements Dispatcher {
 	 */
 	@Override
 	public void dispatch(Agent agent) {
-		proxy.dispatch(agent);
+		m_proxy.dispatch(agent);
 	}
 }

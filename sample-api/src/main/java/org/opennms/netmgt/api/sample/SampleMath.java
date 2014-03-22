@@ -5,14 +5,13 @@ import java.util.Iterator;
 
 public class SampleMath {
 	
-	
-	interface Processor {
+	private interface Processor {
 		Sample process(Sample s);
 	}
 	
 	private Processor smallest() {
 		return new Processor() {
-			Sample m_smallest;
+			private Sample m_smallest;
 
 			public Sample process(Sample s) {
 				if (s.getValue().lessThan(m_smallest.getValue())) {

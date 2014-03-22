@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-public class Util{
+public abstract class Util{
     public static final double[] interpLinear(double[] x, double[] y, double[] xi) throws IllegalArgumentException {
         if (x.length != y.length) {
             throw new IllegalArgumentException("X and Y must be the same length");

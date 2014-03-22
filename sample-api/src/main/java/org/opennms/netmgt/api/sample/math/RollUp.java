@@ -185,7 +185,7 @@ public class RollUp extends SampleProcessor {
 	 * A class to calculate a "Primary Data Point", or PDP (borrowed rrdtool
 	 * terminology), from an arbitrary number of sample rows.
 	 */
-	private class PrimaryDataPoint {
+	private final class PrimaryDataPoint {
 		private final Timestamp m_finish;
 		private final long m_heartBeatMs = TimeUnit.MILLISECONDS.convert(m_heartBeat, m_timeUnits);
 

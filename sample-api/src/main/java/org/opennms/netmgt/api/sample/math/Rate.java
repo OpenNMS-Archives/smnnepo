@@ -8,7 +8,7 @@ import org.opennms.netmgt.api.sample.Timestamp;
 import org.opennms.netmgt.api.sample.Results.Row;
 
 public class Rate extends SampleProcessor {
-	Row m_prev;
+	private Row m_prev;
 
 	@Override
 	public boolean hasNext() {

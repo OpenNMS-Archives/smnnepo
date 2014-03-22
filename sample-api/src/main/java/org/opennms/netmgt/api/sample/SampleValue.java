@@ -14,7 +14,7 @@ public abstract class SampleValue<T extends Number> extends Number implements Co
 	public static final byte	ABSOLUTE			= 0x03;
 	public static final byte	GAUGE				= 0x04;
 
-	protected final T m_value;
+	private final T m_value;
 
 
 	public SampleValue(T value) {
@@ -39,7 +39,8 @@ public abstract class SampleValue<T extends Number> extends Number implements Co
 			// TODO: DERIVE / ABSOLUTE are stubbed
 			case DERIVE:
 			case ABSOLUTE:
-				throw new RuntimeException("NOT IMPLEMENTED: FIXME!");	// FIXME:
+				// FIXME
+				throw new UnsupportedOperationException("NOT IMPLEMENTED: FIXME!");
 			default:
 				throw new IllegalArgumentException(String.format("parsed unknown type descriptor from buffer (0x%x)", dataType));
 		}
