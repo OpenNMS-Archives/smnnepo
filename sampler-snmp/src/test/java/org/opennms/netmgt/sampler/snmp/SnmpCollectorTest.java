@@ -48,7 +48,7 @@ import ch.qos.logback.classic.LoggerContext;
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestExecutionListeners({
 	TestContextAwareExecutionListener.class,
-	JUnitSnmpAgentExecutionListener.class
+	//JUnitSnmpAgentExecutionListener.class
 })
 @ContextConfiguration(locations={
 	"classpath:/snmpCollectorTest-context.xml"
@@ -62,6 +62,18 @@ public class SnmpCollectorTest extends CamelBlueprintTestSupport implements Test
 	private TestContext m_testContext;
 	private SampleRepository m_sampleRepository;
 	private CountDownLatch m_latch = null;
+
+	/**
+	 * Use Aries Blueprint synchronous mode to avoid a blueprint
+	 * deadlock bug.
+	 * 
+	 * @see https://issues.apache.org/jira/browse/ARIES-1051
+	 * @see https://access.redhat.com/site/solutions/640943
+	 */
+	@Override
+	public void doPreSetup() throws Exception { 
+		System.setProperty("org.apache.aries.blueprint.synchronous", Boolean.TRUE.toString());
+	}
 
 	@Override
 	public void setTestContext(TestContext testContext) {

@@ -18,6 +18,18 @@ public class SnmpConfigRoutesTest extends CamelBlueprintTestSupport {
 
     private static final String OPENNMS_HOME = "src/test/resources";
 
+    /**
+     * Use Aries Blueprint synchronous mode to avoid a blueprint
+     * deadlock bug.
+     * 
+     * @see https://issues.apache.org/jira/browse/ARIES-1051
+     * @see https://access.redhat.com/site/solutions/640943
+     */
+    @Override
+    public void doPreSetup() throws Exception { 
+        System.setProperty("org.apache.aries.blueprint.synchronous", Boolean.TRUE.toString());
+    }
+
     @BeforeClass
     public static void configureLogging() throws SecurityException, IOException {
         LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();

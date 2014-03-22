@@ -32,7 +32,18 @@ public class SchedulerTest extends CamelBlueprintTestSupport {
     private static final Logger LOG = LoggerFactory.getLogger(SchedulerTest.class);
     private LatchDispatcher m_latchDispatcher;
 
-    
+    /**
+     * Use Aries Blueprint synchronous mode to avoid a blueprint
+     * deadlock bug.
+     * 
+     * @see https://issues.apache.org/jira/browse/ARIES-1051
+     * @see https://access.redhat.com/site/solutions/640943
+     */
+    @Override
+    public void doPreSetup() throws Exception { 
+        System.setProperty("org.apache.aries.blueprint.synchronous", Boolean.TRUE.toString());
+    }
+
     @Override
     protected String getBlueprintDescriptor() {
         return "OSGI-INF/blueprint/blueprint.xml,OSGI-INF/blueprint/blueprint-test.xml";
