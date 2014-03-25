@@ -127,5 +127,30 @@ public class DataCollectionGroup implements IDataCollectionGroup {
         return null;
     }
 
+    public static DataCollectionGroup asCollectionGroup(final IDataCollectionGroup group) {
+        if (group == null) return null;
+
+        if (group instanceof DataCollectionGroup) {
+            return (DataCollectionGroup)group;
+        } else {
+            final DataCollectionGroup dcg = new DataCollectionGroup();
+            dcg.m_name = group.getName();
+            dcg.m_resourceTypes = ResourceType.asResourceTypes(group.getResourceTypes());
+            dcg.m_tables = Table.asTables(group.getTables());
+            dcg.m_groups = Group.asGroups(group.getGroups());
+            dcg.m_systemDefs = SystemDef.asSystemDefs(group.getSystemDefs());
+            return dcg;
+        }
+    }
+
+    public static DataCollectionGroup[] asCollectionGroups(final IDataCollectionGroup[] groups) {
+        if (groups == null) return null;
+        
+        final DataCollectionGroup[] newGroups = new DataCollectionGroup[groups.length];
+        for (int i=0; i < groups.length; i++) {
+            newGroups[i] = DataCollectionGroup.asCollectionGroup(groups[i]);
+        }
+        return newGroups;
+    }
 
 }

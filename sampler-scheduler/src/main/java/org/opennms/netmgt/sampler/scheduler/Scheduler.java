@@ -75,6 +75,7 @@ public class Scheduler implements SchedulerService {
         double offset = interval / (double)agentSchedule.getAgents().size();
 
         if (m_schedules.containsKey(id)) {
+            LOG.debug("Existing schedules found for {}: canceling.", id);
             for (final ScheduledFuture<?> future : m_schedules.get(id)) {
                 LOG.debug("Canceling: {}", future);
                 future.cancel(false);
@@ -86,13 +87,20 @@ public class Scheduler implements SchedulerService {
             final ScheduledFuture<?> future = m_executor.scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
-                    getDispatcher(service).dispatch(agent);
+                    final Dispatcher dispatcher = getDispatcher(service);
+                    LOG.trace("Dispatching agent {} to {}", dispatcher);
+                    dispatcher.dispatch(agent);
                 }
             }, (long)(count * offset), interval, TimeUnit.MILLISECONDS);
             count++;
             futures.add(future);
         }
-        
+
         m_schedules.put(id, futures);
+    }
+
+    @Override
+    public String toString() {
+        return "Scheduler[ dispatchers=" + m_dispatchers + ", schedules=" + m_schedules + " ]";
     }
 }

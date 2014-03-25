@@ -1,6 +1,8 @@
 package org.opennms.netmgt.sampler.config.snmp;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -11,6 +13,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.opennms.netmgt.api.sample.Metric;
 import org.opennms.netmgt.config.api.collection.IDataCollectionConfig;
+import org.opennms.netmgt.config.api.collection.IDataCollectionGroup;
 import org.opennms.netmgt.config.api.collection.ISnmpCollection;
 
 @XmlRootElement(name="datacollection-config")
@@ -23,12 +26,23 @@ public class DataCollectionConfig implements IDataCollectionConfig {
     public ISnmpCollection[] getSnmpCollections() {
         return m_snmpCollections;
     }
+    
+    public void initialize() {
+        final Map<String,DataCollectionGroup> groups = Collections.emptyMap();
+        initialize(groups);
+    }
 
-    public void initialize(final Map<String, DataCollectionGroup> availableGroups) {
+    public void initialize(final Map<String,DataCollectionGroup> availableGroups) {
+        final Map<String,DataCollectionGroup> groups = new HashMap<String,DataCollectionGroup>(availableGroups);
         for (final SnmpCollection snmpCollection : m_snmpCollections) {
-            snmpCollection.initialize(availableGroups);
+            for (final IDataCollectionGroup group : snmpCollection.getDataCollectionGroups()) {
+                final String name = group.getName();
+                groups.put(name, DataCollectionGroup.asCollectionGroup(group));
+            }
         }
-
+        for (final SnmpCollection snmpCollection : m_snmpCollections) {
+            snmpCollection.initialize(groups);
+        }
     }
 
     public void fillRequest(SnmpCollectionRequest request) {

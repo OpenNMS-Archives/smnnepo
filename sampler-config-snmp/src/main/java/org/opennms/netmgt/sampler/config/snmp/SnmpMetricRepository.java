@@ -35,12 +35,15 @@ public class SnmpMetricRepository implements MetricRepository, CollectionConfigu
             m_unmarshaller = JAXBContext.newInstance(DataCollectionConfig.class, DataCollectionGroup.class).createUnmarshaller();
         }
 
-        public DataCollectionConfig getDataCollectionConfig(URL path) throws JAXBException, IOException {
-            return parse(path, DataCollectionConfig.class);
+        public DataCollectionConfig getDataCollectionConfig(final URL path) throws JAXBException, IOException {
+            final DataCollectionConfig config = parse(path, DataCollectionConfig.class);
+            config.initialize();
+            return config;
         }
 
-        public DataCollectionGroup getDataCollectionGroup(URL path) throws JAXBException, IOException {
-            return parse(path, DataCollectionGroup.class);
+        public DataCollectionGroup getDataCollectionGroup(final URL path) throws JAXBException, IOException {
+            final DataCollectionGroup group = parse(path, DataCollectionGroup.class);
+            return group;
         }
 
         private <T> T parse(URL url, Class<T> declaredType) throws JAXBException, IOException {

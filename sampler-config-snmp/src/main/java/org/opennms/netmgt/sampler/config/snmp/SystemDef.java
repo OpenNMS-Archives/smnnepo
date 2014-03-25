@@ -1,6 +1,7 @@
 package org.opennms.netmgt.sampler.config.snmp;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -32,6 +33,9 @@ import org.opennms.netmgt.config.api.collection.ITable;
 @XmlRootElement(name="datacollection-group")
 @XmlAccessorType(XmlAccessType.NONE)
 public class SystemDef implements ISystemDef {
+    private static final Table[] EMPTY_TABLE_ARRAY = new Table[0];
+    private static final Group[] EMPTY_GROUP_ARRAY = new Group[0];
+    private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
     @XmlAttribute(name="name")
     private String m_name;
@@ -44,13 +48,13 @@ public class SystemDef implements ISystemDef {
 
     @XmlElementWrapper(name="collect")
     @XmlElement(name="include")
-    private String[] m_includes;
+    private List<String> m_includes = new ArrayList<String>();
 
     @XmlTransient
-    private Table[] m_tables;
+    private List<Table> m_tables = new ArrayList<Table>();
 
     @XmlTransient
-    private Group[] m_groups;
+    private List<Group> m_groups = new ArrayList<Group>();
 
     @Override
     public String getName() {
@@ -81,36 +85,51 @@ public class SystemDef implements ISystemDef {
 
     @Override
     public String[] getIncludes() {
-        return m_includes;
+        return m_includes == null? EMPTY_STRING_ARRAY : m_includes.toArray(EMPTY_STRING_ARRAY);
     }
 
-    public void setIncludes(String[] includes) {
-        m_includes = includes == null? null : includes.clone();
+    public void setIncludes(final String[] includes) {
+        if (includes == null) {
+            m_includes.clear();
+        } else {
+            m_includes = Arrays.asList(includes);
+        }
+    }
+
+    public ITable[] getTables() {
+        return m_tables == null? EMPTY_TABLE_ARRAY : m_tables.toArray(EMPTY_TABLE_ARRAY);
+    }
+
+    public void setTables(final ITable[] tables) {
+        if (tables == null) {
+            m_tables.clear();
+        } else {
+            m_tables = Arrays.asList(Table.asTables(tables));
+        }
     }
 
     public IGroup[] getGroups() {
-        return (IGroup[])m_groups;
+        return m_groups == null? EMPTY_GROUP_ARRAY : m_groups.toArray(EMPTY_GROUP_ARRAY);
     }
 
     public void setGroups(final IGroup[] groups) {
-        m_groups = Group.asGroups(groups);
+        if (groups == null) {
+            m_groups.clear();
+        } else {
+            m_groups = Arrays.asList(Group.asGroups(groups));
+        }
     }
 
     public void initialize(final Map<String, ? extends ITable> tableMap, final Map<String, ? extends IGroup> groupMap) {
-        List<Table> tables = new ArrayList<Table>();
-        List<Group> groups = new ArrayList<Group>();
-        for(String include : m_includes) {
+        for(final String include : m_includes) {
             if (tableMap.containsKey(include)) {
-                tables.add(Table.asTable(tableMap.get(include)));
+                m_tables.add(Table.asTable(tableMap.get(include)));
             } else if (groupMap.containsKey(include)) {
-                groups.add(Group.asGroup(groupMap.get(include)));
+                m_groups.add(Group.asGroup(groupMap.get(include)));
             } else {
                 throw new IllegalArgumentException("Unable to locate include " + include + " for systemDef " + getName());
             }
         }
-
-        m_tables = tables.toArray(new Table[tables.size()]);
-        m_groups = groups.toArray(new Group[groups.size()]);
 
     }
 
@@ -158,7 +177,28 @@ public class SystemDef implements ISystemDef {
         return buf.toString();
     }
 
+    public static SystemDef asSystemDef(final ISystemDef systemDef) {
+        if (systemDef == null) return null;
+        
+        final SystemDef newDef = new SystemDef();
+        newDef.setName(systemDef.getName());
+        newDef.setSysoidMask(systemDef.getSysoidMask());
+        newDef.setSysoid(systemDef.getSysoid());
+        newDef.setIncludes(systemDef.getIncludes());
+        newDef.setTables(systemDef.getTables());
 
+        return newDef;
+    }
 
+    public static SystemDef[] asSystemDefs(final ISystemDef[] systemDefs) {
+        if (systemDefs == null) return null;
+        
+        final SystemDef[] newDefs = new SystemDef[systemDefs.length];
+        for (int i=0; i < systemDefs.length; i++) {
+            newDefs[i] = SystemDef.asSystemDef(systemDefs[i]);
+        }
+        
+        return newDefs;
+    }
 
 }

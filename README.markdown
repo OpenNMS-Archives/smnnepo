@@ -26,6 +26,6 @@ Running the Standalone Sampler
 
 1. Install Camel, the config, scheduler, and SNMP modules.
 
-        features:install -v camel sampler-config sampler-scheduler sampler-snmp
+        features:install -v camel sampler-scheduler sampler-snmp sampler-config
 
 1. Monitor logs for collections.

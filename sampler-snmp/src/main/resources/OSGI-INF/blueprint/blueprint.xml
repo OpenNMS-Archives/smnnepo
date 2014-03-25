@@ -36,11 +36,12 @@
 
   <!-- OSGi service that exposes this sampler as a scheduling target -->
   <bean id="snmpSampler" class="org.opennms.netmgt.api.sample.support.DefaultDispatcher">
-    <property name="endpointUri" value="seda:collectAgent"/>
+    <argument value="seda:collectAgent"/>
   </bean>
 
   <service ref="snmpSampler" interface="org.opennms.netmgt.api.sample.Dispatcher">
     <service-properties>
+      <entry key="org.opennms.netmgt.sampler.scheduler.serviceName" value="SNMP"/>
       <entry key="protocol" value="SNMP"/>
     </service-properties>
   </service>
@@ -57,19 +58,21 @@
 
     <route id="collectAgent">
       <from uri="seda:collectAgent"/>
+      <log message="sampler-snmp blueprint.xml: Collecting agent ${body}" />
       <!-- Convert the generic Agent into an SnmpAgent -->
       <bean ref="snmpAgentProcessor"/>
       <!-- create a request for data collection for the agent -->
       <bean ref="snmpMetricRepository" method="createRequestForAgent"/>
       <!-- collect the data for the agent -->
       <bean ref="snmpCollector" method="collect"/>
-      <log message="${body}"/>
+      <log message="sampler-snmp blueprint.xml: ${body}"/>
       <!-- forward the data to the listening queue -->
       <to uri="seda:sampleSets"/>
     </route>
 
     <route id="sampleSet">
       <from uri="seda:sampleSets"/>
+      <log message="sampler-snmp blueprint.xml: received sample set ${body}"/>
       <!-- send it the persister -->
       <to uri="seda:saveToRepository"/>
       <!-- <to uri="seda:sampleSaved"/> -->

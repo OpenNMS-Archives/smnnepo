@@ -174,4 +174,14 @@ public class Table implements ITable {
         }
     }
 
+    public static Table[] asTables(final ITable[] tables) {
+        if (tables == null) return null;
+        
+        final Table[] newTables = new Table[tables.length];
+        for (int i=0; i < tables.length; i++) {
+            newTables[i] = Table.asTable(tables[i]);
+        }
+        return newTables;
+    }
+
 }

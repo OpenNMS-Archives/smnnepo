@@ -32,17 +32,22 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class SingletonBeanFactory<T> {
 
-	private AtomicReference<T> m_instance = new AtomicReference<T>();
-	
-	public SingletonBeanFactory() {
-		m_instance.set(null);
-	}
+    private AtomicReference<T> m_instance = new AtomicReference<T>();
 
-	public T getInstance() {
-		return m_instance == null ? null : m_instance.get();
-	}
+    public SingletonBeanFactory() {
+        m_instance.set(null);
+    }
 
-	public void setInstance(T instance) {
-		m_instance.set(instance);
-	}
+    public T getInstance() {
+        return m_instance == null ? null : m_instance.get();
+    }
+
+    public void setInstance(T instance) {
+        m_instance.set(instance);
+    }
+
+    @Override
+    public String toString() {
+        return "SingletonBeanFactory[ instance=" + (getInstance() == null? null : getInstance().getClass().getName()) + " ]";
+    }
 }

@@ -37,10 +37,10 @@
   </cm:property-placeholder>
 
   <!-- Camel unmarshalling DataFormats -->
-  <bean id="snmpConfigurationXmlFormat" class="org.opennms.netmgt.sampler.config.snmp.DataFormatUtils" factory-method="snmpConfigurationXml"/>
+  <bean id="snmpConfigXmlFormat" class="org.opennms.netmgt.sampler.config.snmp.DataFormatUtils" factory-method="snmpConfigXml"/>
 
   <!-- Beans that hold a copy of a configuration object -->
-  <bean id="snmpConfiguration" class="org.opennms.netmgt.api.sample.support.SingletonBeanFactory"/>
+  <bean id="snmpConfigFactory" class="org.opennms.netmgt.api.sample.support.SingletonBeanFactory"/>
   <bean id="snmpMetricRepository" class="org.opennms.netmgt.sampler.config.snmp.SnmpMetricRepository">
     <argument value="${datacollectionFileUrl}"/>
     <argument value="${datacollectionGroupUrls}"/>
@@ -89,47 +89,53 @@
     </onException>
 
     <!-- Call this to retrieve a URL in string form or URL form into the JAXB objects they represent. -->
-    <route id="parseSnmpXML">
-      <from uri="direct:parseSnmpXML"/>
+    <route id="parseSnmpXml">
+      <from uri="direct:parseSnmpXml"/>
+      <log message="blueprint-sampler-config-snmp.xml: Parsing SNMP XML: ${body}" />
       <bean ref="urlNormalizer"/>
-      <unmarshal ref="snmpConfigurationXmlFormat"/>
+      <unmarshal ref="snmpConfigXmlFormat"/>
     </route>
 
     <!-- Direct route to fetch the config -->
     <route id="snmpConfig">
       <from uri="direct:snmpConfig"/>
-      <bean ref="snmpConfiguration" method="getInstance"/>
+      <log message="blueprint-sampler-config-snmp.xml: Getting SNMP configuration" />
+      <bean ref="snmpConfigFactory" method="getInstance"/>
     </route>
 
     <route id="fireStartSamplerConfigSnmp">
-      <from uri="timer://runOnce?repeatCount=1&amp;delay=10000" />
+      <from uri="timer://runOnce?repeatCount=1&amp;delay=5000" />
+      <log message="blueprint-sampler-config-snmp.xml: Triggering Startup" />
       <to uri="direct:start" />
     </route>
 
     <route id="loadAllConfigs">
       <from uri="direct:start"/>
+      <log message="blueprint-sampler-config-snmp.xml: Loading Configuration Files" />
       <!-- Load all of the configs -->
       <multicast parallelProcessing="true">
         <to uri="direct:loadDataCollectionConfig"/>
         <to uri="direct:loadSnmpConfig"/>
       </multicast>
-      <log message="==== Configurations Loaded ===="/>
+      <log message="blueprint-sampler-config-snmp.xml: Configuration Files Loaded" />
       <!-- TODO: Do something else? -->
     </route>
 
 	<!-- TODO: Create a reload timer that will check for changes to the config -->
     <route id="loadDataCollectionConfig">
       <from uri="direct:loadDataCollectionConfig"/>
-      <log message="Refreshing snmpMetricRepository"/>
+      <log message="blueprint-sampler-config-snmp.xml: Refreshing snmpMetricRepository" />
       <bean ref="snmpMetricRepository" method="refresh"/>
     </route>
 
 	<!-- TODO: Create a reload timer that will check for changes to the config -->
     <route id="loadSnmpConfig">
       <from uri="direct:loadSnmpConfig"/>
+      <log message="blueprint-sampler-config-snmp.xml: Loading SNMP Configuration" />
       <transform><constant>{{snmpConfigUrl}}</constant></transform>
-      <to uri="direct:parseSnmpXML"/>
-      <bean ref="snmpConfiguration" method="setInstance"/>
+      <to uri="direct:parseSnmpXml"/>
+      <log message="blueprint-sampler-config-snmp.xml: SNMP Configuration parsed, setting instance" />
+      <bean ref="snmpConfigFactory" method="setInstance"/>
     </route>
 
   </camelContext>

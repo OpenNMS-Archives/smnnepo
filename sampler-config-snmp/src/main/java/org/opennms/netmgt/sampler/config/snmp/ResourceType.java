@@ -160,5 +160,15 @@ public class ResourceType implements IResourceType {
         }
     }
 
+    public static ResourceType[] asResourceTypes(final IResourceType[] resourceTypes) {
+        if (resourceTypes == null) return null;
+
+        final ResourceType[] newResourceTypes = new ResourceType[resourceTypes.length];
+        for (int i=0; i < resourceTypes.length; i++) {
+            newResourceTypes[i] = ResourceType.asResourceType(resourceTypes[i]);
+        }
+        return newResourceTypes;
+    }
+
 
 }

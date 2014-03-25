@@ -1,2 +1,146 @@
-<?xml version="1.0"?>
-<snmpConfiguration read-community="public" retry="1" timeout="1800" version="v2c" />
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<snmp-config xmlns="http://xmlns.opennms.org/xsd/config/snmp" max-vars-per-pdu="10" version="v2c" read-community="public" timeout="10000" retry="1" port="161">
+  <definition version="v2c" read-community="blargl">
+    <specific>192.168.211.1</specific>
+    <specific>fe80:0000:0000:0000:021f:f3ff:fe3f:fa9a%5</specific>
+  </definition>
+  <definition version="v2c" read-community="donkey">
+    <specific>192.168.211.16</specific>
+  </definition>
+  <definition version="v2c" read-community="blahblah" timeout="2000" retry="1">
+    <specific>71.0.19.146</specific>
+    <specific>71.0.19.149</specific>
+    <specific>71.50.124.31</specific>
+    <specific>71.52.224.93</specific>
+    <specific>71.52.230.196</specific>
+    <specific>71.54.43.129</specific>
+    <specific>71.54.146.255</specific>
+    <specific>71.54.149.143</specific>
+    <specific>71.54.150.173</specific>
+    <specific>76.5.180.62</specific>
+    <specific>76.6.156.35</specific>
+  </definition>
+  <definition version="v2c" read-community="blahblah" timeout="2000" retry="1">
+    <specific>216.216.217.254</specific>
+  </definition>
+  <definition version="v2c" read-community="blahblah" timeout="2000" retry="1">
+    <specific>216.216.217.252</specific>
+  </definition>
+  <definition version="v1" read-community="blahblah" timeout="2000" retry="1">
+    <specific>172.20.1.27</specific>
+  </definition>
+  <definition version="v2c" read-community="blahblah">
+    <range begin="212.218.252.54" end="212.218.252.79"/>
+  </definition>
+  <definition version="v2c" read-community="blahblah" timeout="2000" retry="1">
+    <specific>64.34.199.116</specific>
+  </definition>
+  <definition version="v2c" read-community="blahblah" timeout="2000" retry="1">
+    <specific>66.135.60.215</specific>
+  </definition>
+  <definition version="v2c" read-community="blahblah" timeout="2000" retry="1">
+    <specific>71.54.44.79</specific>
+  </definition>
+  <definition version="v2c" read-community="blahblah" timeout="2000" retry="1">
+    <specific>71.54.44.35</specific>
+  </definition>
+  <definition version="v2c" read-community="blahblah" timeout="2000" retry="1">
+    <specific>184.3.97.194</specific>
+  </definition>
+  <definition version="v2c" read-community="public" timeout="5000" retry="1">
+    <specific>24.30.46.174</specific>
+  </definition>
+  <definition version="v2c" read-community="blahblah" timeout="2000" retry="1">
+    <specific>76.2.35.240</specific>
+  </definition>
+  <definition version="v2c" read-community="blahblah" timeout="2000" retry="1">
+    <specific>71.54.33.34</specific>
+  </definition>
+  <definition version="v2c" read-community="blahblah" timeout="2000" retry="1">
+    <specific>71.52.224.34</specific>
+  </definition>
+  <definition version="v2c" read-community="blahblah" timeout="2000" retry="1">
+    <specific>71.52.229.97</specific>
+  </definition>
+  <definition version="v1" read-community="public" timeout="4000" retry="1">
+    <specific>172.20.1.6</specific>
+  </definition>
+  <definition version="v2c" read-community="blahblah" timeout="4000" retry="1">
+    <specific>64.146.64.213</specific>
+  </definition>
+  <definition version="v2c" read-community="blahblah" timeout="4000" retry="1">
+    <specific>64.146.64.214</specific>
+  </definition>
+  <definition version="v2c" read-community="blahblah" timeout="4000" retry="1">
+    <specific>64.146.64.215</specific>
+  </definition>
+  <definition version="v2c" read-community="blahblah" timeout="4000" retry="1">
+    <specific>64.146.64.212</specific>
+  </definition>
+  <definition version="v2c" read-community="blahblah" timeout="4000" retry="1">
+    <specific>174.143.250.51</specific>
+  </definition>
+  <definition version="v2c" read-community="public" timeout="10000" retry="1">
+    <specific>96.10.7.246</specific>
+  </definition>
+  <definition version="v2c" read-community="blahblah" timeout="2000" retry="1">
+    <specific>71.52.227.169</specific>
+  </definition>
+  <definition version="v2c" read-community="blahblah" timeout="2000" retry="1">
+    <specific>71.54.39.147</specific>
+  </definition>
+  <definition version="v2c" read-community="blahblah" timeout="2000" retry="1">
+    <specific>71.52.231.43</specific>
+  </definition>
+  <definition version="v2c" read-community="blahblah" timeout="2000" retry="1">
+    <specific>71.52.225.252</specific>
+  </definition>
+  <definition version="v2c" read-community="blahblah" timeout="2000" retry="1">
+    <specific>71.54.34.87</specific>
+  </definition>
+  <definition version="v2c" read-community="blahblah" timeout="2000" retry="1">
+    <specific>71.54.34.0</specific>
+  </definition>
+  <definition version="v2c" read-community="spiff" timeout="3000" retry="1">
+    <specific>192.195.155.84</specific>
+  </definition>
+  <definition version="v2c" read-community="blahblah" timeout="2000" retry="1">
+    <specific>71.52.224.162</specific>
+  </definition>
+  <definition version="v2c" read-community="blahblah" timeout="2000" retry="1">
+    <specific>71.52.230.121</specific>
+  </definition>
+  <definition version="v2c" read-community="blahblah" timeout="2000" retry="1">
+    <specific>71.52.231.19</specific>
+  </definition>
+  <definition version="v2c" read-community="blahblah" timeout="2000" retry="1">
+    <specific>71.52.227.134</specific>
+  </definition>
+  <definition version="v2c" read-community="blahblah" timeout="2000" retry="1">
+    <specific>71.52.229.154</specific>
+  </definition>
+  <definition version="v2c" read-community="public" timeout="4000" retry="1">
+    <specific>172.20.1.17</specific>
+  </definition>
+  <definition version="v2c" read-community="public" timeout="4000" retry="1">
+    <specific>172.20.1.13</specific>
+  </definition>
+  <definition version="v2c" read-community="blahblah" timeout="2000" retry="1">
+    <specific>71.50.176.67</specific>
+  </definition>
+  <definition version="v2c" read-community="blahblah" timeout="2000" retry="1">
+    <specific>71.50.120.248</specific>
+  </definition>
+  <definition version="v1" read-community="blahblah" timeout="3000" retry="1">
+    <specific>172.20.1.12</specific>
+  </definition>
+  <definition version="v2c" read-community="blahblah" timeout="2000" retry="1">
+    <specific>71.52.224.116</specific>
+  </definition>
+  <definition version="v1" read-community="public" timeout="2000" retry="1">
+    <specific>172.20.1.26</specific>
+  </definition>
+  <definition version="v1" read-community="public" timeout="5000" retry="1">
+    <specific>172.20.1.7</specific>
+  </definition>
+</snmp-config>

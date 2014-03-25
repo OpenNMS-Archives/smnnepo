@@ -11,14 +11,14 @@ public class DefaultDispatcher implements Dispatcher {
 	@Produce(property="endpointUri")
 	Dispatcher m_proxy;
 
-	private String m_endpointUri;
+	private final String m_endpointUri;
+
+	public DefaultDispatcher(final String endpointUri) {
+	    m_endpointUri = endpointUri;
+	}
 
 	public String getEndpointUri() {
 		return m_endpointUri;
-	}
-
-	public void setEndpointUri(String endpointUri) {
-		this.m_endpointUri = endpointUri;
 	}
 
 	/**
@@ -26,7 +26,7 @@ public class DefaultDispatcher implements Dispatcher {
 	 * specified by the {@link #m_endpointUri} property.
 	 */
 	@Override
-	public void dispatch(Agent agent) {
+	public void dispatch(final Agent agent) {
 		m_proxy.dispatch(agent);
 	}
 }

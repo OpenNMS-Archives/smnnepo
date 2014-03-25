@@ -4,21 +4,15 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
 import org.apache.camel.converter.jaxb.JaxbDataFormat;
-import org.opennms.netmgt.snmp.SnmpConfiguration;
+import org.opennms.netmgt.config.snmp.SnmpConfig;
 
 public abstract class DataFormatUtils {
-	public static JaxbDataFormat snmpConfigurationXml() {
-		try {
-			JAXBContext context = JAXBContext.newInstance(SnmpConfiguration.class);
-			return new JaxbDataFormat(context);
-		} catch (JAXBException e) {
-			throw new IllegalStateException("Cannot initialize JAXB context: " + e.getMessage(), e);
-		}
-	}
-
-	/*
-	public static JacksonDataFormat jackson() {
-		return new JacksonDataFormat(ServiceAgentList.class);
-	}
-	*/
+    public static JaxbDataFormat snmpConfigXml() {
+        try {
+            JAXBContext context = JAXBContext.newInstance(SnmpConfig.class);
+            return new JaxbDataFormat(context);
+        } catch (JAXBException e) {
+            throw new IllegalStateException("Cannot initialize JAXB context: " + e.getMessage(), e);
+        }
+    }
 }

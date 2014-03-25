@@ -133,6 +133,12 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
         assertNotNull(resultsUsingString);
         assertNotNull(resultsUsingString);
         assertEquals(5, resultsUsingString.getPackages().size());
+        
+        // now try a config from Ben's OpenNMS instance
+        resultsUsingURL = template.requestBody("direct:parseJaxbXml", new URL("file:" + OPENNMS_HOME + "/etc/collectd-configuration-rr.xml"), CollectdConfiguration.class);
+        assertNotNull(resultsUsingURL);
+        assertEquals(1, resultsUsingURL.getPackages().size());
+        assertEquals(4, resultsUsingURL.getPackages().get(0).getServices().size());
     }
 
     @Test
@@ -166,6 +172,7 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
 
         assertNotNull(configSvc);
         assertNotNull(configSvc.getInstance());
+        System.err.println(configSvc.getInstance());
     }
 
     /**

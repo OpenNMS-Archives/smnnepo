@@ -8,7 +8,7 @@ import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opennms.netmgt.api.sample.support.SingletonBeanFactory;
-import org.opennms.netmgt.snmp.SnmpConfiguration;
+import org.opennms.netmgt.config.snmp.SnmpConfig;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Level;
@@ -69,17 +69,21 @@ public class SnmpConfigRoutesTest extends CamelBlueprintTestSupport {
     }
 
     @Test
-    public void testParseSnmpXML() throws Exception {
+    public void testParseSnmpXml() throws Exception {
         System.err.printf("Starting testParseSnmpXML");
-        SnmpConfiguration resultsUsingURL = template.requestBody("direct:parseSnmpXML", new URL("file:" + OPENNMS_HOME + "/etc/snmp-config.xml"), SnmpConfiguration.class);
+        SnmpConfig resultsUsingURL = template.requestBody("direct:parseSnmpXml", new URL("file:" + OPENNMS_HOME + "/etc/snmp-config.xml"), SnmpConfig.class);
 
         System.err.printf("Results Using URL: %s\n", resultsUsingURL);
         assertNotNull(resultsUsingURL);
+        assertEquals("public", resultsUsingURL.getReadCommunity());
+        assertEquals(44, resultsUsingURL.getDefinitions().size());
 
-        SnmpConfiguration resultsUsingString = template.requestBody("direct:parseSnmpXML", "file:" + OPENNMS_HOME + "/etc/snmp-config.xml", SnmpConfiguration.class);
+        SnmpConfig resultsUsingString = template.requestBody("direct:parseSnmpXml", "file:" + OPENNMS_HOME + "/etc/snmp-config.xml", SnmpConfig.class);
 
         System.err.printf("Results Using String: %s\n", resultsUsingString);
         assertNotNull(resultsUsingString);
+        assertEquals("public", resultsUsingString.getReadCommunity());
+        assertEquals(44, resultsUsingString.getDefinitions().size());
     }
 
     @Test
@@ -88,7 +92,7 @@ public class SnmpConfigRoutesTest extends CamelBlueprintTestSupport {
 
         template.requestBody("direct:loadSnmpConfig", null, String.class);
 
-        SingletonBeanFactory<SnmpConfiguration> configSvc = bean("snmpConfiguration", SingletonBeanFactory.class);
+        SingletonBeanFactory<SnmpConfig> configSvc = bean("snmpConfigFactory", SingletonBeanFactory.class);
 
         System.err.printf("configSvc: %s\n", configSvc);
         assertNotNull(configSvc);
