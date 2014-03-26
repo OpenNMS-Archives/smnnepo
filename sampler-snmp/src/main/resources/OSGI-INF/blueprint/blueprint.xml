@@ -17,6 +17,9 @@
   <!-- Use OSGi to get service references to the SNMP metric configuration -->
   <reference id="snmpMetricRepository" interface="org.opennms.netmgt.api.sample.CollectionConfiguration"/>
 
+  <!-- Use OSGi to get the SNMP configuration from the sampler-config-snmp bundle -->
+  <reference id="snmpConfig" interface="org.opennms.netmgt.api.sample.support.SingletonBeanFactory" filter="(beanClass=org.opennms.netmgt.config.snmp.SnmpConfig)" />
+
   <!-- The collector that fetches the data from the agent -->
   <bean id="snmpCollector" class="org.opennms.netmgt.sampler.snmp.internal.DefaultSnmpCollector" />
 
@@ -41,7 +44,6 @@
   <service ref="snmpSampler" interface="org.opennms.netmgt.api.sample.Dispatcher">
     <service-properties>
       <entry key="org.opennms.netmgt.sampler.scheduler.serviceName" value="SNMP"/>
-      <entry key="protocol" value="SNMP"/>
     </service-properties>
   </service>
 
@@ -54,6 +56,12 @@
       <!-- .logStackTrace(true) -->
       <stop/>
     </onException>
+    <!--
+    <onException>
+      <exception>org.opennms.netmgt.sampler.snmp.CollectionException</exception>
+      <handled><constant>true</constant></handled>
+    </onException>
+    -->
 
     <route id="collectAgent">
       <from uri="seda:collectAgent"/>

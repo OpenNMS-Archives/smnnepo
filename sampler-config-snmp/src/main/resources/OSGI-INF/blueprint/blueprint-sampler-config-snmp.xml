@@ -49,6 +49,12 @@
   <!-- Camel EIP helper beans -->
   <bean id="urlNormalizer" class="org.opennms.netmgt.api.sample.support.UrlNormalizer"/>
 
+  <service ref="snmpConfigFactory" interface="org.opennms.netmgt.api.sample.support.SingletonBeanFactory">
+    <service-properties>
+      <entry key="beanClass" value="org.opennms.netmgt.config.snmp.SnmpConfig" />
+    </service-properties>
+  </service>
+
   <service ref="snmpMetricRepository">
     <interfaces>
      <value>org.opennms.netmgt.api.sample.CollectionConfiguration</value>
