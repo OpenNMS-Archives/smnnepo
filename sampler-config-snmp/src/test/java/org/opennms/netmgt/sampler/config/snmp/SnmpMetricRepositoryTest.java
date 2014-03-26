@@ -113,18 +113,11 @@ public class SnmpMetricRepositoryTest {
 	private ExecutorService m_executor;
 
     private static URL url(String path) throws MalformedURLException {
-        return new URL("file:src/main/resources/" + path);
+        return new URL("file:src/test/resources/etc/" + path);
     }
 
     @Before
     public void setUp() throws Exception {
-        m_repository = new SnmpMetricRepository(
-                                                url("datacollection-config.xml"), 
-                                                url("datacollection/mib2.xml"), 
-                                                url("datacollection/netsnmp.xml"),
-                                                url("datacollection/dell.xml")
-                );
-        
         m_executor = Executors.newSingleThreadExecutor(new ThreadFactory() {
 
 			@Override
@@ -133,6 +126,13 @@ public class SnmpMetricRepositoryTest {
 			}
         	
         });
+
+        m_repository = new SnmpMetricRepository(
+                                                url("datacollection-config.xml"), 
+                                                url("datacollection/mib2.xml"), 
+                                                url("datacollection/netsnmp.xml"),
+                                                url("datacollection/dell.xml")
+                );
     }
     
     @After
