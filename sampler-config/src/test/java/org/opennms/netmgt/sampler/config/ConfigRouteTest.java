@@ -60,9 +60,9 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
     public void doPostSetup() throws Exception {
         final PropertyPlaceholder properties = bean("properties", PropertyPlaceholder.class);
         final Map defaultProperties = properties.getDefaultProperties();
-        defaultProperties.put("opennms.home", "target/test-classes");
-        defaultProperties.put("collectdConfigUrl", "file:target/test-classes/etc/collectd-configuration.xml");
-        defaultProperties.put("agentListUrl", "file:target/test-classes/agents");
+        defaultProperties.put("opennms.home", "src/test/resources");
+        defaultProperties.put("collectdConfigUrl", "file:src/test/resources/etc/collectd-configuration.xml");
+        defaultProperties.put("agentListUrl", "file:src/test/resources/agents");
         properties.setDefaultProperties(defaultProperties);
     }
 
