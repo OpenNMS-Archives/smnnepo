@@ -37,7 +37,6 @@ public class SnmpMetricRepository implements MetricRepository, CollectionConfigu
 
         public DataCollectionConfig getDataCollectionConfig(final URL path) throws JAXBException, IOException {
             final DataCollectionConfig config = parse(path, DataCollectionConfig.class);
-            config.initialize();
             return config;
         }
 
@@ -143,8 +142,8 @@ public class SnmpMetricRepository implements MetricRepository, CollectionConfigu
         Map<String, Group> groupMap = new HashMap<String, Group>();
 
         if (m_dataCollectionGroupURLs != null) {
-            for(URL dataCollectionGroupURL : m_dataCollectionGroupURLs) {
-                DataCollectionGroup group = parser.getDataCollectionGroup(dataCollectionGroupURL);
+            for(final URL dataCollectionGroupURL : m_dataCollectionGroupURLs) {
+                final DataCollectionGroup group = parser.getDataCollectionGroup(dataCollectionGroupURL);
                 if (group != null) {
                     group.gatherSymbols(typeMap, tableMap, groupMap);
                     dataCollectionGroups.put(group.getName(), group);

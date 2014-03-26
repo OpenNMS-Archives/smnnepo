@@ -49,16 +49,16 @@ public class Scheduler implements SchedulerService {
     }
 
     public void onDispatcherBind(final Dispatcher dispatcher, @SuppressWarnings("rawtypes") final Map properties) {
-        LOG.debug("binding {}: {}", dispatcher, properties);
         final String service = (String)properties.get("org.opennms.netmgt.sampler.scheduler.serviceName");
+        LOG.debug("onDispatcherBind(service={})", service);
         if (service != null && dispatcher != null) {
             setDispatcher(service, dispatcher);
         }
     }
 
     public void onDispatcherUnbind(final Dispatcher dispatcher, @SuppressWarnings("rawtypes") final Map properties) {
-        LOG.debug("unbinding {}: {}", dispatcher, properties);
         final String service = (String)properties.get("org.opennms.netmgt.sampler.scheduler.serviceName");
+        LOG.debug("onDispatcherUnbind(service={})", service);
         if (service != null && dispatcher != null) {
             removeDispatcher(service, dispatcher);
         }

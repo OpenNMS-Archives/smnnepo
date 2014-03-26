@@ -19,15 +19,17 @@ import org.opennms.netmgt.config.api.collection.ISnmpCollection;
 @XmlRootElement(name="snmp-collection")
 @XmlAccessorType(XmlAccessType.NONE)
 public class SnmpCollection implements ISnmpCollection {
+    private static final IGroupReference[] EMPTY_GROUP_REFERENCE_ARRAY = new IGroupReference[0];
+    private static final IDataCollectionGroup[] EMPTY_DATA_COLLECTION_GROUP_ARRAY = new IDataCollectionGroup[0];
 
     @XmlAttribute(name="name")
     private String m_name="default";
 
     @XmlElement(name="include-collection")
-    private GroupReference[] m_includedGroups;
+    private List<GroupReference> m_includedGroups = new ArrayList<GroupReference>();
 
     @XmlElement(name="datacollection-group")
-    private DataCollectionGroup[] m_dataCollectionGroups;
+    private List<DataCollectionGroup> m_dataCollectionGroups = new ArrayList<DataCollectionGroup>();
 
     @XmlElement(name="rrd")
     private Rrd m_rrd;
@@ -39,17 +41,17 @@ public class SnmpCollection implements ISnmpCollection {
 
     @Override
     public IGroupReference[] getIncludedGroups() {
-        return m_includedGroups;
+        return m_includedGroups.toArray(EMPTY_GROUP_REFERENCE_ARRAY);
     }
 
     @Override
     public IDataCollectionGroup[] getDataCollectionGroups() {
-        return m_dataCollectionGroups;
+        return m_dataCollectionGroups.toArray(EMPTY_DATA_COLLECTION_GROUP_ARRAY);
     }
 
     public void initialize(Map<String, ? extends IDataCollectionGroup> availableGroups) {
         if (m_includedGroups != null) {
-            final List<IDataCollectionGroup> groupList = new ArrayList<IDataCollectionGroup>(m_includedGroups.length);
+            final List<DataCollectionGroup> groupList = new ArrayList<DataCollectionGroup>(m_includedGroups.size());
 
             for(final GroupReference ref : m_includedGroups) {
                 final String groupName = ref.getDataCollectionGroup();
@@ -57,10 +59,10 @@ public class SnmpCollection implements ISnmpCollection {
                 if (group == null) {
                     throw new IllegalArgumentException("Unable to locate datacollection-group " + groupName);
                 }
-                groupList.add(group);
+                groupList.add(DataCollectionGroup.asCollectionGroup(group));
             }
 
-            m_dataCollectionGroups = groupList.toArray(new DataCollectionGroup[groupList.size()]);
+            m_dataCollectionGroups = groupList;
         }
     }
 

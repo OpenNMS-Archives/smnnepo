@@ -35,7 +35,8 @@ public class DataCollectionConfig implements IDataCollectionConfig {
     public void initialize(final Map<String,DataCollectionGroup> availableGroups) {
         final Map<String,DataCollectionGroup> groups = new HashMap<String,DataCollectionGroup>(availableGroups);
         for (final SnmpCollection snmpCollection : m_snmpCollections) {
-            for (final IDataCollectionGroup group : snmpCollection.getDataCollectionGroups()) {
+            final IDataCollectionGroup[] dataCollectionGroups = snmpCollection.getDataCollectionGroups();
+            for (final IDataCollectionGroup group : dataCollectionGroups) {
                 final String name = group.getName();
                 groups.put(name, DataCollectionGroup.asCollectionGroup(group));
             }
