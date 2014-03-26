@@ -4,9 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Dictionary;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -25,16 +27,17 @@ import org.opennms.core.test.TestContextAwareExecutionListener;
 import org.opennms.core.test.snmp.JUnitSnmpAgentExecutionListener;
 import org.opennms.core.test.snmp.annotations.JUnitSnmpAgent;
 import org.opennms.netmgt.api.sample.Agent;
+import org.opennms.netmgt.api.sample.CollectionConfiguration;
 import org.opennms.netmgt.api.sample.Metric;
-import org.opennms.netmgt.api.sample.MetricRepository;
 import org.opennms.netmgt.api.sample.Resource;
 import org.opennms.netmgt.api.sample.Results;
 import org.opennms.netmgt.api.sample.Results.Row;
+import org.opennms.netmgt.api.sample.Sample;
 import org.opennms.netmgt.api.sample.SampleRepository;
 import org.opennms.netmgt.api.sample.SampleSet;
-import org.opennms.netmgt.api.sample.Timestamp;
 import org.opennms.netmgt.api.sample.support.SimpleFileRepository;
 import org.opennms.netmgt.sampler.config.snmp.SnmpAgent;
+import org.opennms.netmgt.sampler.config.snmp.SnmpMetricRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
@@ -48,7 +51,7 @@ import ch.qos.logback.classic.LoggerContext;
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestExecutionListeners({
 	TestContextAwareExecutionListener.class,
-	//JUnitSnmpAgentExecutionListener.class
+	JUnitSnmpAgentExecutionListener.class
 })
 @ContextConfiguration(locations={
 	"classpath:/snmpCollectorTest-context.xml"
@@ -63,6 +66,8 @@ public class SnmpCollectorTest extends CamelBlueprintTestSupport implements Test
 	private SampleRepository m_sampleRepository;
 	private CountDownLatch m_latch = null;
 
+	private SnmpMetricRepository m_snmpMetricRepository;
+
 	/**
 	 * Use Aries Blueprint synchronous mode to avoid a blueprint
 	 * deadlock bug.
@@ -73,6 +78,7 @@ public class SnmpCollectorTest extends CamelBlueprintTestSupport implements Test
 	@Override
 	public void doPreSetup() throws Exception { 
 		System.setProperty("org.apache.aries.blueprint.synchronous", Boolean.TRUE.toString());
+		System.setProperty("de.kalpatec.pojosr.framework.events.sync", Boolean.TRUE.toString());
 	}
 
 	@Override
@@ -95,6 +101,12 @@ public class SnmpCollectorTest extends CamelBlueprintTestSupport implements Test
 	public boolean isUseDebugger() {
 		// must enable debugger
 		return true;
+	}
+
+	@Override
+	protected String getBundleFilter() {
+		// Don't start the config or config-snmp bundles
+		return "(& (!(Bundle-SymbolicName=org.opennms.netmgt.sampler.config)) (!(Bundle-SymbolicName=org.opennms.netmgt.sampler.config.snmp)) )";
 	}
 
 	// The location of our Blueprint XML file to be used for testing
@@ -148,14 +160,27 @@ public class SnmpCollectorTest extends CamelBlueprintTestSupport implements Test
 				new File("target/samples.txt")
 			);
 
+			m_snmpMetricRepository = new SnmpMetricRepository(
+				new URL("file:src/test/resources/datacollection-config.xml"), 
+				new URL[] {
+					new URL("file:src/test/resources/datacollection/mib2.xml"), 
+					new URL("file:src/test/resources/datacollection/netsnmp.xml"), 
+					new URL("file:src/test/resources/datacollection/dell.xml")
+				}
+			); 
+
 			services.put(SampleRepository.class.getName(), new KeyValueHolder<Object,Dictionary>(m_sampleRepository, new Properties()));
+			services.put(CollectionConfiguration.class.getName(), new KeyValueHolder<Object,Dictionary>(
+				m_snmpMetricRepository,
+				new Properties())
+			);
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	@Test(timeout=30000)
+	@Test(timeout=60000)
 	@JUnitSnmpAgent(resource="classpath:laptop.properties")
 	public void test() throws Exception {
 		// Add mock endpoints to the route context
@@ -175,10 +200,6 @@ public class SnmpCollectorTest extends CamelBlueprintTestSupport implements Test
 		MockEndpoint sampleSaved = getMockEndpoint("mock:seda:saveToRepository");
 		sampleSaved.expectedMessageCount(1);
 
-		Timestamp start = Timestamp.now();
-
-		//Sampler sampler = context.getRegistry().lookupByNameAndType("snmpSampler", Sampler.class);
-
 		for(int i = 1; i <= AGENT_COUNT; i++) {
 			Agent agent = new Agent(
 				new InetSocketAddress(
@@ -191,17 +212,12 @@ public class SnmpCollectorTest extends CamelBlueprintTestSupport implements Test
 			agent.setParameter(SnmpAgent.PARAM_SYSOBJECTID, ".1.3.6.1.4.1.8072.3.2.255");
 			agent.setParameter(SnmpAgent.PARAM_COMMUNITY, "public");
 			template.sendBody("seda:collectAgent", agent);
-			//sampler.collect(agent);
 		}
 
 		MockEndpoint.assertIsSatisfied(sampleSaved);
 		m_latch.await();
 
-		Timestamp end = Timestamp.now();
-
-		MetricRepository metricRepo = context.getRegistry().lookupByNameAndType("metricRepository", MetricRepository.class);
-
-		Set<Metric> metricSet = metricRepo.getMetrics("ucd-loadavg");
+		Set<Metric> metricSet = m_snmpMetricRepository.getMetrics("ucd-loadavg");
 		assertNotNull(metricSet);
 		Metric[] metrics = metricSet.toArray(new Metric[0]);
 		assertNotNull(metrics);
@@ -221,11 +237,23 @@ public class SnmpCollectorTest extends CamelBlueprintTestSupport implements Test
 		);
 
 		// Retrieve all results from the repository that match the resource and metrics
-		Results results = m_sampleRepository.find(null, start, end, resource, metrics);
+		Results results = m_sampleRepository.find(null, null, null, resource, metrics);
 		assertNotNull(results);
 		LOG.info("RESULTS: " + results);
 		Collection<Row> rows = results.getRows();
 		assertNotNull(rows);
 		assertEquals(1, rows.size());
+		
+		// Check to make sure that the collected values match the mock SNMP values
+		Iterator<Sample> samples = rows.iterator().next().iterator();
+		Sample sample = samples.next();
+		assertEquals("loadavg1", sample.getMetric().getName());
+		assertEquals(122, sample.getValue().intValue());
+		sample = samples.next();
+		assertEquals("loadavg5", sample.getMetric().getName());
+		assertEquals(97, sample.getValue().intValue());
+		sample = samples.next();
+		assertEquals("loadavg15", sample.getMetric().getName());
+		assertEquals(76, sample.getValue().intValue());
 	}
 }

@@ -16,7 +16,6 @@
 
   <!-- Use OSGi to get service references to the SNMP metric configuration -->
   <reference id="snmpMetricRepository" interface="org.opennms.netmgt.api.sample.CollectionConfiguration"/>
-  <reference id="metricRepository" interface="org.opennms.netmgt.api.sample.MetricRepository"/>
 
   <!-- The collector that fetches the data from the agent -->
   <bean id="snmpCollector" class="org.opennms.netmgt.sampler.snmp.internal.DefaultSnmpCollector" />
@@ -46,7 +45,7 @@
     </service-properties>
   </service>
 
-  <camelContext xmlns="http://camel.apache.org/schema/blueprint">
+  <camelContext id="samplerSnmpCamelContext" xmlns="http://camel.apache.org/schema/blueprint">
 
     <!-- Add exception handlers -->
     <onException>
