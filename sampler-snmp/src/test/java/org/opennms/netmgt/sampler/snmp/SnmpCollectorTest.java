@@ -26,6 +26,7 @@ import org.opennms.core.test.TestContextAware;
 import org.opennms.core.test.TestContextAwareExecutionListener;
 import org.opennms.core.test.snmp.JUnitSnmpAgentExecutionListener;
 import org.opennms.core.test.snmp.annotations.JUnitSnmpAgent;
+import org.opennms.core.xml.JaxbUtils;
 import org.opennms.netmgt.api.sample.Agent;
 import org.opennms.netmgt.api.sample.CollectionConfiguration;
 import org.opennms.netmgt.api.sample.Metric;
@@ -36,6 +37,9 @@ import org.opennms.netmgt.api.sample.Sample;
 import org.opennms.netmgt.api.sample.SampleRepository;
 import org.opennms.netmgt.api.sample.SampleSet;
 import org.opennms.netmgt.api.sample.support.SimpleFileRepository;
+import org.opennms.netmgt.api.sample.support.SingletonBeanFactory;
+import org.opennms.netmgt.api.sample.support.SingletonBeanFactoryImpl;
+import org.opennms.netmgt.config.snmp.SnmpConfig;
 import org.opennms.netmgt.sampler.config.snmp.SnmpAgent;
 import org.opennms.netmgt.sampler.config.snmp.SnmpMetricRepository;
 import org.slf4j.Logger;
@@ -169,11 +173,16 @@ public class SnmpCollectorTest extends CamelBlueprintTestSupport implements Test
 				}
 			); 
 
+			SnmpConfig snmpConfig = JaxbUtils.unmarshal(SnmpConfig.class, new File("src/test/resources/snmp-config.xml"));
+
 			services.put(SampleRepository.class.getName(), new KeyValueHolder<Object,Dictionary>(m_sampleRepository, new Properties()));
 			services.put(CollectionConfiguration.class.getName(), new KeyValueHolder<Object,Dictionary>(
 				m_snmpMetricRepository,
 				new Properties())
 			);
+			Properties props = new Properties();
+			props.put("beanClass", "org.opennms.netmgt.config.snmp.SnmpConfig");
+			services.put(SingletonBeanFactory.class.getName(), new KeyValueHolder<Object,Dictionary>(new SingletonBeanFactoryImpl<SnmpConfig>(snmpConfig), props));
 
 		} catch (Exception e) {
 			e.printStackTrace();

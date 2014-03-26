@@ -28,9 +28,30 @@
 
 package org.opennms.netmgt.api.sample.support;
 
-public interface SingletonBeanFactory<T> {
+import java.util.concurrent.atomic.AtomicReference;
 
-    T getInstance();
+public class SingletonBeanFactoryImpl<T> implements SingletonBeanFactory<T> {
 
-    void setInstance(T instance);
+    private AtomicReference<T> m_instance = new AtomicReference<T>();
+
+    public SingletonBeanFactoryImpl() {
+        m_instance.set(null);
+    }
+
+    public SingletonBeanFactoryImpl(T instance) {
+        m_instance.set(instance);
+    }
+
+    public T getInstance() {
+        return m_instance == null ? null : m_instance.get();
+    }
+
+    public void setInstance(T instance) {
+        m_instance.set(instance);
+    }
+
+    @Override
+    public String toString() {
+        return "SingletonBeanFactory[ instance=" + (getInstance() == null? null : getInstance().getClass().getName()) + " ]";
+    }
 }

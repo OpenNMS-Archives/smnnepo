@@ -30,8 +30,8 @@
   <bean id="jaxbXml" class="org.opennms.netmgt.sampler.config.DataFormatUtils" factory-method="jaxbXml"/>
 
   <!-- Beans that hold a copy of a configuration object -->
-  <bean id="collectdConfiguration" class="org.opennms.netmgt.api.sample.support.SingletonBeanFactory"/>
-  <bean id="snmpConfiguration" class="org.opennms.netmgt.api.sample.support.SingletonBeanFactory"/>
+  <bean id="collectdConfiguration" class="org.opennms.netmgt.api.sample.support.SingletonBeanFactoryImpl"/>
+  <bean id="snmpConfiguration" class="org.opennms.netmgt.api.sample.support.SingletonBeanFactoryImpl"/>
 
   <!-- Camel EIP helper beans -->
   <bean id="urlNormalizer" class="org.opennms.netmgt.api.sample.support.UrlNormalizer"/>

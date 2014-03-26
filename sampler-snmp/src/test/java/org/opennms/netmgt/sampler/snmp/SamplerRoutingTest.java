@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.opennms.netmgt.api.sample.AgentList;
 import org.opennms.netmgt.api.sample.PackageAgentList;
 import org.opennms.netmgt.api.sample.support.SingletonBeanFactory;
+import org.opennms.netmgt.api.sample.support.SingletonBeanFactoryImpl;
 import org.opennms.netmgt.api.sample.support.UrlNormalizer;
 import org.opennms.netmgt.config.collectd.CollectdConfiguration;
 import org.opennms.netmgt.config.collectd.Package;
@@ -58,8 +59,8 @@ public class SamplerRoutingTest extends CamelTestSupport {
 			url("datacollection/dell.xml")
 		);
 		
-		registry.bind("collectdConfiguration", new SingletonBeanFactory<CollectdConfiguration>());
-		registry.bind("snmpConfig", new SingletonBeanFactory<SnmpConfig>());
+		registry.bind("collectdConfiguration", new SingletonBeanFactoryImpl<CollectdConfiguration>());
+		registry.bind("snmpConfig", new SingletonBeanFactoryImpl<SnmpConfig>());
 		registry.bind("snmpMetricRepository", snmpMetricRepository);
 		registry.bind("urlNormalizer", new UrlNormalizer());
 		registry.bind("packageServiceSplitter", new PackageServiceSplitter());

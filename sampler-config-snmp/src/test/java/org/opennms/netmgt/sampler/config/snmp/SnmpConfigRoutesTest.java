@@ -26,8 +26,9 @@ public class SnmpConfigRoutesTest extends CamelBlueprintTestSupport {
      * @see https://access.redhat.com/site/solutions/640943
      */
     @Override
-    public void doPreSetup() throws Exception { 
+    public void doPreSetup() throws Exception {
         System.setProperty("org.apache.aries.blueprint.synchronous", Boolean.TRUE.toString());
+        System.setProperty("de.kalpatec.pojosr.framework.events.sync", Boolean.TRUE.toString());
     }
 
     @BeforeClass

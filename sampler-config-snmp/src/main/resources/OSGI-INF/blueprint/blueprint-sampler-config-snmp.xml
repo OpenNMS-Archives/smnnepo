@@ -40,7 +40,7 @@
   <bean id="snmpConfigXmlFormat" class="org.opennms.netmgt.sampler.config.snmp.DataFormatUtils" factory-method="snmpConfigXml"/>
 
   <!-- Beans that hold a copy of a configuration object -->
-  <bean id="snmpConfigFactory" class="org.opennms.netmgt.api.sample.support.SingletonBeanFactory"/>
+  <bean id="snmpConfigFactory" class="org.opennms.netmgt.api.sample.support.SingletonBeanFactoryImpl"/>
   <bean id="snmpMetricRepository" class="org.opennms.netmgt.sampler.config.snmp.SnmpMetricRepository">
     <argument value="${datacollectionFileUrl}"/>
     <argument value="${datacollectionGroupUrls}"/>

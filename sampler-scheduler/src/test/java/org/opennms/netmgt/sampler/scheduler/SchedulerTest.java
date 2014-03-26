@@ -42,6 +42,7 @@ public class SchedulerTest extends CamelBlueprintTestSupport {
     @Override
     public void doPreSetup() throws Exception { 
         System.setProperty("org.apache.aries.blueprint.synchronous", Boolean.TRUE.toString());
+        System.setProperty("de.kalpatec.pojosr.framework.events.sync", Boolean.TRUE.toString());
     }
 
     @Override
