@@ -59,11 +59,11 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		);
 		
 		registry.bind("collectdConfiguration", new SingletonBeanFactory<CollectdConfiguration>());
-		registry.bind("SnmpConfig", new SingletonBeanFactory<SnmpConfig>());;
+		registry.bind("snmpConfig", new SingletonBeanFactory<SnmpConfig>());
 		registry.bind("snmpMetricRepository", snmpMetricRepository);
 		registry.bind("urlNormalizer", new UrlNormalizer());
 		registry.bind("packageServiceSplitter", new PackageServiceSplitter());
-                registry.bind("jaxbXml", DataFormatUtils.jaxbXml());
+		registry.bind("jaxbXml", DataFormatUtils.jaxbXml());
 		
 		return registry;
 	}
@@ -108,7 +108,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 
 				// Direct route to fetch the config
 				from("direct:snmpConfig")
-					.beanRef("SnmpConfig", "getInstance")
+					.beanRef("snmpConfig", "getInstance")
 				;
 
 				from("seda:start")
@@ -142,7 +142,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 				from("direct:loadSnmpConfig")
 					.transform(constant(url("snmp-config.xml")))
 					.to("direct:parseJaxbXml")
-					.beanRef("SnmpConfig", "setInstance")
+					.beanRef("snmpConfig", "setInstance")
 				;
 				
 				from("direct:schedulerStart")
@@ -256,7 +256,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		
 		template.requestBody("direct:loadSnmpConfig", null, String.class);
 		
-		SingletonBeanFactory<SnmpConfig> configSvc = bean("SnmpConfig", SingletonBeanFactory.class);
+		SingletonBeanFactory<SnmpConfig> configSvc = bean("snmpConfig", SingletonBeanFactory.class);
 		
 		assertNotNull(configSvc);
 		assertNotNull(configSvc.getInstance());
@@ -375,7 +375,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 		result.await();
 		
 		SingletonBeanFactory<CollectdConfiguration> collectdConfig = bean("collectdConfiguration", SingletonBeanFactory.class);
-		SingletonBeanFactory<SnmpConfig> snmpConfig = bean("SnmpConfig", SingletonBeanFactory.class);		
+		SingletonBeanFactory<SnmpConfig> snmpConfig = bean("snmpConfig", SingletonBeanFactory.class);		
 		
 		assertMockEndpointsSatisfied();
 		
