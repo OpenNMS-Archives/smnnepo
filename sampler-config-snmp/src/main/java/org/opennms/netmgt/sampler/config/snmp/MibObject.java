@@ -142,7 +142,9 @@ public class MibObject implements IMibObject {
     }
 
     public void initialize(final Group group) {
+        LOG.debug("{} initializing", m_oid);
         m_group = group;
+        LOG.debug("{} finished initializing", m_oid);
     }
 
     public static MibObject[] asMibObjects(final IMibObject[] mibObjects) {

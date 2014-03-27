@@ -93,6 +93,7 @@ public class SnmpConfigRoutesTest extends CamelBlueprintTestSupport {
 
         template.requestBody("direct:loadSnmpConfig", null, String.class);
 
+        @SuppressWarnings("unchecked")
         SingletonBeanFactory<SnmpConfig> configSvc = bean("snmpConfigFactory", SingletonBeanFactory.class);
 
         System.err.printf("configSvc: %s\n", configSvc);

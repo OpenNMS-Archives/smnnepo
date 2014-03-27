@@ -23,6 +23,8 @@ import org.opennms.netmgt.snmp.SnmpObjId;
 import org.opennms.netmgt.snmp.SnmpRowResult;
 import org.opennms.netmgt.snmp.SnmpValue;
 import org.opennms.netmgt.snmp.TableTracker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *  <table name="mib2-host-resources-storage" instance="hrStorageIndex">"
@@ -37,6 +39,7 @@ import org.opennms.netmgt.snmp.TableTracker;
 @XmlRootElement(name="table")
 @XmlAccessorType(XmlAccessType.NONE)
 public class Table implements ITable {
+    private static final Logger LOG = LoggerFactory.getLogger(Table.class);
 
     @XmlAttribute(name="name")
     private String m_name;
@@ -84,7 +87,9 @@ public class Table implements ITable {
     }
 
     public void initialize(final ResourceType type) {
+        LOG.debug("{} initializing", m_name);
         m_resourceType = type;
+        LOG.debug("{} finished initializing", m_name);
     }
 
     public void fillRequest(SnmpCollectionRequest request) {

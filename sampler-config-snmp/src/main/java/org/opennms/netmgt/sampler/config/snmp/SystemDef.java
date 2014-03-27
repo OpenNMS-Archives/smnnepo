@@ -16,6 +16,8 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.opennms.netmgt.config.api.collection.IGroup;
 import org.opennms.netmgt.config.api.collection.ISystemDef;
 import org.opennms.netmgt.config.api.collection.ITable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -33,6 +35,8 @@ import org.opennms.netmgt.config.api.collection.ITable;
 @XmlRootElement(name="datacollection-group")
 @XmlAccessorType(XmlAccessType.NONE)
 public class SystemDef implements ISystemDef {
+    private static final Logger LOG = LoggerFactory.getLogger(SystemDef.class);
+
     private static final Table[] EMPTY_TABLE_ARRAY = new Table[0];
     private static final Group[] EMPTY_GROUP_ARRAY = new Group[0];
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
@@ -121,6 +125,7 @@ public class SystemDef implements ISystemDef {
     }
 
     public void initialize(final Map<String, ? extends ITable> tableMap, final Map<String, ? extends IGroup> groupMap) {
+        LOG.debug("{} initializing ({} table maps, {} group maps)", m_name, tableMap == null? 0 : tableMap.size(), groupMap == null? 0 : groupMap.size());
         for(final String include : m_includes) {
             if (tableMap.containsKey(include)) {
                 m_tables.add(Table.asTable(tableMap.get(include)));
@@ -130,27 +135,36 @@ public class SystemDef implements ISystemDef {
                 throw new IllegalArgumentException("Unable to locate include " + include + " for systemDef " + getName());
             }
         }
-
+        LOG.debug("{} finished initializing", m_name);
     }
 
-    public boolean matches(SnmpAgent agent) {
-        String systemObjId = agent.getSysObjectId();
+    public boolean matches(final SnmpAgent agent) {
+        final String systemObjId = agent.getSysObjectId();
 
-        return (m_sysoid == null && m_sysoidMask == null)
-                || (m_sysoid != null && systemObjId.equals(m_sysoid))
-                || (m_sysoidMask != null && systemObjId.startsWith(m_sysoidMask));
+        if (m_sysoid != null && systemObjId.equals(m_sysoid)) {
+            LOG.debug("Agent matches sysoid {}: {}", m_sysoid, agent);
+            return true;
+        } else if (m_sysoidMask != null && systemObjId.startsWith(m_sysoidMask)) {
+            LOG.debug("Agent matches sysoidMask {}: {}", m_sysoidMask, agent);
+            return true;
+        } else {
+            LOG.debug("Agent does not match sysoid={}, sysoidMask={}: {}", m_sysoid, m_sysoidMask, agent);
+            return false;
+        }
     }
 
-    public void fillRequest(SnmpCollectionRequest request) {
+    public void fillRequest(final SnmpCollectionRequest request) {
         assertInitialized();
 
-        if (!matches(request.getAgent())) return;
+        if (!matches(request.getAgent())) {
+            return;
+        }
 
-        for(Table table : m_tables) {
+        for(final Table table : m_tables) {
             table.fillRequest(request);
         }
 
-        for(Group group : m_groups) {
+        for(final Group group : m_groups) {
             group.fillRequest(request);
         }
 

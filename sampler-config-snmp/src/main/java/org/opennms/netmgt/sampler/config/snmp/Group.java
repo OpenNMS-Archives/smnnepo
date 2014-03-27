@@ -1,8 +1,10 @@
 package org.opennms.netmgt.sampler.config.snmp;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -19,6 +21,8 @@ import org.opennms.netmgt.config.api.collection.IMibObject;
 import org.opennms.netmgt.snmp.AggregateTracker;
 import org.opennms.netmgt.snmp.Collectable;
 import org.opennms.netmgt.snmp.CollectionTracker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 	<group name="mib2-coffee-rfc2325">
@@ -33,12 +37,15 @@ import org.opennms.netmgt.snmp.CollectionTracker;
 @XmlRootElement(name="group")
 @XmlAccessorType(XmlAccessType.NONE)
 public class Group implements IGroup {
+    private static final MibObject[] EMPTY_MIB_OBJECT_ARRAY = new MibObject[0];
+
+    private static Logger LOG = LoggerFactory.getLogger(Group.class);
 
     @XmlAttribute(name="name")
     private String m_name;
 
     @XmlElement(name="mibObj")
-    private MibObject[] m_mibObjects = new MibObject[0];
+    private List<MibObject> m_mibObjects = new ArrayList<MibObject>();
 
     public String getName() {
         return m_name;
@@ -49,20 +56,22 @@ public class Group implements IGroup {
     }
 
     public IMibObject[] getMibObjects() {
-        return (IMibObject[]) m_mibObjects;
+        return m_mibObjects.toArray(EMPTY_MIB_OBJECT_ARRAY);
     }
 
     public void setMibObjects(final IMibObject[] mibObjects) {
-        m_mibObjects = MibObject.asMibObjects(mibObjects);
+        m_mibObjects = Arrays.asList(MibObject.asMibObjects(mibObjects));
     }
 
     public void initialize() {
+        LOG.debug("{} initializing", m_name);
         for (final MibObject mibObj : m_mibObjects) {
             mibObj.initialize(this);
         }
+        LOG.debug("{} finished initializing", m_name);
     }
 
-    public void fillRequest(SnmpCollectionRequest request) {
+    public void fillRequest(final SnmpCollectionRequest request) {
         request.addGroup(this);
     }
 
@@ -71,16 +80,16 @@ public class Group implements IGroup {
     }
 
     public Set<Metric> getMetrics() {
-        Set<Metric> metrics = new HashSet<Metric>();
-        for(MibObject mibObj : m_mibObjects) {
-            Metric metric = mibObj.createMetric();
+        final Set<Metric> metrics = new HashSet<Metric>();
+        for(final MibObject mibObj : m_mibObjects) {
+            final Metric metric = mibObj.createMetric();
             if (metric != null) { metrics.add(metric); }
         }
         return metrics;
     }
 
-    public Metric getMetric(String metricName) {
-        for(MibObject mibObj : m_mibObjects) {
+    public Metric getMetric(final String metricName) {
+        for(final MibObject mibObj : m_mibObjects) {
             if (mibObj.getAlias().equals(metricName)) {
                 return mibObj.createMetric();
             }

@@ -1,5 +1,8 @@
 package org.opennms.netmgt.sampler.config.snmp;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -15,44 +18,52 @@ import org.opennms.netmgt.config.api.collection.IGroup;
 import org.opennms.netmgt.config.api.collection.IResourceType;
 import org.opennms.netmgt.config.api.collection.ISystemDef;
 import org.opennms.netmgt.config.api.collection.ITable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @XmlRootElement(name="datacollection-group")
 @XmlAccessorType(XmlAccessType.NONE)
 public class DataCollectionGroup implements IDataCollectionGroup {
+    private static final Logger LOG = LoggerFactory.getLogger(DataCollectionGroup.class);
+
+    private static final IGroup[] EMPTY_GROUP_ARRAY = new IGroup[0];
+    private static final ITable[] EMPTY_TABLE_ARRAY = new ITable[0];
+    private static final IResourceType[] EMPTY_RESOURCE_TYPE_ARRAY = new IResourceType[0];
+    private static final ISystemDef[] EMPTY_SYSTEM_DEF_ARRAY = new ISystemDef[0];
 
     @XmlAttribute(name="name")
     String m_name;
 
     @XmlElement(name="resourceType")
-    ResourceType[] m_resourceTypes = new ResourceType[0];
+    List<ResourceType> m_resourceTypes = new ArrayList<ResourceType>();
 
     @XmlElement(name="table")
-    Table[] m_tables = new Table[0];
+    List<Table> m_tables = new ArrayList<Table>();
 
     @XmlElement(name="group")
-    Group[] m_groups = new Group[0];
+    List<Group> m_groups = new ArrayList<Group>();
 
     @XmlElement(name="systemDef")
-    SystemDef[] m_systemDefs = new SystemDef[0];
+    List<SystemDef> m_systemDefs = new ArrayList<SystemDef>();
 
     @Override
     public IGroup[] getGroups() {
-        return (IGroup[]) m_groups;
+        return m_groups.toArray(EMPTY_GROUP_ARRAY);
     }
 
     @Override
     public ITable[] getTables() {
-        return (ITable[]) m_tables;
+        return m_tables.toArray(EMPTY_TABLE_ARRAY);
     }
 
     @Override
     public ISystemDef[] getSystemDefs() {
-        return (ISystemDef[]) m_systemDefs;
+        return m_systemDefs.toArray(EMPTY_SYSTEM_DEF_ARRAY);
     }
 
     @Override
     public IResourceType[] getResourceTypes() {
-        return m_resourceTypes;
+        return m_resourceTypes.toArray(EMPTY_RESOURCE_TYPE_ARRAY);
     }
 
     @Override
@@ -61,7 +72,9 @@ public class DataCollectionGroup implements IDataCollectionGroup {
     }
 
     public void initialize(final Map<String, ResourceType> typeMap, final Map<String, Table> tableMap, final Map<String, Group> groupMap) {
-        for(Table table : m_tables) {
+        LOG.debug("{} initializing ({} type maps, {} table maps, {} group maps)", m_name, typeMap == null? 0 : typeMap.size(), tableMap == null? 0 : tableMap.size(), groupMap == null? 0 : groupMap.size());
+
+        for(final Table table : m_tables) {
             final String typeName = table.getInstance();
             final ResourceType type = typeMap.get(typeName);
             if (type == null) {
@@ -70,17 +83,19 @@ public class DataCollectionGroup implements IDataCollectionGroup {
             table.initialize(type);
         }
 
-        for (Group group : m_groups) {
+        for (final Group group : m_groups) {
             group.initialize();
         }
 
-        for(SystemDef systemDef : m_systemDefs) {
+        for(final SystemDef systemDef : m_systemDefs) {
             systemDef.initialize(tableMap, groupMap);
         }
+        
+        LOG.debug("{} finished initializing", m_name);
     }
 
-    public void fillRequest(SnmpCollectionRequest request) {
-        for(SystemDef systemDef : m_systemDefs) {
+    public void fillRequest(final SnmpCollectionRequest request) {
+        for(final SystemDef systemDef : m_systemDefs) {
             systemDef.fillRequest(request);
         }
     }
@@ -97,7 +112,7 @@ public class DataCollectionGroup implements IDataCollectionGroup {
         }
     }
 
-    public Set<Metric> getMetricsForGroup(String groupName) {
+    public Set<Metric> getMetricsForGroup(final String groupName) {
         for(final Table table : m_tables) {
             if (groupName.equals(table.getName())) {
                 return table.getMetrics();
@@ -110,20 +125,22 @@ public class DataCollectionGroup implements IDataCollectionGroup {
             }
         }
 
+        LOG.trace("No metrics found for group {}", groupName);
         return null;
     }
 
-    public Metric getMetric(String metricName) {
-        for(Table table : m_tables) {
-            Metric metric = table.getMetric(metricName);
+    public Metric getMetric(final String metricName) {
+        for(final Table table : m_tables) {
+            final Metric metric = table.getMetric(metricName);
             if (metric != null) { return metric; }
         }
 
-        for(Group group : m_groups) {
-            Metric metric = group.getMetric(metricName);
+        for(final Group group : m_groups) {
+            final Metric metric = group.getMetric(metricName);
             if (metric != null) { return metric; }
         }
 
+        LOG.trace("No metric found: {}", metricName);
         return null;
     }
 
@@ -135,10 +152,10 @@ public class DataCollectionGroup implements IDataCollectionGroup {
         } else {
             final DataCollectionGroup dcg = new DataCollectionGroup();
             dcg.m_name = group.getName();
-            dcg.m_resourceTypes = ResourceType.asResourceTypes(group.getResourceTypes());
-            dcg.m_tables = Table.asTables(group.getTables());
-            dcg.m_groups = Group.asGroups(group.getGroups());
-            dcg.m_systemDefs = SystemDef.asSystemDefs(group.getSystemDefs());
+            dcg.m_resourceTypes = Arrays.asList(ResourceType.asResourceTypes(group.getResourceTypes()));
+            dcg.m_tables = Arrays.asList(Table.asTables(group.getTables()));
+            dcg.m_groups = Arrays.asList(Group.asGroups(group.getGroups()));
+            dcg.m_systemDefs = Arrays.asList(SystemDef.asSystemDefs(group.getSystemDefs()));
             return dcg;
         }
     }
@@ -153,4 +170,8 @@ public class DataCollectionGroup implements IDataCollectionGroup {
         return newGroups;
     }
 
+    @Override
+    public String toString() {
+        return "DataCollectionGroup[name=" + m_name + ",resourceTypes=" + m_resourceTypes + ",tables=" + m_tables + ",groups=" + m_groups + ",systemDefs=" + m_systemDefs + "]";
+    }
 }

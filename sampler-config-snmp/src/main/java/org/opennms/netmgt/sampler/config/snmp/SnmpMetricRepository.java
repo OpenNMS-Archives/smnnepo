@@ -6,6 +6,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -129,17 +130,17 @@ public class SnmpMetricRepository implements MetricRepository, CollectionConfigu
     }
 
     public final void refresh() throws JAXBException, IOException {
+        LOG.debug("refresh() called");
+        final Parser parser = new Parser();
 
-        Parser parser = new Parser();
+        final Map<String, DataCollectionGroup> dataCollectionGroups = new HashMap<String, DataCollectionGroup>();
 
-        Map<String, DataCollectionGroup> dataCollectionGroups = new HashMap<String, DataCollectionGroup>();
-
-
-        Map<String, ResourceType> typeMap = new HashMap<String, ResourceType>();
-        Map<String, Table> tableMap = new HashMap<String, Table>();
-        Map<String, Group> groupMap = new HashMap<String, Group>();
+        final Map<String, ResourceType> typeMap = new HashMap<String, ResourceType>();
+        final Map<String, Table> tableMap = new HashMap<String, Table>();
+        final Map<String, Group> groupMap = new HashMap<String, Group>();
 
         if (m_dataCollectionGroupURLs != null) {
+            LOG.debug("parsing datacollection group URLs: {}", Arrays.asList(m_dataCollectionGroupURLs));
             for(final URL dataCollectionGroupURL : m_dataCollectionGroupURLs) {
                 final DataCollectionGroup group = parser.getDataCollectionGroup(dataCollectionGroupURL);
                 if (group != null) {
@@ -149,37 +150,47 @@ public class SnmpMetricRepository implements MetricRepository, CollectionConfigu
             }
         }
 
-        for(DataCollectionGroup group : dataCollectionGroups.values()) {
+        LOG.debug("pre-initializing {} groups", dataCollectionGroups.size());
+        for(final DataCollectionGroup group : dataCollectionGroups.values()) {
             group.initialize(typeMap, tableMap, groupMap);
         }
 
-
-        m_dataCollectionConfig = parser.getDataCollectionConfig(m_dataCollectionConfigURL);
-        if (m_dataCollectionConfig != null) {
-            m_dataCollectionConfig.initialize(dataCollectionGroups);
+        LOG.debug("parsing datacollection config: {}", m_dataCollectionConfigURL);
+        final DataCollectionConfig config = parser.getDataCollectionConfig(m_dataCollectionConfigURL);
+        if (config == null) {
+            LOG.warn("Data collection config is null! ({})", m_dataCollectionConfigURL);
+        } else {
+            LOG.debug("initializing datacollection config");
+            config.initialize(dataCollectionGroups);
         }
+        
+        LOG.debug("finished initializing config");
+        m_dataCollectionConfig = config;
     }
 
 
-    public SnmpCollectionRequest createRequestForAgent(SnmpAgent agent) {
-
-        SnmpCollectionRequest request = new SnmpCollectionRequest(agent);
-        if (m_dataCollectionConfig != null) {
+    public SnmpCollectionRequest createRequestForAgent(final SnmpAgent agent) {
+        final SnmpCollectionRequest request = new SnmpCollectionRequest(agent);
+        if (m_dataCollectionConfig == null) {
+            LOG.warn("Unable to create request for agent {}, no data collection config!", agent);
+        } else {
             m_dataCollectionConfig.fillRequest(request);
         }
         return request;
     }
 
-    public Set<Metric> getMetrics(String groupName) {
+    public Set<Metric> getMetrics(final String groupName) {
         if (m_dataCollectionConfig == null) {
+            LOG.warn("Unable to get metrics for group {}, no data collection config!", groupName);
             return null;
         } else {
             return m_dataCollectionConfig.getMetricsForGroup(groupName);
         }
     }
 
-    public Metric getMetric(String metricName) {
+    public Metric getMetric(final String metricName) {
         if (m_dataCollectionConfig == null) {
+            LOG.warn("Unable to get metric {}, no data collection config!", metricName);
             return null;
         } else {
             return m_dataCollectionConfig.getMetric(metricName);
