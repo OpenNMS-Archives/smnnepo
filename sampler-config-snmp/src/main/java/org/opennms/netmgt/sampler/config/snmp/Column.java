@@ -240,7 +240,6 @@ public class Column implements IColumn {
         }
 
         public String apply(byte[] bytes) {
-
             int index = 0;
             int currentSpecifier = 0;
             OctetFormatSpecifier specifier = m_formatSpecifiers.get(currentSpecifier);
@@ -254,7 +253,6 @@ public class Column implements IColumn {
         }
 
         private boolean displaySeparator(OctetFormatSpecifier specifier) {
-
             if (hasMore() && !isDigit(peek()) && peek() != '*') {
                 char displaySeparator = peek();
                 match(displaySeparator);
@@ -361,7 +359,9 @@ public class Column implements IColumn {
     }
 
     public static Column asColumn(final IColumn column) {
-        if (column == null) return null;
+        if (column == null) {
+            return null;
+        }
 
         if (column instanceof Column) {
             return (Column)column;
@@ -376,7 +376,9 @@ public class Column implements IColumn {
     }
 
     public static Column[] asColumns(final IColumn[] columns) {
-        if (columns == null) return null;
+        if (columns == null) {
+            return null;
+        }
 
         final Column[] newColumns = new Column[columns.length];
         for (int i=0; i < columns.length; i++) {

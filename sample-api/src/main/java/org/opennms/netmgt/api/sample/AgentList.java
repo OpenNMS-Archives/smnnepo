@@ -19,7 +19,9 @@ public class AgentList extends ArrayList<Agent> {
     }
 
     public void setAgents(final List<Agent> agents) {
-        if (agents == this) return;
+        if (agents == this) {
+            return;
+        }
         clear();
         addAll(agents);
     }

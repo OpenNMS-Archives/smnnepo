@@ -29,7 +29,9 @@ public class Metric implements Serializable {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof Metric)) return false;
+		if (!(obj instanceof Metric)) {
+		    return false;
+		}
 
 		Metric m = (Metric)obj;
 

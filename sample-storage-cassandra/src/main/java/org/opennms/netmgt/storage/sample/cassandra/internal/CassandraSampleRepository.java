@@ -49,7 +49,9 @@ public class CassandraSampleRepository extends CassandraStorage implements Sampl
 				resource);
 
 		// resource is a required argument
-		if (resource == null) throw new IllegalArgumentException("null resource argument");
+		if (resource == null) {
+		    throw new IllegalArgumentException("null resource argument");
+		}
 
 		Results results = new Results(resource, metrics);
 		resource.getAttributes().putAll(getResourceAttributes(resource));
@@ -57,8 +59,12 @@ public class CassandraSampleRepository extends CassandraStorage implements Sampl
 		Select cqlQuery = select(F_COLLECTED_AT, F_METRIC, F_VALUE).from(T_SAMPLES);
 		cqlQuery.where(eq(F_RESOURCE, resource.getIdentifier()));
 
-		if (start != null) cqlQuery.where(gte(F_COLLECTED_AT, start.asDate()));
-		if (end != null)   cqlQuery.where(lte(F_COLLECTED_AT, end.asDate()));
+		if (start != null) {
+		    cqlQuery.where(gte(F_COLLECTED_AT, start.asDate()));
+		}
+		if (end != null) {
+		    cqlQuery.where(lte(F_COLLECTED_AT, end.asDate()));
+		}
 
 
 		CassandraAdapter adapter = new CassandraAdapter(resource, metrics, executeQuery(cqlQuery));
