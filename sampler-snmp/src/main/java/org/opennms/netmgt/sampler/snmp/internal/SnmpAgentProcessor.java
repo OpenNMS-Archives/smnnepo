@@ -8,11 +8,15 @@ import org.opennms.netmgt.config.snmp.AddressSnmpConfigVisitor;
 import org.opennms.netmgt.config.snmp.Definition;
 import org.opennms.netmgt.config.snmp.SnmpConfig;
 import org.opennms.netmgt.sampler.config.snmp.SnmpAgent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Wrap an {@link Agent} instance in a {@link SnmpAgent} instance. 
  */
 public class SnmpAgentProcessor implements Processor {
+    public static final Logger LOG = LoggerFactory.getLogger(SnmpAgentProcessor.class);
+
     SingletonBeanFactory<SnmpConfig> m_snmpConfigFactory;
 
     public SingletonBeanFactory<SnmpConfig> getSnmpConfigFactory() {
@@ -34,10 +38,14 @@ public class SnmpAgentProcessor implements Processor {
             config.visit(visitor);
             final Definition def = visitor.getDefinition();
             
+            LOG.debug("SNMP configuration for address {}: {}", agent.getInetAddress(), def);
+
             snmpAgent.setCommunity(def.getReadCommunity());
             snmpAgent.setRetries(def.getRetry());
             snmpAgent.setTimeout(def.getTimeout());
             snmpAgent.setVersion(def.getVersion());
+        } else {
+            LOG.debug("SNMP config factory is not set!");
         }
 
         exchange.getIn().setBody(snmpAgent);

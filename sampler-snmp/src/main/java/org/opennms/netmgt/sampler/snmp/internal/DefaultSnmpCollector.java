@@ -10,20 +10,25 @@ import org.opennms.netmgt.snmp.CollectionTracker;
 import org.opennms.netmgt.snmp.SnmpAgentConfig;
 import org.opennms.netmgt.snmp.SnmpUtils;
 import org.opennms.netmgt.snmp.SnmpWalker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DefaultSnmpCollector implements SnmpCollector {
-
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultSnmpCollector.class);
 
     /* (non-Javadoc)
      * @see org.opennms.netmgt.sampler.snmp.SnmpCollector#collect(org.opennms.distributed.configuration.snmp.SnmpCollectionRequest)
      */
     @Override
     public SampleSet collect(final SnmpCollectionRequest request) throws Exception {
+        final SampleSet sampleSet = new SampleSet(Timestamp.now());
+        final SnmpAgentConfig agentConfig = request.getAgentConfig();
+        final SnmpAgent agent = request.getAgent();
+        final CollectionTracker collectionTracker = request.getCollectionTracker(sampleSet);
+
+        LOG.debug("collect: tracker = {}, agent = {}, agentConfig = {}", collectionTracker, agent, agentConfig);
+
         try {
-            final SampleSet sampleSet = new SampleSet(Timestamp.now());
-            final SnmpAgentConfig agentConfig = request.getAgentConfig();
-            final SnmpAgent agent = request.getAgent();
-            final CollectionTracker collectionTracker = request.getCollectionTracker(sampleSet);
             final SnmpWalker walker = SnmpUtils.createWalker(agentConfig, agent.getId(), collectionTracker);
 
             walker.start();

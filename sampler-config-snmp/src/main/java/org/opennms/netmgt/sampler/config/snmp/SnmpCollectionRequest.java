@@ -79,7 +79,7 @@ public class SnmpCollectionRequest implements CollectionRequest<SnmpAgent> {
 	}
 	
 	public String toString() {
-		StringBuilder buf = new StringBuilder("CollectionRequest[");
+		StringBuilder buf = new StringBuilder("SnmpCollectionRequest[");
 		buf.append("types=").append(getResourceTypes());
 		buf.append(", ").append("tables=").append(getTables());
 		buf.append(", ").append("groups=").append(getGroups());
