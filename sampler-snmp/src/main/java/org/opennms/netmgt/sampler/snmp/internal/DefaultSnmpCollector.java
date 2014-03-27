@@ -20,15 +20,16 @@ public class DefaultSnmpCollector implements SnmpCollector {
      * @see org.opennms.netmgt.sampler.snmp.SnmpCollector#collect(org.opennms.distributed.configuration.snmp.SnmpCollectionRequest)
      */
     @Override
-    public SampleSet collect(final SnmpCollectionRequest request) throws Exception {
+    public SampleSet collect(final SnmpCollectionRequest request) throws CollectionException {
         final SampleSet sampleSet = new SampleSet(Timestamp.now());
-        final SnmpAgentConfig agentConfig = request.getAgentConfig();
-        final SnmpAgent agent = request.getAgent();
-        final CollectionTracker collectionTracker = request.getCollectionTracker(sampleSet);
-
-        LOG.debug("collect: tracker = {}, agent = {}, agentConfig = {}", collectionTracker, agent, agentConfig);
 
         try {
+            final SnmpAgentConfig agentConfig = request.getAgentConfig();
+            final SnmpAgent agent = request.getAgent();
+            final CollectionTracker collectionTracker = request.getCollectionTracker(sampleSet);
+
+            LOG.debug("collect: tracker = {}, agent = {}, agentConfig = {}", collectionTracker, agent, agentConfig);
+
             final SnmpWalker walker = SnmpUtils.createWalker(agentConfig, agent.getId(), collectionTracker);
 
             walker.start();
@@ -40,7 +41,7 @@ public class DefaultSnmpCollector implements SnmpCollector {
 
             return sampleSet;
         } catch (final Exception e) {
-            if (e instanceof CollectionException) throw e;
+            if (e instanceof CollectionException) throw (CollectionException)e;
             throw new CollectionException(e);
         }
 

@@ -8,6 +8,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.opennms.netmgt.config.collectd.Package;
 import org.opennms.netmgt.config.collectd.Service;
+import org.opennms.netmgt.sampler.config.ProcessorException;
 
 /**
  * This class converts a single {@link Package} with multiple {@link Service} entries 
@@ -15,23 +16,27 @@ import org.opennms.netmgt.config.collectd.Service;
  * entry.
  */
 public class PackageServiceSplitter implements Processor {
-	//private static final Logger LOG = LoggerFactory.getLogger(PackageServiceSplitter.class);
+    //private static final Logger LOG = LoggerFactory.getLogger(PackageServiceSplitter.class);
 
-	@Override
-	public void process(Exchange exchange) throws Exception {
-		//LOG.debug("RUNNING {} with args {}", getClass().getSimpleName(), exchange);
+    @Override
+    public void process(Exchange exchange) throws ProcessorException {
+        //LOG.debug("RUNNING {} with args {}", getClass().getSimpleName(), exchange);
 
-		List<Package> retval = new ArrayList<Package>();
-		if (exchange != null && exchange.getIn() != null) {
-			Package pkg = exchange.getIn().getBody(Package.class);
-			for (Service svc : pkg.getServices()) {
-				//LOG.debug("SERVICE {}", svc);
-				Package newPackage = new Package(pkg);
-				newPackage.setServices(Collections.singletonList(svc));
-				//LOG.debug("PACKAGE {}", newPackage);
-				retval.add(newPackage);
-			}
-			exchange.getIn().setBody(retval);
-		}
-	}
+        try {
+            List<Package> retval = new ArrayList<Package>();
+            if (exchange != null && exchange.getIn() != null) {
+                Package pkg = exchange.getIn().getBody(Package.class);
+                for (Service svc : pkg.getServices()) {
+                    //LOG.debug("SERVICE {}", svc);
+                    Package newPackage = new Package(pkg);
+                    newPackage.setServices(Collections.singletonList(svc));
+                    //LOG.debug("PACKAGE {}", newPackage);
+                    retval.add(newPackage);
+                }
+                exchange.getIn().setBody(retval);
+            }
+        } catch (final Exception e) {
+            throw new ProcessorException(e);
+        }
+    }
 }
