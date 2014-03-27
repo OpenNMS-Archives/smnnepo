@@ -10,7 +10,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.opennms.netmgt.api.sample.Agent;
-import org.opennms.netmgt.api.sample.Dispatcher;
+import org.opennms.netmgt.api.sample.AgentDispatcher;
 import org.opennms.netmgt.api.sample.PackageAgentList;
 import org.opennms.netmgt.api.sample.support.SchedulerService;
 import org.slf4j.Logger;
@@ -18,37 +18,38 @@ import org.slf4j.LoggerFactory;
 
 public class Scheduler implements SchedulerService {
     private static final Logger LOG = LoggerFactory.getLogger(Scheduler.class);
-    private static final Dispatcher NULL_DISPATCHER = new Dispatcher() {
-        @Override public void dispatch(final Agent agent) {
+    private static final AgentDispatcher NULL_DISPATCHER = new AgentDispatcher() {
+        @Override
+        public void dispatch(final Agent agent) {
             LOG.debug("No dispatcher for scheduled request {}", agent);
         }
     };
     private final ScheduledExecutorService m_executor;
 
-    private final ConcurrentHashMap<String,Dispatcher> m_dispatchers = new ConcurrentHashMap<String, Dispatcher>();
+    private final ConcurrentHashMap<String,AgentDispatcher> m_dispatchers = new ConcurrentHashMap<String, AgentDispatcher>();
     private final ConcurrentHashMap<String,List<ScheduledFuture<?>>> m_schedules = new ConcurrentHashMap<String,List<ScheduledFuture<?>>>();
 
     public Scheduler(int poolSize) {
         m_executor = Executors.newScheduledThreadPool(poolSize);
     }
 
-    public Dispatcher getDispatcher(final String service) {
-        final Dispatcher dispatcher = m_dispatchers.get(service);
+    public AgentDispatcher getDispatcher(final String service) {
+        final AgentDispatcher dispatcher = m_dispatchers.get(service);
         if (dispatcher == null) {
             return NULL_DISPATCHER;
         }
         return dispatcher;
     }
 
-    public void setDispatcher(final String service, final Dispatcher dispatcher) {
+    public void setDispatcher(final String service, final AgentDispatcher dispatcher) {
         m_dispatchers.put(service, dispatcher);
     }
 
-    public void removeDispatcher(final String service, final Dispatcher dispatcher) {
+    public void removeDispatcher(final String service, final AgentDispatcher dispatcher) {
         m_dispatchers.remove(service, dispatcher);
     }
 
-    public void onDispatcherBind(final Dispatcher dispatcher, @SuppressWarnings("rawtypes") final Map properties) {
+    public void onDispatcherBind(final AgentDispatcher dispatcher, @SuppressWarnings("rawtypes") final Map properties) {
         final String service = (String)properties.get("org.opennms.netmgt.sampler.scheduler.serviceName");
         LOG.debug("onDispatcherBind(service={})", service);
         if (service != null && dispatcher != null) {
@@ -56,7 +57,7 @@ public class Scheduler implements SchedulerService {
         }
     }
 
-    public void onDispatcherUnbind(final Dispatcher dispatcher, @SuppressWarnings("rawtypes") final Map properties) {
+    public void onDispatcherUnbind(final AgentDispatcher dispatcher, @SuppressWarnings("rawtypes") final Map properties) {
         final String service = (String)properties.get("org.opennms.netmgt.sampler.scheduler.serviceName");
         LOG.debug("onDispatcherUnbind(service={})", service);
         if (service != null && dispatcher != null) {
@@ -87,7 +88,7 @@ public class Scheduler implements SchedulerService {
             final ScheduledFuture<?> future = m_executor.scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
-                    final Dispatcher dispatcher = getDispatcher(service);
+                    final AgentDispatcher dispatcher = getDispatcher(service);
                     LOG.trace("Dispatching agent {} to {}", dispatcher);
                     dispatcher.dispatch(agent);
                 }

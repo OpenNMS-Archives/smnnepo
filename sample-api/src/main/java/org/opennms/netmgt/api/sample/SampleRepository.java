@@ -1,7 +1,7 @@
 package org.opennms.netmgt.api.sample;
 
 
-public interface SampleRepository {
+public interface SampleRepository extends SampleSetDispatcher {
 
 	/**
 	 * Returns measurements for a set of metrics, a given resource, and a time
@@ -34,6 +34,4 @@ public interface SampleRepository {
 	 * @return a {@link Results} instance containing the results of the search.
 	 */
 	Results find(SampleProcessorBuilder builder, Timestamp start, Timestamp end, Resource resource, Metric... metrics);
-	
-	void save(SampleSet samples);
 }

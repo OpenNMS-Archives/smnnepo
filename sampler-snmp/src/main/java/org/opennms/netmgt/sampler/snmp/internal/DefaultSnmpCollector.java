@@ -39,8 +39,9 @@ public class DefaultSnmpCollector implements SnmpCollector {
             }
 
             return sampleSet;
+        } catch (final CollectionException e) {
+            throw e;
         } catch (final Exception e) {
-            if (e instanceof CollectionException) throw e;
             throw new CollectionException(e);
         }
 

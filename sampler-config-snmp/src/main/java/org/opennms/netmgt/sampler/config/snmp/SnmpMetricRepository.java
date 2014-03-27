@@ -36,13 +36,11 @@ public class SnmpMetricRepository implements MetricRepository, CollectionConfigu
         }
 
         public DataCollectionConfig getDataCollectionConfig(final URL path) throws JAXBException, IOException {
-            final DataCollectionConfig config = parse(path, DataCollectionConfig.class);
-            return config;
+            return parse(path, DataCollectionConfig.class);
         }
 
         public DataCollectionGroup getDataCollectionGroup(final URL path) throws JAXBException, IOException {
-            final DataCollectionGroup group = parse(path, DataCollectionGroup.class);
-            return group;
+            return parse(path, DataCollectionGroup.class);
         }
 
         private <T> T parse(URL url, Class<T> declaredType) throws JAXBException, IOException {

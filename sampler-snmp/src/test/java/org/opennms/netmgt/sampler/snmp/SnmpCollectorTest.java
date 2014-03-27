@@ -36,6 +36,7 @@ import org.opennms.netmgt.api.sample.Results.Row;
 import org.opennms.netmgt.api.sample.Sample;
 import org.opennms.netmgt.api.sample.SampleRepository;
 import org.opennms.netmgt.api.sample.SampleSet;
+import org.opennms.netmgt.api.sample.SampleSetDispatcher;
 import org.opennms.netmgt.api.sample.support.SimpleFileRepository;
 import org.opennms.netmgt.api.sample.support.SingletonBeanFactory;
 import org.opennms.netmgt.api.sample.support.SingletonBeanFactoryImpl;
@@ -69,7 +70,6 @@ public class SnmpCollectorTest extends CamelBlueprintTestSupport implements Test
 	private TestContext m_testContext;
 	private SampleRepository m_sampleRepository;
 	private CountDownLatch m_latch = null;
-
 	private SnmpMetricRepository m_snmpMetricRepository;
 
 	/**
@@ -175,7 +175,7 @@ public class SnmpCollectorTest extends CamelBlueprintTestSupport implements Test
 
 			SnmpConfig snmpConfig = JaxbUtils.unmarshal(SnmpConfig.class, new File("src/test/resources/snmp-config.xml"));
 
-			services.put(SampleRepository.class.getName(), new KeyValueHolder<Object,Dictionary>(m_sampleRepository, new Properties()));
+			services.put(SampleSetDispatcher.class.getName(), new KeyValueHolder<Object,Dictionary>(m_sampleRepository, new Properties()));
 			services.put(CollectionConfiguration.class.getName(), new KeyValueHolder<Object,Dictionary>(
 				m_snmpMetricRepository,
 				new Properties())

@@ -14,7 +14,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opennms.core.network.IPAddress;
 import org.opennms.netmgt.api.sample.Agent;
-import org.opennms.netmgt.api.sample.Dispatcher;
+import org.opennms.netmgt.api.sample.AgentDispatcher;
 import org.opennms.netmgt.api.sample.PackageAgentList;
 import org.opennms.netmgt.api.sample.support.SchedulerService;
 import org.opennms.netmgt.config.collectd.Filter;
@@ -30,7 +30,7 @@ import ch.qos.logback.classic.Level;
 
 public class SchedulerTest extends CamelBlueprintTestSupport {
     private static final Logger LOG = LoggerFactory.getLogger(SchedulerTest.class);
-    private LatchDispatcher m_latchDispatcher;
+    private LatchAgentDispatcher m_latchDispatcher;
 
     /**
      * Use Aries Blueprint synchronous mode to avoid a blueprint
@@ -60,8 +60,8 @@ public class SchedulerTest extends CamelBlueprintTestSupport {
     protected void addServicesOnStartup(final Map<String, KeyValueHolder<Object, Dictionary>> services) {
         final Properties props = new Properties();
         props.put("org.opennms.netmgt.sampler.scheduler.serviceName", "SNMP");
-        m_latchDispatcher = new LatchDispatcher(5);
-        services.put(Dispatcher.class.getName(), new KeyValueHolder<Object,Dictionary>(m_latchDispatcher, props));
+        m_latchDispatcher = new LatchAgentDispatcher(5);
+        services.put(AgentDispatcher.class.getName(), new KeyValueHolder<Object,Dictionary>(m_latchDispatcher, props));
     }
     
     @BeforeClass
@@ -122,9 +122,9 @@ public class SchedulerTest extends CamelBlueprintTestSupport {
         return pack;
     }
 
-    private static class LatchDispatcher implements Dispatcher {
+    private static class LatchAgentDispatcher implements AgentDispatcher {
         private CountDownLatch m_latch;
-        public LatchDispatcher(final int start) {
+        public LatchAgentDispatcher(final int start) {
             m_latch = new CountDownLatch(start);
         }
 

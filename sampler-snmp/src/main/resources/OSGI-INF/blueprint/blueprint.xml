@@ -29,7 +29,7 @@
 
     <property name="context" ref="blueprintBundleContext"/>
     <property name="messageClass" value="org.opennms.netmgt.api.sample.SampleSet"/>
-    <property name="serviceClass" value="org.opennms.netmgt.api.sample.SampleRepository"/>
+    <property name="serviceClass" value="org.opennms.netmgt.api.sample.SampleSetDispatcher"/>
     <property name="methodName" value="save"/>
   </bean>
 
@@ -39,11 +39,11 @@
   </bean>
 
   <!-- OSGi service that exposes this sampler as a scheduling target -->
-  <bean id="snmpSampler" class="org.opennms.netmgt.api.sample.support.DefaultDispatcher">
+  <bean id="snmpSampler" class="org.opennms.netmgt.api.sample.support.DefaultAgentDispatcher">
     <argument value="seda:collectAgent"/>
   </bean>
 
-  <service ref="snmpSampler" interface="org.opennms.netmgt.api.sample.Dispatcher">
+  <service ref="snmpSampler" interface="org.opennms.netmgt.api.sample.AgentDispatcher">
     <service-properties>
       <entry key="org.opennms.netmgt.sampler.scheduler.serviceName" value="SNMP"/>
     </service-properties>
