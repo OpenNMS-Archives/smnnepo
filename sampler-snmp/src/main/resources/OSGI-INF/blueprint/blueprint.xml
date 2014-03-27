@@ -34,7 +34,9 @@
   </bean>
 
   <!-- Camel EIP helper beans -->
-  <bean id="snmpAgentProcessor" class="org.opennms.netmgt.sampler.snmp.internal.SnmpAgentProcessor" />
+  <bean id="snmpAgentProcessor" class="org.opennms.netmgt.sampler.snmp.internal.SnmpAgentProcessor">
+    <property name="snmpConfigFactory" ref="snmpConfig" />
+  </bean>
 
   <!-- OSGi service that exposes this sampler as a scheduling target -->
   <bean id="snmpSampler" class="org.opennms.netmgt.api.sample.support.DefaultDispatcher">
