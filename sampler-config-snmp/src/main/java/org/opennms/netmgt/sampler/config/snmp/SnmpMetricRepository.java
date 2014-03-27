@@ -22,7 +22,6 @@ import org.apache.commons.codec.binary.Base64;
 import org.opennms.netmgt.api.sample.CollectionConfiguration;
 import org.opennms.netmgt.api.sample.Metric;
 import org.opennms.netmgt.api.sample.MetricRepository;
-import org.opennms.netmgt.api.sample.MetricRepositoryException;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,13 +94,13 @@ public class SnmpMetricRepository implements MetricRepository, CollectionConfigu
     /**
      * @deprecated Should be initialized with URIs for config files instead
      */
-    public SnmpMetricRepository(String dataCollectionPath, String dataCollectionDir, Bundle bundle) throws MetricRepositoryException {
+    public SnmpMetricRepository(String dataCollectionPath, String dataCollectionDir, Bundle bundle) throws Exception {
         this(bundle.getEntry(dataCollectionPath), findEntries(bundle, dataCollectionDir));
     }
 
 
 
-    public SnmpMetricRepository(URL dataCollectionConfigURL, URL... dataCollectionGroupURLs) throws MetricRepositoryException {
+    public SnmpMetricRepository(URL dataCollectionConfigURL, URL... dataCollectionGroupURLs) throws Exception {
         m_dataCollectionConfigURL = dataCollectionConfigURL;
         m_dataCollectionGroupURLs = dataCollectionGroupURLs;
         refresh();
@@ -113,9 +112,9 @@ public class SnmpMetricRepository implements MetricRepository, CollectionConfigu
      * 
      * @param dataCollectionConfigURL
      * @param groupURLs
-     * @throws MetricRepositoryException
+     * @throws Exception
      */
-    public SnmpMetricRepository(URL dataCollectionConfigURL, String groupURLs) throws MetricRepositoryException {
+    public SnmpMetricRepository(URL dataCollectionConfigURL, String groupURLs) throws Exception {
         m_dataCollectionConfigURL = dataCollectionConfigURL;
         List<URL> urls = new ArrayList<URL>();
         if (groupURLs != null && !"".equals(groupURLs)) {
@@ -131,14 +130,9 @@ public class SnmpMetricRepository implements MetricRepository, CollectionConfigu
         refresh();
     }
 
-    public final void refresh() throws MetricRepositoryException {
+    public final void refresh() throws JAXBException, IOException {
 
-        Parser parser;
-        try {
-            parser = new Parser();
-        } catch (final JAXBException e) {
-            throw new MetricRepositoryException(e);
-        }
+        Parser parser = new Parser();
 
         Map<String, DataCollectionGroup> dataCollectionGroups = new HashMap<String, DataCollectionGroup>();
 
@@ -149,12 +143,7 @@ public class SnmpMetricRepository implements MetricRepository, CollectionConfigu
 
         if (m_dataCollectionGroupURLs != null) {
             for(final URL dataCollectionGroupURL : m_dataCollectionGroupURLs) {
-                DataCollectionGroup group;
-                try {
-                    group = parser.getDataCollectionGroup(dataCollectionGroupURL);
-                } catch (final Exception e) {
-                    throw new MetricRepositoryException(e);
-                }
+                final DataCollectionGroup group = parser.getDataCollectionGroup(dataCollectionGroupURL);
                 if (group != null) {
                     group.gatherSymbols(typeMap, tableMap, groupMap);
                     dataCollectionGroups.put(group.getName(), group);
@@ -167,11 +156,7 @@ public class SnmpMetricRepository implements MetricRepository, CollectionConfigu
         }
 
 
-        try {
-            m_dataCollectionConfig = parser.getDataCollectionConfig(m_dataCollectionConfigURL);
-        } catch (final Exception e) {
-            throw new MetricRepositoryException(e);
-        }
+        m_dataCollectionConfig = parser.getDataCollectionConfig(m_dataCollectionConfigURL);
         if (m_dataCollectionConfig != null) {
             m_dataCollectionConfig.initialize(dataCollectionGroups);
         }

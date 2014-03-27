@@ -11,8 +11,6 @@ import org.opennms.netmgt.sampler.config.snmp.SnmpAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 /**
  * Wrap an {@link Agent} instance in a {@link SnmpAgent} instance. 
  */
@@ -30,7 +28,6 @@ public class SnmpAgentProcessor implements Processor {
     }
 
     @Override
-    @SuppressFBWarnings(justification="Upstream Camel API throws Exception, we're just matching.", value="S00112")
     public void process(final Exchange exchange) throws Exception {
         final Agent agent = exchange.getIn().getBody(Agent.class);
         final SnmpAgent snmpAgent = new SnmpAgent(agent);

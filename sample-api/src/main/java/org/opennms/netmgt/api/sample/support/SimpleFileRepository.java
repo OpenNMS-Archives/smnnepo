@@ -23,7 +23,6 @@ import org.opennms.netmgt.api.sample.Results.Row;
 import org.opennms.netmgt.api.sample.Sample;
 import org.opennms.netmgt.api.sample.SampleProcessorBuilder;
 import org.opennms.netmgt.api.sample.SampleRepository;
-import org.opennms.netmgt.api.sample.SampleRepositoryException;
 import org.opennms.netmgt.api.sample.SampleSet;
 import org.opennms.netmgt.api.sample.Timestamp;
 import org.slf4j.Logger;
@@ -64,7 +63,7 @@ public class SimpleFileRepository implements SampleRepository {
 
     		
 		} catch (IOException e) {
-			throw new SampleRepositoryException(e);
+			throw new RuntimeException(e);
 		} finally {
 			try {
 				if (out != null) {
@@ -100,7 +99,7 @@ public class SimpleFileRepository implements SampleRepository {
     		attributes.load(r);
     		return attributes;
 		} catch (IOException e) {
-			throw new SampleRepositoryException(e);
+			throw new RuntimeException(e);
 		} finally {
 			try { if (r != null) r.close(); } catch(Exception e) {}
 		}
@@ -112,7 +111,7 @@ public class SimpleFileRepository implements SampleRepository {
     		w = new FileWriter(m_attributesFile);
     		attributes.store(w, "Save attributes");
 		} catch (IOException e) {
-			throw new SampleRepositoryException(e);
+			throw new RuntimeException(e);
 		} finally {
 			try { if (w != null) w.close(); } catch(Exception e) {}
 		}
@@ -177,7 +176,7 @@ public class SimpleFileRepository implements SampleRepository {
 			return results;
 			
 		} catch (FileNotFoundException e) {
-			throw new SampleRepositoryException(e);
+			throw new RuntimeException(e);
 		} finally {
 			if (scanner != null) scanner.close();
 		}
