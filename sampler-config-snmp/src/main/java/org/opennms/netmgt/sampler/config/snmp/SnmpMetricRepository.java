@@ -8,9 +8,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
@@ -133,26 +131,22 @@ public class SnmpMetricRepository implements MetricRepository, CollectionConfigu
         LOG.debug("refresh() called");
         final Parser parser = new Parser();
 
-        final Map<String, DataCollectionGroup> dataCollectionGroups = new HashMap<String, DataCollectionGroup>();
-
-        final Map<String, ResourceType> typeMap = new HashMap<String, ResourceType>();
-        final Map<String, Table> tableMap = new HashMap<String, Table>();
-        final Map<String, Group> groupMap = new HashMap<String, Group>();
+        final DataCollectionInitializationCache cache = new DataCollectionInitializationCache();
 
         if (m_dataCollectionGroupURLs != null) {
             LOG.debug("parsing datacollection group URLs: {}", Arrays.asList(m_dataCollectionGroupURLs));
             for(final URL dataCollectionGroupURL : m_dataCollectionGroupURLs) {
                 final DataCollectionGroup group = parser.getDataCollectionGroup(dataCollectionGroupURL);
                 if (group != null) {
-                    group.gatherSymbols(typeMap, tableMap, groupMap);
-                    dataCollectionGroups.put(group.getName(), group);
+                    cache.addDataCollectionGroup(group);
+                    group.gatherSymbols(cache);
                 }
             }
         }
 
-        LOG.debug("pre-initializing {} groups", dataCollectionGroups.size());
-        for(final DataCollectionGroup group : dataCollectionGroups.values()) {
-            group.initialize(typeMap, tableMap, groupMap);
+        LOG.debug("pre-initializing {} groups", cache.getDataCollectionGroups().size());
+        for (final DataCollectionGroup group : cache.getDataCollectionGroups()) {
+            group.initialize(cache);
         }
 
         LOG.debug("parsing datacollection config: {}", m_dataCollectionConfigURL);
@@ -161,7 +155,7 @@ public class SnmpMetricRepository implements MetricRepository, CollectionConfigu
             LOG.warn("Data collection config is null! ({})", m_dataCollectionConfigURL);
         } else {
             LOG.debug("initializing datacollection config");
-            config.initialize(dataCollectionGroups);
+            config.initialize(cache);
         }
         
         LOG.debug("finished initializing config");

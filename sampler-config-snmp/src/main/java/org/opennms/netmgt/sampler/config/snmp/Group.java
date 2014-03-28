@@ -63,6 +63,10 @@ public class Group implements IGroup {
         m_mibObjects = Arrays.asList(MibObject.asMibObjects(mibObjects));
     }
 
+    public void initialize(DataCollectionInitializationCache cache) {
+        initialize();
+    }
+
     public void initialize() {
         LOG.debug("{} initializing", m_name);
         for (final MibObject mibObj : m_mibObjects) {

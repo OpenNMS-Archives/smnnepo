@@ -1,10 +1,7 @@
 package org.opennms.netmgt.sampler.config.snmp;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -34,34 +31,34 @@ public class DataCollectionConfig implements IDataCollectionConfig {
     }
     
     public void initialize() {
-        final Map<String,DataCollectionGroup> groups = Collections.emptyMap();
-        initialize(groups);
+        initialize(new DataCollectionInitializationCache());
     }
 
-    public void initialize(final Map<String,DataCollectionGroup> availableGroups) {
-        LOG.debug("datacollection config initializing with {} available groups", availableGroups == null? 0 : availableGroups.size());
-        final Map<String,DataCollectionGroup> groups = new HashMap<String,DataCollectionGroup>(availableGroups);
+    public void initialize(final DataCollectionInitializationCache cache) {
+        LOG.debug("datacollection config initializing with cache: {}", cache);
 
         for (final SnmpCollection snmpCollection : m_snmpCollections) {
             final IDataCollectionGroup[] dataCollectionGroups = snmpCollection.getDataCollectionGroups();
             if (dataCollectionGroups != null) {
                 for (final IDataCollectionGroup group : dataCollectionGroups) {
-                    final String name = group.getName();
-                    groups.put(name, DataCollectionGroup.asCollectionGroup(group));
+                    final DataCollectionGroup collectionGroup = DataCollectionGroup.asCollectionGroup(group);
+                    cache.addDataCollectionGroup(collectionGroup);
                 }
             }
         }
 
-        LOG.debug("initializing {} collections: {}", m_snmpCollections == null? 0 : m_snmpCollections.size());
-        for (final SnmpCollection snmpCollection : m_snmpCollections) {
-            snmpCollection.initialize(groups);
-        }
+        LOG.debug("preparing datacollection cache");
+        cache.prepare();
 
+        LOG.debug("initializing {} collections", m_snmpCollections == null? 0 : m_snmpCollections.size());
+        for (final SnmpCollection snmpCollection : m_snmpCollections) {
+            snmpCollection.initialize(cache);
+        }
         LOG.debug("datacollection config finished initializing");
     }
 
-    public void fillRequest(SnmpCollectionRequest request) {
-        for (SnmpCollection snmpCollection : m_snmpCollections) {
+    public void fillRequest(final SnmpCollectionRequest request) {
+        for (final SnmpCollection snmpCollection : m_snmpCollections) {
             snmpCollection.fillRequest(request);
         }
     }

@@ -1,7 +1,7 @@
 package org.opennms.netmgt.sampler.config.snmp;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -54,44 +54,37 @@ public class SnmpCollection implements ISnmpCollection {
         return m_dataCollectionGroups.toArray(EMPTY_DATA_COLLECTION_GROUP_ARRAY);
     }
 
-    public void initialize(Map<String, ? extends IDataCollectionGroup> availableGroups) {
-        LOG.debug("{} initializing using {} available groups", m_name, availableGroups == null? 0 : availableGroups.size());
+    public void initialize(final DataCollectionInitializationCache cache) {
+        LOG.debug("{} initializing using cache: {}", cache);
+
+        final Map<String,DataCollectionGroup> groups = new LinkedHashMap<String,DataCollectionGroup>();
+        for (final DataCollectionGroup group : m_dataCollectionGroups) {
+            groups.put(group.getName(), group);
+        }
 
         if (m_includedGroups != null && m_includedGroups.size() > 0) {
             LOG.trace("{} initializing using {} included groups", m_name, m_includedGroups.size());
-            final List<DataCollectionGroup> groupList = new ArrayList<DataCollectionGroup>(m_includedGroups.size());
-            if (m_dataCollectionGroups != null) {
-                groupList.addAll(m_dataCollectionGroups);
-            }
 
             for(final GroupReference ref : m_includedGroups) {
                 final String groupName = ref.getDataCollectionGroup();
-                final IDataCollectionGroup group = availableGroups.get(groupName);
-                if (group == null) {
-                    throw new IllegalArgumentException("Unable to locate datacollection-group " + groupName);
+                if (!groups.containsKey(groupName)) {
+                    final DataCollectionGroup group = cache.getDataCollectionGroup(groupName);
+                    groups.put(groupName, group);
                 }
-                groupList.add(DataCollectionGroup.asCollectionGroup(group));
             }
-
-            m_dataCollectionGroups = groupList;
         }
+
+        m_dataCollectionGroups = new ArrayList<DataCollectionGroup>(groups.values());
 
         LOG.debug("{} initializing all required resources, tables, and groups.", m_name);
-        final Map<String, ResourceType> typeMap = new HashMap<String, ResourceType>();
-        final Map<String, Table> tableMap = new HashMap<String, Table>();
-        final Map<String, Group> groupMap = new HashMap<String, Group>();
-
         for (final DataCollectionGroup group : m_dataCollectionGroups) {
-            group.gatherSymbols(typeMap, tableMap, groupMap);
-        }
-        for (final DataCollectionGroup group : m_dataCollectionGroups) {
-            group.initialize(typeMap, tableMap, groupMap);
+            group.initialize(cache);
         }
 
         LOG.debug("{} finished initializing", m_name);
     }
 
-    public void fillRequest(SnmpCollectionRequest request) {
+    public void fillRequest(final SnmpCollectionRequest request) {
         assertInitialized();
         for (final DataCollectionGroup group : m_dataCollectionGroups) {
             group.fillRequest(request);

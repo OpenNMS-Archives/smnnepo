@@ -3,7 +3,6 @@ package org.opennms.netmgt.sampler.config.snmp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -124,13 +123,14 @@ public class SystemDef implements ISystemDef {
         }
     }
 
-    public void initialize(final Map<String, ? extends ITable> tableMap, final Map<String, ? extends IGroup> groupMap) {
-        LOG.debug("{} initializing ({} table maps, {} group maps)", m_name, tableMap == null? 0 : tableMap.size(), groupMap == null? 0 : groupMap.size());
-        for(final String include : m_includes) {
-            if (tableMap.containsKey(include)) {
-                m_tables.add(Table.asTable(tableMap.get(include)));
-            } else if (groupMap.containsKey(include)) {
-                m_groups.add(Group.asGroup(groupMap.get(include)));
+    public void initialize(DataCollectionInitializationCache cache) {
+        LOG.debug("{} initializing", m_name);
+        for (final String include : m_includes) {
+            if (cache.hasTable(include)) {
+                final Table table = Table.asTable(cache.getTable(include));
+                addTable(table);
+            } else if (cache.hasGroup(include)) {
+                addGroup(Group.asGroup(cache.getGroup(include)));
             } else {
                 throw new IllegalArgumentException("Unable to locate include " + include + " for systemDef " + getName());
             }
@@ -138,10 +138,32 @@ public class SystemDef implements ISystemDef {
         LOG.debug("{} finished initializing", m_name);
     }
 
+    protected void addTable(final Table table) {
+        for (final Table t : m_tables) {
+            if (t.getName().equals(table.getName())) {
+                LOG.trace("Table {} already added.", table.getName());
+                return;
+            }
+        }
+        m_tables.add(table);
+    }
+
+    protected void addGroup(final Group group) {
+        for (final Group g : m_groups) {
+            if (g.getName().equals(group.getName())) {
+                LOG.trace("Group {} already added.", group.getName());
+                return;
+            }
+        }
+        m_groups.add(group);
+    }
     public boolean matches(final SnmpAgent agent) {
         final String systemObjId = agent.getSysObjectId();
 
-        if (m_sysoid != null && systemObjId.equals(m_sysoid)) {
+        if (m_sysoid == null && m_sysoidMask == null) {
+            LOG.debug("SystemDef {} has no oid *or* mask, always matches!", m_name);
+            return true;
+        } else if (m_sysoid != null && systemObjId.equals(m_sysoid)) {
             LOG.debug("Agent matches sysoid {}: {}", m_sysoid, agent);
             return true;
         } else if (m_sysoidMask != null && systemObjId.startsWith(m_sysoidMask)) {

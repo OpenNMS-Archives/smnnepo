@@ -86,6 +86,12 @@ public class Table implements ITable {
         m_columns = newColumns;
     }
 
+    public void initialize(final DataCollectionInitializationCache cache) {
+        LOG.debug("{} initializing (instance={})", m_name, m_instance);
+        m_resourceType = cache.getType(m_instance);
+        LOG.debug("{} finished initializing (type={})", m_name, m_resourceType);
+    }
+
     public void initialize(final ResourceType type) {
         LOG.debug("{} initializing", m_name);
         m_resourceType = type;

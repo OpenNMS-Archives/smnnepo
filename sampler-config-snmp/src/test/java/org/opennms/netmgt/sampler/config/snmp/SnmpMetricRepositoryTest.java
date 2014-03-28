@@ -31,86 +31,86 @@ import org.slf4j.LoggerFactory;
 
 public class SnmpMetricRepositoryTest {
     private final class EndOfMibValue extends AbstractSnmpValue {
-		@Override
-		public boolean isEndOfMib() {
-			return true;
-		}
+        @Override
+        public boolean isEndOfMib() {
+            return true;
+        }
 
-		@Override
-		public boolean isError() {
-			return false;
-		}
+        @Override
+        public boolean isError() {
+            return false;
+        }
 
-		@Override
-		public boolean isNull() {
-			return true;
-		}
+        @Override
+        public boolean isNull() {
+            return true;
+        }
 
-		@Override
-		public boolean isDisplayable() {
-			return true;
-		}
+        @Override
+        public boolean isDisplayable() {
+            return true;
+        }
 
-		@Override
-		public boolean isNumeric() {
-			return false;
-		}
+        @Override
+        public boolean isNumeric() {
+            return false;
+        }
 
-		@Override
-		public int toInt() {
-			return 0;
-		}
+        @Override
+        public int toInt() {
+            return 0;
+        }
 
-		@Override
-		public String toDisplayString() {
-			return "END_OF_MIB";
-		}
+        @Override
+        public String toDisplayString() {
+            return "END_OF_MIB";
+        }
 
-		@Override
-		public InetAddress toInetAddress() {
-			return null;
-		}
+        @Override
+        public InetAddress toInetAddress() {
+            return null;
+        }
 
-		@Override
-		public long toLong() {
-			return 0;
-		}
+        @Override
+        public long toLong() {
+            return 0;
+        }
 
-		@Override
-		public BigInteger toBigInteger() {
-			return null;
-		}
+        @Override
+        public BigInteger toBigInteger() {
+            return null;
+        }
 
-		@Override
-		public String toHexString() {
-			return null;
-		}
+        @Override
+        public String toHexString() {
+            return null;
+        }
 
-		@Override
-		public int getType() {
-			return SnmpValue.SNMP_END_OF_MIB;
-		}
+        @Override
+        public int getType() {
+            return SnmpValue.SNMP_END_OF_MIB;
+        }
 
-		@Override
-		public byte[] getBytes() {
-			return new byte[0];
-		}
+        @Override
+        public byte[] getBytes() {
+            return new byte[0];
+        }
 
-		@Override
-		public SnmpObjId toSnmpObjId() {
-			return null;
-		}
+        @Override
+        public SnmpObjId toSnmpObjId() {
+            return null;
+        }
 
-		public String toString() {
-			return toDisplayString();
-		}
-	}
+        public String toString() {
+            return toDisplayString();
+        }
+    }
 
-	private static final Logger LOG = LoggerFactory.getLogger(SnmpMetricRepositoryTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SnmpMetricRepositoryTest.class);
 
     private SnmpMetricRepository m_repository;
 
-	private ExecutorService m_executor;
+    private ExecutorService m_executor;
 
     private static URL url(String path) throws MalformedURLException {
         return new URL("file:src/test/resources/etc/" + path);
@@ -120,38 +120,45 @@ public class SnmpMetricRepositoryTest {
     public void setUp() throws Exception {
         m_executor = Executors.newSingleThreadExecutor(new ThreadFactory() {
 
-			@Override
-			public Thread newThread(Runnable r) {
-				return new Thread(null, r, "Test-Executor-Thread");
-			}
-        	
+            @Override
+            public Thread newThread(Runnable r) {
+                return new Thread(null, r, "Test-Executor-Thread");
+            }
+
         });
 
         m_repository = new SnmpMetricRepository(
-                                                url("datacollection-config.xml"), 
-                                                url("datacollection/mib2.xml"), 
-                                                url("datacollection/netsnmp.xml"),
-                                                url("datacollection/dell.xml")
-                );
+            url("datacollection-config.xml"), 
+            url("datacollection/mib2.xml"), 
+            url("datacollection/netsnmp.xml"),
+            url("datacollection/dell.xml")
+        );
     }
-    
+
     @After
     public void tearDown() {
-    	m_executor.shutdown();
+        m_executor.shutdown();
+    }
+
+    @Test
+    public void testInitialization() throws Exception {
+        m_repository.refresh();
+        assertNotNull(m_repository);
     }
 
     @Test
     public void testBogusAgent() throws Exception {
-
         // bogus agent... no collection should match
-        Agent agent = new Agent(new InetSocketAddress("10.1.1.1", 161), "Smith", "1");
+        final Agent agent = new Agent(new InetSocketAddress("10.1.1.1", 161), "Smith", "1");
         agent.setParameter(SnmpAgent.PARAM_SYSOBJECTID, ".666");
-        SnmpAgent snmpAgent = new SnmpAgent(agent);
+        final SnmpAgent snmpAgent = new SnmpAgent(agent);
 
-        SnmpCollectionRequest request = m_repository.createRequestForAgent(snmpAgent);
+        final SnmpCollectionRequest request = m_repository.createRequestForAgent(snmpAgent);
         assertNotNull(request);
 
         assertSame(snmpAgent, request.getAgent());
+
+        LOG.debug("request = {}", request);
 
         // gets the mib2 data since that's configured for everything
         assertEquals(2, request.getResourceTypes().size());
@@ -172,10 +179,10 @@ public class SnmpMetricRepositoryTest {
 
         assertSame(snmpAgent, request.getAgent());
 
-        System.err.println(request);
+        LOG.debug("request = {}", request);
 
         assertEquals(9, request.getResourceTypes().size());
-        assertEquals(14, request.getTables().size());
+        assertEquals(12, request.getTables().size());
         assertEquals(11, request.getGroups().size());
     }
 
@@ -215,15 +222,15 @@ public class SnmpMetricRepositoryTest {
                     @Override
                     public void addOid(final SnmpObjId snmpObjId) {
                         if (m_maxOid == null) {
-                        	m_maxOid = snmpObjId;
+                            m_maxOid = snmpObjId;
                         } else {
-                        	if (m_maxOid.compareTo(snmpObjId) < 0) {
-                        		m_maxOid = snmpObjId;
-                        	}
+                            if (m_maxOid.compareTo(snmpObjId) < 0) {
+                                m_maxOid = snmpObjId;
+                            }
                         }
                         LOG.debug("oid({}): {}, max: {}", ++m_oidCount, snmpObjId, m_maxOid);
 
-                        
+
                     }
 
                     @Override
@@ -241,34 +248,34 @@ public class SnmpMetricRepositoryTest {
 
             @Override
             protected void sendNextPdu(final WalkerPduBuilder pduBuilder) throws IOException {
-            	Runnable r = new Runnable() {
+                Runnable r = new Runnable() {
 
-					@Override
-					public void run() {
-						try {
-							SnmpObjId lastOid = SnmpObjId.get(".1.4");
-							SnmpValue endOfMib = new EndOfMibValue();
-							for(int i = 0; i < m_oidCount; i++) {
-								processResponse(lastOid, endOfMib);
-							}
-							buildAndSendNextPdu();
-						} catch (IOException e) {
-							handleFatalError(e);
-						}
-					}
-            		
-            	};
-            	m_executor.execute(r);
+                    @Override
+                    public void run() {
+                        try {
+                            SnmpObjId lastOid = SnmpObjId.get(".1.4");
+                            SnmpValue endOfMib = new EndOfMibValue();
+                            for(int i = 0; i < m_oidCount; i++) {
+                                processResponse(lastOid, endOfMib);
+                            }
+                            buildAndSendNextPdu();
+                        } catch (IOException e) {
+                            handleFatalError(e);
+                        }
+                    }
+
+                };
+                m_executor.execute(r);
             }
 
             @Override
             public void close() throws IOException {
                 LOG.debug("close()");
             }};
-            
-        walker.start();
-        walker.waitFor();
-        
-        assertFalse(walker.failed());
+
+            walker.start();
+            walker.waitFor();
+
+            assertFalse(walker.failed());
     }
 }

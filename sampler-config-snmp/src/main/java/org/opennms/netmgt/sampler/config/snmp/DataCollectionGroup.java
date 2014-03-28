@@ -3,7 +3,6 @@ package org.opennms.netmgt.sampler.config.snmp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -71,26 +70,18 @@ public class DataCollectionGroup implements IDataCollectionGroup {
         return m_name;
     }
 
-    public void initialize(final Map<String, ResourceType> typeMap, final Map<String, Table> tableMap, final Map<String, Group> groupMap) {
-        LOG.debug("{} initializing ({} type maps, {} table maps, {} group maps)", m_name, typeMap == null? 0 : typeMap.size(), tableMap == null? 0 : tableMap.size(), groupMap == null? 0 : groupMap.size());
+    public void initialize(final DataCollectionInitializationCache cache) {
+        LOG.debug("{} initializing using cache: {}", m_name, cache);
 
-        for(final Table table : m_tables) {
-            final String typeName = table.getInstance();
-            final ResourceType type = typeMap.get(typeName);
-            if (type == null) {
-                throw new IllegalArgumentException("Unable to locate resourceType " + typeName + " for table " + table.getName());
-            }
-            table.initialize(type);
+        for (final Table table : m_tables) {
+            table.initialize(cache);
         }
-
         for (final Group group : m_groups) {
-            group.initialize();
+            group.initialize(cache);
         }
-
-        for(final SystemDef systemDef : m_systemDefs) {
-            systemDef.initialize(tableMap, groupMap);
+        for (final SystemDef def : m_systemDefs) {
+            def.initialize(cache);
         }
-        
         LOG.debug("{} finished initializing", m_name);
     }
 
@@ -100,15 +91,15 @@ public class DataCollectionGroup implements IDataCollectionGroup {
         }
     }
 
-    public void gatherSymbols(final Map<String, ResourceType> typeMap, final Map<String, Table> tableMap, final Map<String, Group> groupMap) {
+    public void gatherSymbols(final DataCollectionInitializationCache cache) {
         for(final ResourceType resourceType : m_resourceTypes) {
-            typeMap.put(resourceType.getTypeName(), resourceType);
+            cache.addType(resourceType);
         }
         for(final Table table : m_tables) {
-            tableMap.put(table.getName(), table);
+            cache.addTable(table);
         }
         for(final Group group : m_groups) {
-            groupMap.put(group.getName(), group);
+            cache.addGroup(group);
         }
     }
 
