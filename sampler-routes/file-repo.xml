@@ -25,4 +25,5 @@
     </service-properties>
   </service>
 
+  <camelContext id="fileDispatcherCamelContext" xmlns="http://camel.apache.org/schema/blueprint"/>
 </blueprint>

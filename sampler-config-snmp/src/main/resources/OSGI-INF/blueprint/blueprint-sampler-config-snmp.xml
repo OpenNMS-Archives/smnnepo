@@ -83,7 +83,7 @@
   </command-bundle>
   -->
 
-  <camelContext xmlns="http://camel.apache.org/schema/blueprint">
+  <camelContext id="samplerConfigSnmpCamelContext" xmlns="http://camel.apache.org/schema/blueprint">
     <propertyPlaceholder location="blueprint:properties"/>
 
     <!-- Add exception handlers -->

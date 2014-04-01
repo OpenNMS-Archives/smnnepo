@@ -48,7 +48,7 @@
     <property name="methodName" value="schedule"/>
   </bean>
 
-  <camelContext xmlns="http://camel.apache.org/schema/blueprint">
+  <camelContext id="samplerConfigCamelContext" xmlns="http://camel.apache.org/schema/blueprint">
     <propertyPlaceholder location="blueprint:properties"/>
 
     <!-- Add exception handlers -->
