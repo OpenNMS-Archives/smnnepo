@@ -24,7 +24,7 @@
   <bean id="snmpCollector" class="org.opennms.netmgt.sampler.snmp.internal.DefaultSnmpCollector" />
 
   <!-- Register a whiteboard of sample repositories where samples will be saved -->
-  <bean id="schedulingDispatcher" class="org.opennms.netmgt.api.sample.support.DispatcherWhiteboard">
+  <bean id="sampleSetDispatcher" class="org.opennms.netmgt.api.sample.support.DispatcherWhiteboard">
     <argument value="seda:saveToRepository"/>
 
     <property name="context" ref="blueprintBundleContext"/>

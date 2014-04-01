@@ -41,22 +41,12 @@
                 <artifact>
                   <file>file-repo.xml</file>
                   <type>xml</type>
-                  <classifier>file-repo</classifier>
-                </artifact>
-                <artifact>
-                  <file>routes-standalone.xml</file>
-                  <type>xml</type>
-                  <classifier>standalone</classifier>
+                  <classifier>file-storage</classifier>
                 </artifact>
                 <artifact>
                   <file>routes-persister.xml</file>
                   <type>xml</type>
-                  <classifier>persister</classifier>
-                </artifact>
-                <artifact>
-                  <file>routes-collector.xml</file>
-                  <type>xml</type>
-                  <classifier>collector</classifier>
+                  <classifier>activemq-export</classifier>
                 </artifact>
               </artifacts>
             </configuration>

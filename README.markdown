@@ -24,8 +24,10 @@ Running the Standalone Sampler
 
         features:addurl mvn:org.opennms.netmgt.sample/karaf//xml
 
-1. Install Camel, the config, scheduler, and SNMP modules.
+1. Install Camel, the config, scheduler, and SNMP modules separately or use one of the integration features.
 
         features:install -v camel sampler-scheduler sampler-snmp sampler-config
+        features:install -v sampler-with-file-storage
+        features:install -v sampler-with-activemq-export
 
 1. Monitor logs for collections.
