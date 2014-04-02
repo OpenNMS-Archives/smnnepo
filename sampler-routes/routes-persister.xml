@@ -37,7 +37,7 @@
     <!-- Send SampleSets over ActiveMQ -->
     <route id="sendSampleSet">
       <from uri="direct:sendSampleSet" />
-      <to uri="activemq:sampleSet" />
+      <to uri="activemq:sampleSet?disableReplyTo=true" />
     </route>
 
   </camelContext>
