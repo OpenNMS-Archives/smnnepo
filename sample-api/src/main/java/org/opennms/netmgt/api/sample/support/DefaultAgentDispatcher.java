@@ -1,11 +1,15 @@
 package org.opennms.netmgt.api.sample.support;
 
 import org.apache.camel.InOnly;
+import org.apache.camel.Produce;
 import org.opennms.netmgt.api.sample.Agent;
 import org.opennms.netmgt.api.sample.AgentDispatcher;
 
 @InOnly
-public class DefaultAgentDispatcher extends DefaultDispatcher<AgentDispatcher> implements AgentDispatcher {
+public class DefaultAgentDispatcher extends DefaultDispatcher implements AgentDispatcher {
+
+	@Produce(property="endpointUri")
+	AgentDispatcher m_proxy;
 
 	public DefaultAgentDispatcher(final String endpointUri) {
 		super(endpointUri);

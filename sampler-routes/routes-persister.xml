@@ -21,6 +21,7 @@
     </cm:default-properties>
   </cm:property-placeholder>
 
+  <!-- Wire in a dispatcher that will route SampleSet messages into the Camel context -->
   <bean id="activemqDispatcher" class="org.opennms.netmgt.api.sample.support.DefaultSampleSetDispatcher">
     <argument value="direct:sendSampleSet"/>
   </bean>
@@ -32,38 +33,17 @@
   </service>
 
   <camelContext id="activemqDispatcherCamelContext" xmlns="http://camel.apache.org/schema/blueprint">
-    
-    <route>
+
+    <!-- Send SampleSets over ActiveMQ -->
+    <route id="sendSampleSet">
       <from uri="direct:sendSampleSet" />
       <to uri="activemq:sampleSet" />
     </route>
 
-    <!--
-    <route id="sampleSets">
-      <from uri="mina2:tcp://0.0.0.0:1976" />
-      <to uri="seda:store" />
-    </route>
-    -->
-
-    <!--
-    <route id="sampleSets">
-      <from uri="activemq:sampleSets" />
-      <to uri="seda:store" />
-    </route>
-    -->
- 
-    <!--
-    <route id="store">
-      <from uri="seda:store" />
-      <bean ref="sampleRepository" method="save" />
-      <to uri="log:samples?groupSize=10" />
-    </route>
-    -->
-
   </camelContext>
 
   <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
-    <property name="brokerURL" value="vm://localhost?broker.name=${brokerName}&amp;broker.persistent=false" />
+    <property name="brokerURL" value="vm://localhost?broker.brokerName=${brokerName}&amp;broker.persistent=false" />
   </bean>
 
 <!--
@@ -91,12 +71,6 @@
     </route>
     
   </camelContext>
-  
-  <!- - create a Camel ActiveMQ component to use, using the Spring bean style - ->
-  <!- - we use the vm protocol to communicate intra-jvm which is much faster than tcp - ->
-  <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
-    <property name="brokerURL" value="tcp://uzbekistan.local.:61616"/>
-  </bean>
 -->
 
 </blueprint>

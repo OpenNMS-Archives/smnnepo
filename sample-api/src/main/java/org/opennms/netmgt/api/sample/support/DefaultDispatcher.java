@@ -1,13 +1,9 @@
 package org.opennms.netmgt.api.sample.support;
 
 import org.apache.camel.InOnly;
-import org.apache.camel.Produce;
 
 @InOnly
-public class DefaultDispatcher<T> {
-
-	@Produce(property="endpointUri")
-	T m_proxy;
+public class DefaultDispatcher {
 
 	private final String m_endpointUri;
 
