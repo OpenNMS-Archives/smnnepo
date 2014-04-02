@@ -238,14 +238,14 @@
 
     <!-- File sample storage -->
     <feature name="sample-storage-file" description="Sample Collection and Storage :: File" version="1.13.1-SNAPSHOT">
-      <configfile finalname="/etc/blueprint-file-storage.xml">mvn:org.opennms.netmgt.sample/sampler-routes/1.13.1-SNAPSHOT/xml/file-storage</configfile>
+      <configfile override="true" finalname="/etc/blueprint-file-storage.xml">mvn:org.opennms.netmgt.sample/sampler-routes/1.13.1-SNAPSHOT/xml/file-storage</configfile>
       <feature>sample-api</feature>
       <bundle>blueprint:file:etc/blueprint-file-storage.xml</bundle>
     </feature>
 
     <!-- ActiveMQ sample storage -->
     <feature name="sample-export-activemq" description="Sample Collection and Storage :: ActiveMQ" version="1.13.1-SNAPSHOT">
-      <configfile finalname="/etc/blueprint-activemq-export.xml">mvn:org.opennms.netmgt.sample/sampler-routes/1.13.1-SNAPSHOT/xml/activemq-export</configfile>
+      <configfile override="true" finalname="/etc/blueprint-activemq-export.xml">mvn:org.opennms.netmgt.sample/sampler-routes/1.13.1-SNAPSHOT/xml/activemq-export</configfile>
       <feature>sample-api</feature>
       <feature>activemq-camel</feature>
       <bundle>blueprint:file:etc/blueprint-activemq-export.xml</bundle>
