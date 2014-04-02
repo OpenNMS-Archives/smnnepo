@@ -19,19 +19,24 @@
 
   <!-- Override with an etc/org.opennms.netmgt.sample.config.configuration.snmp.cfg -->
   <!-- Configuration properties -->
-  <cm:property-placeholder id="properties" persistent-id="org.opennms.netmgt.sampler.config.snmp" update-strategy="none">
+  <cm:property-placeholder id="globalProperties" persistent-id="org.opennms.netmgt.sampler.config" update-strategy="none" placeholder-prefix="[[" placeholder-suffix="]]">
     <cm:default-properties>
       <cm:property name="opennms.home" value="/opt/opennms"/>
+      <cm:property name="username" value="admin"/>
+      <cm:property name="password" value="admin"/>
+      </cm:default-properties>
+  </cm:property-placeholder>
 
+  <cm:property-placeholder id="properties" persistent-id="org.opennms.netmgt.sampler.config.snmp" update-strategy="none">
+    <cm:default-properties>
       <!-- TODO: Figure out how to use the same type of token replacement in these strings -->
 
-      <cm:property name="snmpConfigUrl" value="file:{{opennms.home}}/etc/snmp-config.xml"/>
-
-      <cm:property name="datacollectionFileUrl" value="file:${opennms.home}/etc/datacollection-config.xml" />
+      <cm:property name="snmpConfigUrl" value="file:[[opennms.home]]/etc/snmp-config.xml"/>
+      <cm:property name="datacollectionFileUrl" value="file:[[opennms.home]]/etc/datacollection-config.xml" />
       <cm:property name="datacollectionGroupUrls" value="
-        file:${opennms.home}/etc/datacollection/mib2.xml,
-        file:${opennms.home}/etc/datacollection/netsnmp.xml,
-        file:${opennms.home}/etc/datacollection/dell.xml
+        file:[[opennms.home]]/etc/datacollection/mib2.xml,
+        file:[[opennms.home]]/etc/datacollection/netsnmp.xml,
+        file:[[opennms.home]]/etc/datacollection/dell.xml
       "/>
     </cm:default-properties>
   </cm:property-placeholder>
@@ -83,9 +88,12 @@
   </command-bundle>
   -->
 
-  <camelContext id="samplerConfigSnmpCamelContext" xmlns="http://camel.apache.org/schema/blueprint">
-    <propertyPlaceholder location="blueprint:properties"/>
+  <bean id="customHttpClientConfigurer" class="org.opennms.core.camel.CustomHttpClientConfigurer">
+    <property name="username" value="[[username]]" />
+    <property name="password" value="[[password]]" />
+  </bean>
 
+  <camelContext id="samplerConfigSnmpCamelContext" xmlns="http://camel.apache.org/schema/blueprint">
     <!-- Add exception handlers -->
     <onException>
       <exception>java.io.IOException</exception>
@@ -94,11 +102,22 @@
       <stop/>
     </onException>
 
+    <!--
+    <propertyPlaceholder location="blueprint:globalProperties" />
+    <propertyPlaceholder location="blueprint:properties" />
+    -->
+
     <!-- Call this to retrieve a URL in string form or URL form into the JAXB objects they represent. -->
     <route id="parseSnmpXml">
       <from uri="direct:parseSnmpXml"/>
       <log message="blueprint-sampler-config-snmp.xml: Parsing SNMP XML: ${body}" />
-      <bean ref="urlNormalizer"/>
+      <setHeader headerName="CamelHttpUri">
+        <simple>${body}</simple>
+      </setHeader>
+      <setHeader headerName="CamelHttpMethod">
+        <simple>GET</simple>
+      </setHeader>
+      <to uri="http://dummyhost?httpClientConfigurer=customHttpClientConfigurer&amp;authUsername={{username}}&amp;authPassword={{password}}&amp;authMethod=Basic" />
       <unmarshal ref="snmpConfigXmlFormat"/>
     </route>
 

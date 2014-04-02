@@ -179,17 +179,21 @@
     <!-- Config features -->
     <feature name="sampler-config" description="Sample Collection and Storage :: Configuration" version="1.13.1-SNAPSHOT">
       <feature>camel-blueprint</feature>
+      <feature>camel-http</feature>
       <feature>camel-jaxb</feature>
       <feature>sample-api</feature>
+      <bundle>mvn:org.opennms.core/org.opennms.core.camel/1.13.1-SNAPSHOT</bundle>
       <bundle>mvn:org.opennms.netmgt.sample/sampler-config/1.13.1-SNAPSHOT</bundle>
     </feature>
 
     <feature name="sampler-config-snmp" description="Sample Collection and Storage :: SNMP Configuration" version="1.13.1-SNAPSHOT">
       <feature>camel-blueprint</feature>
       <feature>camel-jaxb</feature>
+      <feature>camel-http</feature>
       <feature>opennms-snmp</feature>
       <feature>sample-api</feature>
       <bundle dependency="true">mvn:commons-codec/commons-codec/1.7</bundle>
+      <bundle>mvn:org.opennms.core/org.opennms.core.camel/1.13.1-SNAPSHOT</bundle>
       <bundle>mvn:org.opennms.netmgt.sample/sampler-config-snmp/1.13.1-SNAPSHOT</bundle>
     </feature>
 
