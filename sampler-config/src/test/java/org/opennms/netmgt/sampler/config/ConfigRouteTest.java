@@ -59,7 +59,7 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void doPostSetup() throws Exception {
-        final PropertyPlaceholder properties = bean("properties", PropertyPlaceholder.class);
+        final PropertyPlaceholder properties = bean("samplerProperties", PropertyPlaceholder.class);
         final Map defaultProperties = properties.getDefaultProperties();
         defaultProperties.put("opennms.home", "src/test/resources");
         defaultProperties.put("collectdConfigUrl", "file:src/test/resources/etc/collectd-configuration.xml");

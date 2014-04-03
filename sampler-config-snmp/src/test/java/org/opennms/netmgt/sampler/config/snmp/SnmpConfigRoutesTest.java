@@ -66,6 +66,9 @@ public class SnmpConfigRoutesTest extends CamelBlueprintTestSupport {
     @Override
     protected String useOverridePropertiesWithConfigAdmin(Dictionary props) throws Exception {
         props.put("opennms.home", OPENNMS_HOME);
+        props.put("snmpConfigUrl", "file:src/test/resources/etc/snmp-config.xml");
+        props.put("datacollectionFileUrl", "file:src/test/resources/etc/datacollection-config.xml");
+        props.put("datacollectionGroupUrls", "file:src/test/resources/etc/datacollection/mib2.xml,file:src/test/resources/etc/datacollection/netsnmp.xml,file:src/test/resources/etc/datacollection/dell.xml");
         return "org.opennms.netmgt.sampler.config.snmp";
     }
 

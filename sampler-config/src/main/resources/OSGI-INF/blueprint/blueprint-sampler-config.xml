@@ -77,6 +77,20 @@
       <!-- make exceptions log, but give an empty string as return value -->
       <from uri="direct:parseJaxbXml"/>
       <log message="blueprint-sampler-config.xml: parseJaxbXml: ${body}" />
+      <choice>
+        <when>
+          <simple>${body} != null &amp;&amp; ${body} regex '^http'</simple>
+          <to uri="direct:fromHttpClient"></to>
+        </when>
+        <otherwise>
+          <to uri="direct:fromUrl" />
+        </otherwise>
+      </choice>
+    </route>
+
+    <route id="fromHttpClient">
+      <from uri="direct:fromHttpClient" />
+      <log message="blueprint-sampler-config.xml: fromHttpClient: ${body}" />
       <setHeader headerName="CamelHttpUri">
         <simple>${body}</simple>
       </setHeader>
@@ -84,6 +98,13 @@
         <simple>GET</simple>
       </setHeader>
       <to uri="http://dummyhost?httpClientConfigurer=customHttpClientConfigurer&amp;authUsername={{username}}&amp;authPassword={{password}}&amp;authMethod=Basic" />
+      <unmarshal ref="jaxbXml"/>
+    </route>
+
+    <route id="fromUrl">
+      <from uri="direct:fromUrl" />
+      <log message="blueprint-sampler-config.xml: fromUrl: ${body}" />
+      <bean ref="urlNormalizer" />
       <unmarshal ref="jaxbXml"/>
     </route>
 
