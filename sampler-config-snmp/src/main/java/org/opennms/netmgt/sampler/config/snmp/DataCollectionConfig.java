@@ -37,12 +37,14 @@ public class DataCollectionConfig implements IDataCollectionConfig {
     public void initialize(final DataCollectionInitializationCache cache) {
         LOG.debug("datacollection config initializing with cache: {}", cache);
 
-        for (final SnmpCollection snmpCollection : m_snmpCollections) {
-            final IDataCollectionGroup[] dataCollectionGroups = snmpCollection.getDataCollectionGroups();
-            if (dataCollectionGroups != null) {
-                for (final IDataCollectionGroup group : dataCollectionGroups) {
-                    final DataCollectionGroup collectionGroup = DataCollectionGroup.asCollectionGroup(group);
-                    cache.addDataCollectionGroup(collectionGroup);
+        if (m_snmpCollections != null) {
+            for (final SnmpCollection snmpCollection : m_snmpCollections) {
+                final IDataCollectionGroup[] dataCollectionGroups = snmpCollection.getDataCollectionGroups();
+                if (dataCollectionGroups != null) {
+                    for (final IDataCollectionGroup group : dataCollectionGroups) {
+                        final DataCollectionGroup collectionGroup = DataCollectionGroup.asCollectionGroup(group);
+                        cache.addDataCollectionGroup(collectionGroup);
+                    }
                 }
             }
         }
