@@ -64,14 +64,14 @@
             <configuration>
               <artifacts>
                 <artifact>
-                  <file>file-repo.xml</file>
+                  <file>blueprint-file-storage.xml</file>
                   <type>xml</type>
                   <classifier>file-storage</classifier>
                 </artifact>
                 <artifact>
-                  <file>routes-persister.xml</file>
+                  <file>blueprint-activemq-dispatch.xml</file>
                   <type>xml</type>
-                  <classifier>activemq-export</classifier>
+                  <classifier>activemq-dispatch</classifier>
                 </artifact>
               </artifacts>
             </configuration>

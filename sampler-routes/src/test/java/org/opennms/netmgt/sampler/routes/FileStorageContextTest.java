@@ -50,7 +50,7 @@ public class FileStorageContextTest extends CamelBlueprintTestSupport {
 	// The location of our Blueprint XML file to be used for testing
 	@Override
 	protected String getBlueprintDescriptor() {
-		return "file:file-repo.xml";
+		return "file:blueprint-file-storage.xml";
 	}
 
 	/**

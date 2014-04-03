@@ -62,7 +62,7 @@ public class ActiveMQStorageContextTest extends CamelBlueprintTestSupport {
 	// The location of our Blueprint XML file to be used for testing
 	@Override
 	protected String getBlueprintDescriptor() {
-		return "file:routes-persister.xml";
+		return "file:blueprint-activemq-dispatch.xml";
 	}
 
 	/**
