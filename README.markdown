@@ -5,6 +5,12 @@ Running the Standalone Sampler
 
 1. Build [OpenNMS master](http://github.com/OpenNMS/opennms.git).
 1. Configure a remote monitoring location by following instructions at [OpenNMS: Remote Polling](http://www.opennms.org/wiki/Remote_Polling).
+
+        * Create a polling package in poller-configuration.xml.
+        * Create a package in collectd-configuration.xml.
+        * Create a location-def in monitoring-locations.xml for the location you're polling.
+          Make sure it has both the "collection-package-name" and "polling-package-name" attributes.
+
 1. Build [SMNnepO](http://github.com/OpenNMS/smnnepo.git).
 1. Download and unpack [Karaf 2.3.X](http://karaf.apache.org/index/community/download.html).
 1. Run Karaf (bin/karaf).
