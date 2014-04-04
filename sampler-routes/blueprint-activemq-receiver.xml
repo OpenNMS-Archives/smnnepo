@@ -1,0 +1,55 @@
+<blueprint
+	xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+	xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.1.0"
+	xsi:schemaLocation="
+		http://www.osgi.org/xmlns/blueprint/v1.0.0 
+		http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+
+		http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
+		http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd
+
+		http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.1.0
+		http://aries.apache.org/schemas/blueprint-ext/blueprint-ext-1.1.xsd
+">
+
+  <!-- Configuration properties -->
+  <cm:property-placeholder id="properties" persistent-id="org.opennms.netmgt.sampler.activemqReceiver" update-strategy="none">
+    <cm:default-properties>
+      <!-- Listen on all local interfaces -->
+      <!--
+      <cm:property name="brokerUri" value="tcp://0.0.0.0:61616?maximumConnections=1000&amp;wireformat.maxFrameSize=104857600&amp;broker.persistent=false"/>
+      -->
+      <cm:property name="brokerUri" value="vm:(broker:(tcp://0.0.0.0:61616)?persistent=false&amp;useJmx=false)"/>
+    </cm:default-properties>
+  </cm:property-placeholder>
+
+  <!-- Register a whiteboard of sample repositories where samples will be saved -->
+  <bean id="sampleSetDispatcher" class="org.opennms.netmgt.api.sample.support.DispatcherWhiteboard">
+    <argument value="seda:saveToRepository"/>
+
+    <property name="context" ref="blueprintBundleContext"/>
+    <property name="messageClass" value="org.opennms.netmgt.api.sample.SampleSet"/>
+    <!-- TODO Add a service filter so that we don't reforward to ActiveMQ (impl="activemq") -->
+    <property name="serviceClass" value="org.opennms.netmgt.api.sample.SampleSetDispatcher"/>
+    <property name="methodName" value="save"/>
+  </bean>
+
+  <camelContext id="activemqReceiverCamelContext" xmlns="http://camel.apache.org/schema/blueprint">
+
+    <!-- Receive SampleSets over ActiveMQ -->
+    <route id="receiveSampleSet">
+      <from uri="activemq:sampleSet" />
+      <!-- Forward them onto the whiteboard receivers -->
+      <log message="Received SampleSet in blueprint-activemq-receiver: ${body}"/>
+      <!-- <to uri="seda:saveToRepository" /> -->
+    </route>
+
+  </camelContext>
+
+  <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
+    <property name="brokerURL" value="${brokerUri}" />
+  </bean>
+
+</blueprint>

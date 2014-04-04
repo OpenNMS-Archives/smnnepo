@@ -18,6 +18,16 @@
   <cm:property-placeholder id="properties" persistent-id="org.opennms.netmgt.sampler.persister" update-strategy="none">
     <cm:default-properties>
       <cm:property name="brokerName" value="persisterBroker"/>
+
+      <!-- Simple localhost broker with no network connections -->
+      <!-- <cm:property name="brokerUri" value="vm://localhost?broker.brokerName=${brokerName}&amp;broker.persistent=false" /> -->
+
+      <!-- Broker configured via XML file -->
+      <!-- <cm:property name="brokerUri" value="vm://localhost?brokerConfig=xbean:etc/activemq.xml" /> -->
+
+      <!-- VM broker with a network connection back to OpenNMS -->
+      <cm:property name="brokerUri" value="vm:(broker:(network:static:tcp://127.0.0.1:61616)?brokerName=${brokerName}&amp;persistent=false&amp;useJmx=false)" />
+
     </cm:default-properties>
   </cm:property-placeholder>
 
@@ -43,34 +53,7 @@
   </camelContext>
 
   <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
-    <property name="brokerURL" value="vm://localhost?broker.brokerName=${brokerName}&amp;broker.persistent=false" />
+    <property name="brokerURL" value="${brokerUri}" />
   </bean>
-
-<!--
-  <camelContext xmlns="http://camel.apache.org/schema/blueprint">
-    <!- - Camel route to feed the ActiveMQ inbox queue once per second - ->
-    <route>
-      <from uri="timer:foo?period=1s"/>
-      <transform>
-        <simple>uzbekistan sending message at ${date:now:yyyy-MM-dd HH:mm:ss}</simple>
-      </transform>
-      <to uri="activemq:queue:texasTrigger"/>
-    </route>
-    
-    <route>
-      <from uri="activemq:queue:uzbekTrigger"/>
-      <transform>
-        <simple>Routing Message at ${date:now:yyyy-MM-dd HH:mm:ss} to texas: ${body}</simple>
-      </transform>
-      <to uri="activemq:queue:texasIn"/>
-    </route>
-    
-    <route>
-      <from uri="activemq:queue:uzbekIn"/>
-      <to uri="file:///tmp/messages" />
-    </route>
-    
-  </camelContext>
--->
 
 </blueprint>
