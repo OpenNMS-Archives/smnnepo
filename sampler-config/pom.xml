@@ -28,7 +28,6 @@
     <dependency>
       <groupId>org.opennms.core</groupId>
       <artifactId>org.opennms.core.camel</artifactId>
-      <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
