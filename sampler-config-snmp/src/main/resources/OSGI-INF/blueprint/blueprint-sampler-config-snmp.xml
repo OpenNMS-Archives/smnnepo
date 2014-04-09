@@ -111,21 +111,7 @@
     <route id="parseSnmpXml">
       <from uri="direct:parseSnmpXml"/>
       <log message="blueprint-sampler-config-snmp.xml: Parsing SNMP XML: ${body}" />
-      <choice>
-        <when>
-          <simple>${body} != null &amp;&amp; ${body} regex '^http'</simple>
-          <to uri="direct:fromHttpClient"></to>
-        </when>
-        <otherwise>
-          <to uri="direct:fromUrl" />
-        </otherwise>
-      </choice>
-    </route>
-
-    <route id="fromHttpClient">
-      <from uri="direct:fromHttpClient" />
-      <log message="blueprint-sampler-config-snmp.xml: fromHttpClient: ${body}" />
-        <setHeader headerName="CamelHttpUri">
+      <setHeader headerName="CamelHttpUri">
         <simple>${body}</simple>
       </setHeader>
       <setHeader headerName="CamelHttpMethod">
@@ -133,13 +119,6 @@
       </setHeader>
       <to uri="http://dummyhost?httpClientConfigurer=customHttpClientConfigurer&amp;authUsername={{username}}&amp;authPassword={{password}}&amp;authMethod=Basic" />
       <unmarshal ref="snmpConfigXmlFormat"/>
-    </route>
-
-    <route id="fromUrl">
-      <from uri="direct:fromUrl" />
-      <log message="blueprint-sampler-config-snmp.xml: fromUrl: ${body}" />
-      <bean ref="urlNormalizer" />
-      <unmarshal ref="snmpConfigXmlFormat" />
     </route>
 
     <!-- Direct route to fetch the config -->
