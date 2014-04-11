@@ -12,7 +12,7 @@ Running the Standalone Sampler
           Make sure it has both the "collection-package-name" and "polling-package-name" attributes.
 
 1. Build [SMNnepO](http://github.com/OpenNMS/smnnepo.git).
-1. Download and unpack [Karaf 2.3.X](http://karaf.apache.org/index/community/download.html).
+1. Download and unpack [Karaf 2.3](http://karaf.apache.org/index/community/download.html), version 2.3.3 or higher.
 1. Run Karaf (bin/karaf).
 1. Set the configuration URLs to connect to the running OpenNMS system.
 
@@ -30,10 +30,15 @@ Running the Standalone Sampler
 
         features:addurl mvn:org.opennms.netmgt.sample/karaf//xml
 
-1. Install Camel, the config, scheduler, and SNMP modules separately or use one of the integration features.
+1. Use one of the following commands to install Camel, the config, scheduler, and SNMP modules with optional file or ActiveMQ output.
 
         features:install -v camel sampler-scheduler sampler-snmp sampler-config
         features:install -v sampler-with-file-storage
         features:install -v sampler-with-activemq-export
 
-1. Monitor logs for collections.
+1. To install an ActiveMQ listener on OpenNMS, add the SMNnepO feature repository in OpenNMS's Karaf and then install the feature.
+
+        features:addurl mvn:org.opennms.netmgt.sample/karaf//xml
+        features:install -v sample-receiver-activemq
+
+1. Monitor logs for collections. Check for the existence of a sampler.dat file if you are using file output.

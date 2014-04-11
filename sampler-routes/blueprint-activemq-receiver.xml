@@ -43,7 +43,7 @@
       <from uri="activemq:sampleSet" />
       <!-- Forward them onto the whiteboard receivers -->
       <log message="Received SampleSet in blueprint-activemq-receiver: ${body}"/>
-      <!-- <to uri="seda:saveToRepository" /> -->
+      <to uri="seda:saveToRepository" />
     </route>
 
   </camelContext>
