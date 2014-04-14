@@ -163,6 +163,9 @@ public class SystemDef implements ISystemDef {
         if (m_sysoid == null && m_sysoidMask == null) {
             LOG.debug("SystemDef {} has no oid *or* mask, always matches!", m_name);
             return true;
+        } else if (systemObjId == null) {
+            LOG.debug("Agent {} has no sysObjectId!", agent);
+            return true;
         } else if (m_sysoid != null && systemObjId.equals(m_sysoid)) {
             LOG.debug("Agent matches sysoid {}: {}", m_sysoid, agent);
             return true;
