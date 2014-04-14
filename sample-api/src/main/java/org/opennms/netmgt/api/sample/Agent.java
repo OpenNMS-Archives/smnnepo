@@ -16,11 +16,14 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.opennms.core.network.IPAddress;
 import org.opennms.core.network.InetAddressXmlAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @XmlRootElement(name="agent")
 @XmlAccessorType(XmlAccessType.NONE)
 public class Agent implements Serializable {
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 4L;
+    private static final Logger LOG = LoggerFactory.getLogger(Agent.class);
 
     @XmlElement(name="address")
     @XmlJavaTypeAdapter(InetAddressXmlAdapter.class)
@@ -79,6 +82,9 @@ public class Agent implements Serializable {
     }
 
     public String getId() {
+        if (m_agentId == null) {
+            return getFauxId();
+        }
         return m_agentId;
     }
 
@@ -88,6 +94,20 @@ public class Agent implements Serializable {
 
     public InetAddress getInetAddress() {
         return m_agentAddress;
+    }
+
+    public Integer getNodeId() {
+        if (m_parameters != null && m_parameters.containsKey("nodeId")) {
+            final String nodeId = m_parameters.get("nodeId");
+            if (nodeId != null && !nodeId.trim().isEmpty()) {
+                try {
+                    return Integer.valueOf(nodeId);
+                } catch (final NumberFormatException e) {
+                    LOG.warn("Node ID ({}) exists, but is not a number!", nodeId);
+                }
+            }
+        }
+        return null;
     }
 
     public int getPort() {
@@ -116,6 +136,14 @@ public class Agent implements Serializable {
     };
 
     private String getFauxId() {
-        return m_serviceName+":"+ m_agentAddress.getHostAddress()+":" + m_port;
+        final StringBuilder sb = new StringBuilder();
+        sb.append(m_serviceName).append(":");
+        if (m_agentAddress != null) {
+            sb.append(m_agentAddress.getHostAddress());
+        } else {
+            sb.append("null");
+        }
+        sb.append(":").append(m_port);
+        return sb.toString();
     }
 }
