@@ -3,19 +3,31 @@ package org.opennms.netmgt.sampler.config.snmp;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Dictionary;
+import java.util.Properties;
 
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.opennms.core.test.MockLogAppender;
+import org.opennms.core.test.MockLogger;
+import org.opennms.core.test.MockLoggerFactory;
+import org.opennms.core.test.OpenNMSJUnit4ClassRunner;
+import org.opennms.core.test.http.annotations.JUnitHttpServer;
 import org.opennms.netmgt.api.sample.support.SingletonBeanFactory;
 import org.opennms.netmgt.config.snmp.SnmpConfig;
+import org.slf4j.ILoggerFactory;
 import org.slf4j.LoggerFactory;
+import org.springframework.test.context.ContextConfiguration;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 
+@RunWith(OpenNMSJUnit4ClassRunner.class)
+@ContextConfiguration(locations={"classpath:/META-INF/opennms/emptyContext.xml"})
+@JUnitHttpServer(port=9162)
 public class SnmpConfigRoutesTest extends CamelBlueprintTestSupport {
-
+    private static final String REST_ROOT = "http://localhost:9162";
     private static final String OPENNMS_HOME = "src/test/resources";
 
     /**
@@ -33,8 +45,16 @@ public class SnmpConfigRoutesTest extends CamelBlueprintTestSupport {
 
     @BeforeClass
     public static void configureLogging() throws SecurityException, IOException {
-        LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-        lc.getLogger("org.apache.aries.blueprint").setLevel(Level.INFO);
+        final ILoggerFactory loggerFactory = LoggerFactory.getILoggerFactory();
+        if (loggerFactory instanceof LoggerContext) {
+            LoggerContext lc = (LoggerContext) loggerFactory;
+            lc.getLogger("org.apache.aries.blueprint").setLevel(Level.INFO);
+        } else if (loggerFactory instanceof MockLoggerFactory) {
+            final Properties props = new Properties();
+            props.put(MockLogger.LOG_KEY_PREFIX + "org.apache.aries.blueprint", "INFO");
+            MockLogAppender.setupLogging(true, props);
+        }
+
     }
 
     @Override
@@ -66,23 +86,23 @@ public class SnmpConfigRoutesTest extends CamelBlueprintTestSupport {
     @Override
     protected String useOverridePropertiesWithConfigAdmin(Dictionary props) throws Exception {
         props.put("opennms.home", OPENNMS_HOME);
-        props.put("snmpConfigUrl", "file:src/test/resources/etc/snmp-config.xml");
-        props.put("datacollectionFileUrl", "file:src/test/resources/etc/datacollection-config.xml");
-        props.put("datacollectionGroupUrls", "file:src/test/resources/etc/datacollection/mib2.xml,file:src/test/resources/etc/datacollection/netsnmp.xml,file:src/test/resources/etc/datacollection/dell.xml");
+        props.put("snmpConfigUrl", REST_ROOT + "/etc/snmp-config.xml");
+        props.put("datacollectionFileUrl", REST_ROOT + "/etc/datacollection-config.xml");
+        props.put("datacollectionGroupUrls", REST_ROOT + "/etc/datacollection/mib2.xml," + REST_ROOT + "/etc/datacollection/netsnmp.xml," + REST_ROOT + "/etc/datacollection/dell.xml");
         return "org.opennms.netmgt.sampler.config.snmp";
     }
 
     @Test
     public void testParseSnmpXml() throws Exception {
         System.err.printf("Starting testParseSnmpXML");
-        SnmpConfig resultsUsingURL = template.requestBody("direct:parseSnmpXml", new URL("file:" + OPENNMS_HOME + "/etc/snmp-config.xml"), SnmpConfig.class);
+        SnmpConfig resultsUsingURL = template.requestBody("direct:parseSnmpXml", new URL(REST_ROOT + "/etc/snmp-config.xml"), SnmpConfig.class);
 
         System.err.printf("Results Using URL: %s\n", resultsUsingURL);
         assertNotNull(resultsUsingURL);
         assertEquals("public", resultsUsingURL.getReadCommunity());
         assertEquals(44, resultsUsingURL.getDefinitions().size());
 
-        SnmpConfig resultsUsingString = template.requestBody("direct:parseSnmpXml", "file:" + OPENNMS_HOME + "/etc/snmp-config.xml", SnmpConfig.class);
+        SnmpConfig resultsUsingString = template.requestBody("direct:parseSnmpXml", REST_ROOT + "/etc/snmp-config.xml", SnmpConfig.class);
 
         System.err.printf("Results Using String: %s\n", resultsUsingString);
         assertNotNull(resultsUsingString);

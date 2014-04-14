@@ -110,9 +110,9 @@
     <!-- Call this to retrieve a URL in string form or URL form into the JAXB objects they represent. -->
     <route id="parseSnmpXml">
       <from uri="direct:parseSnmpXml"/>
-      <log message="blueprint-sampler-config-snmp.xml: Parsing SNMP XML: ${body}" />
+      <log message="blueprint-sampler-config-snmp.xml: Parsing SNMP XML: ${body.toString()}" />
       <setHeader headerName="CamelHttpUri">
-        <simple>${body}</simple>
+        <simple>${body.toString()}</simple>
       </setHeader>
       <setHeader headerName="CamelHttpMethod">
         <simple>GET</simple>

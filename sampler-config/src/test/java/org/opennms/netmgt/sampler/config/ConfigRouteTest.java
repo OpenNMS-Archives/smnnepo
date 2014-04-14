@@ -1,12 +1,10 @@
 package org.opennms.netmgt.sampler.config;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
@@ -18,9 +16,10 @@ import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.apache.camel.util.KeyValueHolder;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.opennms.netmgt.api.sample.Agent;
+import org.junit.runner.RunWith;
+import org.opennms.core.test.OpenNMSJUnit4ClassRunner;
+import org.opennms.core.test.http.annotations.JUnitHttpServer;
 import org.opennms.netmgt.api.sample.AgentList;
 import org.opennms.netmgt.api.sample.PackageAgentList;
 import org.opennms.netmgt.api.sample.support.SchedulerService;
@@ -28,17 +27,20 @@ import org.opennms.netmgt.api.sample.support.SingletonBeanFactory;
 import org.opennms.netmgt.config.collectd.CollectdConfiguration;
 import org.opennms.netmgt.config.collectd.Package;
 import org.opennms.netmgt.config.collectd.Service;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.test.context.ContextConfiguration;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.LoggerContext;
-
+@RunWith(OpenNMSJUnit4ClassRunner.class)
+@ContextConfiguration(locations={"classpath:/META-INF/opennms/emptyContext.xml"})
+@JUnitHttpServer(port=9162)
 public class ConfigRouteTest extends CamelBlueprintTestSupport {
+    private static final Logger LOG = LoggerFactory.getLogger(ConfigRouteTest.class);
+    private static final String OPENNMS_HOME = "target/test-classes";
+    private static final String REST_ROOT = "http://localhost:9162";
 
-    private static final String OPENNMS_HOME = "src/test/resources";
-
-    private static URL url(String path) throws MalformedURLException {
-        return new URL("file:" + OPENNMS_HOME + "/" + path);
+    private static URL url(final String path) throws MalformedURLException {
+        return new URL(REST_ROOT + "/" + path);
     }
 
     private CountDownLatch m_schedulerServiceCalls = null;
@@ -61,16 +63,10 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
     public void doPostSetup() throws Exception {
         final PropertyPlaceholder properties = bean("samplerProperties", PropertyPlaceholder.class);
         final Map defaultProperties = properties.getDefaultProperties();
-        defaultProperties.put("opennms.home", "src/test/resources");
-        defaultProperties.put("collectdConfigUrl", "file:src/test/resources/etc/collectd-configuration.xml");
-        defaultProperties.put("agentListUrl", "file:src/test/resources/agents");
+        defaultProperties.put("opennms.home", "target/test-classes");
+        defaultProperties.put("collectdConfigUrl", "http://localhost:9162/etc/collectd-configuration.xml");
+        defaultProperties.put("agentListUrl", "http://localhost:9162/agents");
         properties.setDefaultProperties(defaultProperties);
-    }
-
-    @BeforeClass
-    public static void configureLogging() throws SecurityException, IOException {
-        LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-        lc.getLogger("org.apache.aries.blueprint").setLevel(Level.INFO);
     }
 
     @Override
@@ -122,13 +118,13 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
     public void testParseCollectdXml() throws Exception {
         context.start();
 
-        CollectdConfiguration resultsUsingURL = template.requestBody("direct:parseJaxbXml", new URL("file:" + OPENNMS_HOME + "/etc/collectd-configuration.xml"), CollectdConfiguration.class);
+        CollectdConfiguration resultsUsingURL = template.requestBody("direct:parseJaxbXml", new URL(REST_ROOT + "/etc/collectd-configuration.xml"), CollectdConfiguration.class);
 
         System.err.printf("Results: %s\n", resultsUsingURL);
         assertNotNull(resultsUsingURL);
         assertEquals(5, resultsUsingURL.getPackages().size());
 
-        CollectdConfiguration resultsUsingString = template.requestBody("direct:parseJaxbXml", "file:" + OPENNMS_HOME + "/etc/collectd-configuration.xml", CollectdConfiguration.class);
+        CollectdConfiguration resultsUsingString = template.requestBody("direct:parseJaxbXml", REST_ROOT + "/etc/collectd-configuration.xml", CollectdConfiguration.class);
 
         System.err.printf("Results: %s\n", resultsUsingString);
         assertNotNull(resultsUsingString);
@@ -136,7 +132,7 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
         assertEquals(5, resultsUsingString.getPackages().size());
         
         // now try a config from Ben's OpenNMS instance
-        resultsUsingURL = template.requestBody("direct:parseJaxbXml", new URL("file:" + OPENNMS_HOME + "/etc/collectd-configuration-rr.xml"), CollectdConfiguration.class);
+        resultsUsingURL = template.requestBody("direct:parseJaxbXml", new URL(REST_ROOT + "/etc/collectd-configuration-rr.xml"), CollectdConfiguration.class);
         assertNotNull(resultsUsingURL);
         assertEquals(1, resultsUsingURL.getPackages().size());
         assertEquals(4, resultsUsingURL.getPackages().get(0).getServices().size());
@@ -146,13 +142,13 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
     public void testParseAgentXml() throws Exception {
         context.start();
 
-        List<Agent> resultsUsingURL = template.requestBody("direct:parseJaxbXml", url("agents/example1/SNMP.xml"), AgentList.class);
+        AgentList resultsUsingURL = template.requestBody("direct:parseJaxbXml", url("agents/example1/SNMP.xml"), AgentList.class);
 
         //System.err.printf("Results: %s\n", resultsUsingURL);
         assertNotNull(resultsUsingURL);
         assertEquals(3, resultsUsingURL.size());
 
-        List<Agent> resultsUsingString = template.requestBody("direct:parseJaxbXml", url("agents/example1/SNMP.xml").toString(), AgentList.class);
+        AgentList resultsUsingString = template.requestBody("direct:parseJaxbXml", url("agents/example1/SNMP.xml").toString(), AgentList.class);
 
         //System.err.printf("Results: %s\n", resultsUsingString);
         assertNotNull(resultsUsingString);
@@ -172,6 +168,7 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
         SingletonBeanFactory<CollectdConfiguration> configSvc = bean("collectdConfiguration", SingletonBeanFactory.class);
 
         assertNotNull(configSvc);
+        LOG.debug("configSvc = {}", configSvc);
         assertNotNull(configSvc.getInstance());
         System.err.println(configSvc.getInstance());
     }

@@ -8,11 +8,11 @@ import java.net.URL;
  */
 public class UrlNormalizer {
 
-	public URL toURL(String s) throws MalformedURLException {
-		return new URL(s);
-	}
+    public URL toURL(String s) throws MalformedURLException {
+        return new URL(s);
+    }
 
-	public URL toURL(URL u) {
-		return u;
-	}
+    public URL toURL(URL u) {
+        return u;
+    }
 }
