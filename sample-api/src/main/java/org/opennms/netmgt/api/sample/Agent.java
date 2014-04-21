@@ -110,6 +110,20 @@ public class Agent implements Serializable {
         return null;
     }
 
+    public String getForeignSource() {
+        if (m_parameters != null && m_parameters.containsKey("foreignSource") && !m_parameters.get("foreignSource").trim().isEmpty()) {
+            return m_parameters.get("foreignSource");
+        }
+        return null;
+    }
+
+    public String getForeignId() {
+        if (m_parameters != null && m_parameters.containsKey("foreignId") && !m_parameters.get("foreignId").trim().isEmpty()) {
+            return m_parameters.get("foreignId");
+        }
+        return null;
+    }
+
     public int getPort() {
         return m_port;
     }
