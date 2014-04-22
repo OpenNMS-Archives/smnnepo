@@ -50,6 +50,7 @@
     <!-- Send SampleSets over ActiveMQ -->
     <route id="sendSampleSet">
       <from uri="direct:sendSampleSet" />
+      <convertBodyTo type="org.opennms.netmgt.api.sample.SampleSet" />
       <marshal ref="jaxbXml" />
       <to uri="activemq:sampleSet?disableReplyTo=true" />
     </route>
