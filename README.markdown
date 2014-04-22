@@ -41,6 +41,6 @@ Running the Standalone Sampler
 
               In OpenNMS (ssh -p 8101 admin@localhost):
               features:addurl mvn:org.opennms.netmgt.sample/karaf//xml
-              features:install -v sample-receiver-activemq
+              features:install -v sample-storage-file sample-receiver-activemq
 
 8. Monitor logs for collections. Check for the existence of a sampler.dat file if you are using file output.
