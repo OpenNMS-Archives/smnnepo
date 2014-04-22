@@ -2,53 +2,77 @@ package org.opennms.netmgt.api.sample;
 
 import java.io.Serializable;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+@XmlRootElement(name="sample")
+@XmlAccessorType(XmlAccessType.NONE)
+@XmlSeeAlso({AbsoluteValue.class,CounterValue.class,DeriveValue.class,GaugeValue.class,NanValue.class})
 public class Sample implements Comparable<Sample>, Serializable {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private final Resource  m_resource;
-	private final Metric    m_metric;
-	private final Timestamp m_timestamp;
-	private final SampleValue<?>    m_value;
-	
-	
-	public Sample(Resource resource, Metric metric, Timestamp timestamp, SampleValue<?> value) {
-		m_resource = resource;
-		m_metric = metric;
-		m_timestamp = timestamp;
-		m_value = value;
-	}
+    @XmlElement(name="resource")
+    private final Resource  m_resource;
 
+    @XmlElement(name="metric")
+    private final Metric    m_metric;
 
-	public Resource getResource() {
-		return m_resource;
-	}
+    @XmlElement(name="timestamp")
+    private final Timestamp m_timestamp;
 
+    @XmlElement(name="sample-value")
+    @XmlJavaTypeAdapter(SampleValueAdapter.class)
+    private final SampleValue<?> m_value;
 
-	public Metric getMetric() {
-		return m_metric;
-	}
+    public Sample() {
+        m_resource = null;
+        m_metric = null;
+        m_timestamp = null;
+        m_value = null;
+    }
 
-
-	public Timestamp getTimestamp() {
-		return m_timestamp;
-	}
-
-
-	public SampleValue<?> getValue() {
-		return m_value;
-	}
+    public Sample(Resource resource, Metric metric, Timestamp timestamp, SampleValue<?> value) {
+        m_resource = resource;
+        m_metric = metric;
+        m_timestamp = timestamp;
+        m_value = value;
+    }
 
 
-	@Override
-	public int compareTo(Sample o) {
-		return getTimestamp().compareTo(o.getTimestamp());
-	}
+    public Resource getResource() {
+        return m_resource;
+    }
 
 
-	@Override
-	public String toString() {
-		return String.format("%s %s:%s=%s", m_timestamp, m_resource.getIdentifier(), m_metric.getName(), m_value);
-	}
+    public Metric getMetric() {
+        return m_metric;
+    }
+
+
+    public Timestamp getTimestamp() {
+        return m_timestamp;
+    }
+
+
+    public SampleValue<?> getValue() {
+        return m_value;
+    }
+
+
+    @Override
+    public int compareTo(Sample o) {
+        return getTimestamp().compareTo(o.getTimestamp());
+    }
+
+
+    @Override
+    public String toString() {
+        return String.format("%s %s:%s=%s", m_timestamp, m_resource.getIdentifier(), m_metric.getName(), m_value);
+    }
 
 
     @Override

@@ -42,7 +42,7 @@
   </cm:property-placeholder>
 
   <!-- Camel unmarshalling DataFormats -->
-  <bean id="snmpConfigXmlFormat" class="org.opennms.netmgt.sampler.config.snmp.DataFormatUtils" factory-method="snmpConfigXml"/>
+  <bean id="snmpConfigXmlFormat" class="org.opennms.netmgt.api.sample.DataFormatUtils" factory-method="jaxbXml"/>
 
   <!-- Beans that hold a copy of a configuration object -->
   <bean id="snmpConfigFactory" class="org.opennms.netmgt.api.sample.support.SingletonBeanFactoryImpl"/>

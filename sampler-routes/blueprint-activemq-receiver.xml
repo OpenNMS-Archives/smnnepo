@@ -25,6 +25,9 @@
     </cm:default-properties>
   </cm:property-placeholder>
 
+  <!-- Camel (un)marshalling DataFormats -->
+  <bean id="jaxbXml" class="org.opennms.netmgt.api.sample.DataFormatUtils" factory-method="jaxbXml"/>
+
   <!-- Register a whiteboard of sample repositories where samples will be saved -->
   <bean id="sampleSetDispatcher" class="org.opennms.netmgt.api.sample.support.DispatcherWhiteboard">
     <argument value="seda:saveToRepository"/>
@@ -41,6 +44,7 @@
     <!-- Receive SampleSets over ActiveMQ -->
     <route id="receiveSampleSet">
       <from uri="activemq:sampleSet" />
+      <unmarshal ref="jaxbXml" />
       <!-- Forward them onto the whiteboard receivers -->
       <log message="Received SampleSet in blueprint-activemq-receiver: ${body}"/>
       <to uri="seda:saveToRepository" />

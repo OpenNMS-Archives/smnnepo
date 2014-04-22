@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 @XmlRootElement(name="agent")
 @XmlAccessorType(XmlAccessType.NONE)
 public class Agent implements Serializable {
-    private static final long serialVersionUID = 4L;
+    private static final long serialVersionUID = 5L;
     private static final Logger LOG = LoggerFactory.getLogger(Agent.class);
 
     @XmlElement(name="address")
@@ -79,6 +79,10 @@ public class Agent implements Serializable {
 
     public Agent(final IPAddress ipAddress, final int port, final String serviceName) {
         this(new InetSocketAddress(ipAddress.toInetAddress(), port), serviceName, null);
+    }
+
+    public Agent(final IPAddress ipAddress, final int port, final String serviceName, final String agentId) {
+        this(new InetSocketAddress(ipAddress.toInetAddress(), port), serviceName, agentId);
     }
 
     public String getId() {

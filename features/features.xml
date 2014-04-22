@@ -93,6 +93,7 @@
     <feature name="sample-dispatch-activemq" description="Sample Collection and Storage :: ActiveMQ Dispatcher" version="1.13.2-SNAPSHOT">
       <configfile override="true" finalname="/etc/blueprint-activemq-dispatch.xml">mvn:org.opennms.netmgt.sample/sampler-routes/1.13.2-SNAPSHOT/xml/activemq-dispatch</configfile>
       <feature>sample-api</feature>
+      <feature>camel-jaxb</feature>
       <feature>activemq-camel</feature>
       <bundle>blueprint:file:etc/blueprint-activemq-dispatch.xml</bundle>
     </feature>
@@ -101,6 +102,7 @@
     <feature name="sample-receiver-activemq" description="Sample Collection and Storage :: ActiveMQ Receiver" version="1.13.2-SNAPSHOT">
       <configfile override="true" finalname="/etc/blueprint-activemq-receiver.xml">mvn:org.opennms.netmgt.sample/sampler-routes/1.13.2-SNAPSHOT/xml/activemq-receiver</configfile>
       <feature>sample-api</feature>
+      <feature>camel-jaxb</feature>
       <feature>activemq-camel</feature>
       <bundle>blueprint:file:etc/blueprint-activemq-receiver.xml</bundle>
     </feature>

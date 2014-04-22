@@ -2,7 +2,14 @@ package org.opennms.netmgt.api.sample;
 
 import java.math.BigInteger;
 
+import javax.xml.bind.annotation.XmlEnum;
+import javax.xml.bind.annotation.XmlEnumValue;
+import javax.xml.bind.annotation.XmlType;
+
+@XmlType
+@XmlEnum(String.class)
 public enum MetricType {
+    @XmlEnumValue(value="counter")
     COUNTER {
         @Override
         public SampleValue<?> getValue(final Number n) {
@@ -12,17 +19,23 @@ public enum MetricType {
                 return new CounterValue(n.longValue());
             }
         }
-    }, ABSOLUTE {
+    },
+    @XmlEnumValue(value="absolute")
+    ABSOLUTE {
         @Override
         public SampleValue<?> getValue(final Number n) {
             return new AbsoluteValue(n.longValue());
         }
-    }, DERIVE {
+    },
+    @XmlEnumValue(value="derive")
+    DERIVE {
         @Override
         public SampleValue<?> getValue(final Number n) {
             return new DeriveValue(n.longValue());
         }
-    }, GAUGE {
+    },
+    @XmlEnumValue(value="gauge")
+    GAUGE {
         @Override
         public SampleValue<?> getValue(final Number n) {
             return new GaugeValue(n.longValue());

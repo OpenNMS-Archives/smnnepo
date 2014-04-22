@@ -30,7 +30,7 @@
   </cm:property-placeholder>
 
   <!-- Camel unmarshalling DataFormats -->
-  <bean id="jaxbXml" class="org.opennms.netmgt.sampler.config.DataFormatUtils" factory-method="jaxbXml"/>
+  <bean id="jaxbXml" class="org.opennms.netmgt.api.sample.DataFormatUtils" factory-method="jaxbXml"/>
 
   <!-- Beans that hold a copy of a configuration object -->
   <bean id="collectdConfiguration" class="org.opennms.netmgt.api.sample.support.SingletonBeanFactoryImpl"/>
