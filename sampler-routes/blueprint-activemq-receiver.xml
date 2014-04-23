@@ -46,7 +46,7 @@
       <from uri="activemq:sampleSet" />
       <unmarshal ref="jaxbXml" />
       <!-- Forward them onto the whiteboard receivers -->
-      <log message="Received SampleSet in blueprint-activemq-receiver: ${body}"/>
+      <log loggingLevel="INFO" message="Received SampleSet with ${body.measurements.size} sample(s) in blueprint-activemq-receiver"/>
       <to uri="seda:saveToRepository" />
     </route>
 

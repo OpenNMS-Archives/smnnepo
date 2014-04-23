@@ -21,11 +21,12 @@
   <!-- Configuration properties -->
   <cm:property-placeholder id="samplerProperties" persistent-id="org.opennms.netmgt.sampler.config" update-strategy="none">
     <cm:default-properties>
-      <cm:property name="opennms.home" value="/opt/opennms"/>
+      <cm:property name="rest.root" value="http://localhost:8980/opennms/rest"/>
+      <cm:property name="location.name" value="remote" />
       <cm:property name="username" value="admin"/>
       <cm:property name="password" value="admin"/>
-      <cm:property name="collectdConfigUrl" value="file:{{opennms.home}}/etc/collectd-configuration.xml"/>
-      <cm:property name="agentListUrl" value="file:{{opennms.home}}/agents"/>
+      <cm:property name="collectdConfigUrl" value="{{rest.root}}/config/{{location.name}}/collection"/>
+      <cm:property name="agentListUrl" value="{{rest.root}}/config/agents"/>
     </cm:default-properties>
   </cm:property-placeholder>
 
@@ -76,7 +77,7 @@
     <route id="parseJaxbXml">
       <!-- make exceptions log, but give an empty string as return value -->
       <from uri="direct:parseJaxbXml"/>
-      <log message="blueprint-sampler-config.xml: parseJaxbXml: ${body.toString()}" />
+      <log loggingLevel="INFO" message="blueprint-sampler-config.xml: parseJaxbXml: ${body.toString()}" />
       <setHeader headerName="CamelHttpUri">
         <simple>${body.toString()}</simple>
       </setHeader>
@@ -90,24 +91,24 @@
     <!-- Direct route to fetch the config -->
     <route id="getCollectdConfig">
       <from uri="direct:collectdConfig"/>
-      <log message="blueprint-sampler-config.xml: getCollectdConfig" />
+      <log loggingLevel="INFO" message="blueprint-sampler-config.xml: getCollectdConfig" />
       <bean ref="collectdConfiguration" method="getInstance"/>
     </route>
 
     <route id="triggerStartSamplerConfig">
       <from uri="timer://runOnce?repeatCount=1&amp;delay=30000" />
-      <log message="blueprint-sampler-config.xml: Triggering Startup" />
+      <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Triggering Startup" />
       <to uri="direct:start" />
     </route>
 
     <route id="startLoadConfigurations">
       <from uri="direct:start"/>
-      <log message="blueprint-sampler-config.xml: Loading Configuration Files" />
+      <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Loading Configuration Files" />
       <!-- Load all of the configs -->
       <multicast parallelProcessing="true">
         <to uri="direct:loadCollectdConfiguration"/>
       </multicast>
-      <log message="blueprint-sampler-config.xml: Configuration Files Loaded" />
+      <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Configuration Files Loaded" />
       <!-- Launch the scheduler -->
       <to uri="direct:schedulerStart"/>
     </route>
@@ -115,10 +116,10 @@
 	<!-- TODO: Create a reload timer that will check for changes to the config -->
     <route id="initializeCollectdConfigurationInstance">
       <from uri="direct:loadCollectdConfiguration"/>
-      <log message="blueprint-sampler-config.xml: Loading Collectd Configuration" />
+      <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Loading Collectd Configuration" />
       <transform><constant>{{collectdConfigUrl}}</constant></transform>
       <to uri="direct:parseJaxbXml"/>
-      <log message="blueprint-sampler-config.xml: Collectd Configuration parsed, setting instance" />
+      <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Collectd Configuration parsed, setting instance" />
       <bean ref="collectdConfiguration" method="setInstance"/>
     </route>
 
@@ -130,16 +131,16 @@
     <!-- Get all of the collection packages that are associated with the current config -->
     <route id="loadCollectionPackages">
       <from uri="direct:loadCollectionPackages"/>
-      <log message="blueprint-sampler-config.xml: getting CollectdConfiguration" />
+      <log loggingLevel="INFO" message="blueprint-sampler-config.xml: getting CollectdConfiguration" />
       <!-- Replace the current message with the CollectdConfiguration -->
       <enrich uri="direct:collectdConfig"/>
       <!-- Split the CollectdConfiguration into a list of the packages that it contains -->
-      <log message="blueprint-sampler-config.xml: Parsing CollectdConfiguration with ${body.packages.size} package(s)" />
+      <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Parsing CollectdConfiguration with ${body.packages.size} package(s)" />
       <transform><simple>${body.packages}</simple></transform>
       <split>
         <simple>${body}</simple>
         <!-- Split the package into a package-per-service -->
-        <log message="blueprint-sampler-config.xml: Parsing package ${body.name} with ${body.services.size} service(s)" />
+        <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Parsing package ${body.name} with ${body.services.size} service(s)" />
         <process ref="packageServiceSplitter"/>
         <split>
           <simple>${body}</simple>
@@ -168,38 +169,38 @@
     <!-- 
     <route id="loadSnmpAgents">
       <from uri="seda:loadSnmpAgents"/>
-      <log message="Loading package ${body.name} with ${body.services.size} service(s)" />
-      <log message="Running seda:loadSnmpAgents" />
+      <log loggingLevel="INFO" message="Loading package ${body.name} with ${body.services.size} service(s)" />
+      <log loggingLevel="INFO" message="Running seda:loadSnmpAgents" />
       <to uri="seda:loadPackageAgents"/>
     </route>
 
     <route id="loadJmxAgents">
       <from uri="seda:loadJmxAgents"/>
-      <log message="Running seda:loadJmxAgents" />
+      <log loggingLevel="INFO" message="Running seda:loadJmxAgents" />
       <to uri="seda:loadPackageAgents"/>
     </route>
     -->
 
     <route id="loadPackageAgents">
       <from uri="seda:loadPackageAgents"/>
-      <log message="blueprint-sampler-config.xml: Loading package agents" />
+      <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Loading package agents" />
       <enrich uri="direct:getServiceAgents" strategyRef="packageAgentAggregator"/>
-      <log message="blueprint-sampler-config.xml: Got package agents" />
+      <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Got package agents" />
       <filter>
         <simple>${body} != null and ${body.agents} != null and ${body.agents.size} &gt; 0</simple>
         <!-- This endpoint is serviced by the schedulingDispatcher bean -->
-        <log message="blueprint-sampler-config.xml: Scheduling agents: ${body.agents}" />
+        <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Scheduling ${body.agents.size} agents" />
         <to uri="seda:scheduleAgents"/>
       </filter>
     </route>
 
     <route id="getServiceAgents">
       <from uri="direct:getServiceAgents"/>
-      <log message="blueprint-sampler-config.xml: Getting service agents" />
+      <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Getting service agents" />
       <transform>
         <simple>{{agentListUrl}}/${body.name}/${body.services[0].name}.xml</simple>
       </transform>
-      <log message="blueprint-sampler-config.xml: Parsing agents from URL: ${body}" />
+      <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Parsing agents from URL: ${body}" />
       <to uri="direct:parseJaxbXml"/>
     </route>
 

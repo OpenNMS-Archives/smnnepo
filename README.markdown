@@ -17,13 +17,10 @@ Running the Standalone Sampler
 6. Set the configuration URLs to connect to the running OpenNMS system.
 
         config:edit org.opennms.netmgt.sampler.config
-        config:propset collectdConfigUrl "http://admin:admin@localhost:8980/opennms/rest/config/Red%20Hat/collection"
-        config:propset agentListUrl http://admin:admin@localhost:8980/opennms/rest/config/agents
-        config:update
-        config:edit org.opennms.netmgt.sampler.config.snmp
-        config:propset snmpConfigUrl http://admin:admin@localhost:8980/opennms/rest/config/snmp
-        config:propset datacollectionFileUrl http://admin:admin@localhost:8980/opennms/rest/config/datacollection
-        config:propset datacollectionGroupUrls ""
+        config:propset rest.root http://localhost:8980/opennms/rest
+        config:propset location.name "Red Hat"
+        config:propset username ranger
+        config:propset password pass
         config:update
 
 7. Install and run SMNnepO
