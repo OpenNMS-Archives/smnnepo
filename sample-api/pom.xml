@@ -69,6 +69,7 @@
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-jaxb</artifactId>
       <version>${camelVersion}</version>
+      <optional>true</optional>
       <exclusions>
         <exclusion>
           <groupId>com.sun.xml.bind</groupId>
