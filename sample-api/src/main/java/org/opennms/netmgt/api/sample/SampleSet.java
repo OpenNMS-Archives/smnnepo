@@ -170,6 +170,10 @@ public class SampleSet implements Serializable {
         return m_byResourceGroup.containsKey(resource) ? m_byResourceGroup.get(resource).get(groupName) : null;
     }
 
+    public Collection<Sample> getMeasurements() {
+        return m_measurements;
+    }
+
     public Collection<Sample> getSamples() {
         return m_measurements;
     }

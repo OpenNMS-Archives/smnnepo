@@ -1,23 +1,16 @@
 package org.opennms.netmgt.sampler.config.snmp;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Set;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.transform.stream.StreamSource;
 
-import org.apache.commons.codec.binary.Base64;
 import org.opennms.netmgt.api.sample.CollectionConfiguration;
 import org.opennms.netmgt.api.sample.Metric;
 import org.opennms.netmgt.api.sample.MetricRepository;
@@ -26,54 +19,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SnmpMetricRepository implements MetricRepository, CollectionConfiguration<SnmpAgent, SnmpCollectionRequest> {
-
-    private static class Parser {
-        private final Unmarshaller m_unmarshaller;
-
-        public Parser() throws JAXBException {
-            m_unmarshaller = JAXBContext.newInstance(DataCollectionConfig.class, DataCollectionGroup.class).createUnmarshaller();
-        }
-
-        public DataCollectionConfig getDataCollectionConfig(final URL path) throws JAXBException, IOException {
-            return parse(path, DataCollectionConfig.class);
-        }
-
-        public DataCollectionGroup getDataCollectionGroup(final URL path) throws JAXBException, IOException {
-            return parse(path, DataCollectionGroup.class);
-        }
-
-        private <T> T parse(URL url, Class<T> declaredType) throws JAXBException, IOException {
-            InputStream urlStream = null;
-            final URLConnection connection = url.openConnection();
-
-            try {
-                LOG.debug("Unmarshalling {} as {}", url, declaredType);
-
-                final String userInfo = url.getUserInfo();
-                if (userInfo != null && userInfo.contains(":")) {
-                    final String basicAuth = "Basic " + new String(new Base64().encode(userInfo.getBytes()));
-                    connection.setRequestProperty("Authorization", basicAuth);
-                }
-
-                connection.connect();
-                urlStream = connection.getInputStream();
-                JAXBElement<T> jaxbElement = m_unmarshaller.unmarshal(new StreamSource(urlStream), declaredType);
-                return jaxbElement == null ? null : jaxbElement.getValue();		
-            } catch (IOException e) {
-                LOG.warn("Could not unmarshal " + url.toString() + " as " + declaredType.getName(), e);
-                return null;
-            } finally {
-                if (urlStream != null) {
-                    urlStream.close();
-                }
-            }
-        }
-    }
-
     private static Logger LOG = LoggerFactory.getLogger(SnmpMetricRepository.class); 
 
     private final URL m_dataCollectionConfigURL;
     private final URL[] m_dataCollectionGroupURLs;
+    private String m_username = "admin";
+    private String m_password = "admin";
 
     private DataCollectionConfig m_dataCollectionConfig;
 
@@ -129,7 +80,7 @@ public class SnmpMetricRepository implements MetricRepository, CollectionConfigu
 
     public final void refresh() throws JAXBException, IOException {
         LOG.debug("refresh() called");
-        final Parser parser = new Parser();
+        final Parser parser = new Parser(m_username, m_password);
 
         final DataCollectionInitializationCache cache = new DataCollectionInitializationCache();
 
@@ -157,7 +108,7 @@ public class SnmpMetricRepository implements MetricRepository, CollectionConfigu
             LOG.debug("initializing datacollection config");
             config.initialize(cache);
         }
-        
+
         LOG.debug("finished initializing config");
         m_dataCollectionConfig = config;
     }
@@ -189,5 +140,19 @@ public class SnmpMetricRepository implements MetricRepository, CollectionConfigu
         } else {
             return m_dataCollectionConfig.getMetric(metricName);
         }
+    }
+    
+    public String getUsername() {
+        return m_username;
+    }
+    public void setUsername(final String username) {
+        m_username = username;
+    }
+    
+    public String getPassword() {
+        return m_password;
+    }
+    public void setPassword(final String password) {
+        m_password = password;
     }
 }
