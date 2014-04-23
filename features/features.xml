@@ -17,6 +17,7 @@
     <feature name="sample-api" description="Sample Collection and Storage :: API" version="1.13.2-SNAPSHOT">
       <bundle dependency="true">mvn:commons-codec/commons-codec/1.9</bundle>
       <feature>camel-core</feature>
+      <feature>camel-jaxb</feature>
       <feature>opennms-core</feature>
       <feature>opennms-config-jaxb</feature>
       <bundle>mvn:org.opennms.netmgt.sample/sample-api/1.13.2-SNAPSHOT</bundle>
