@@ -15,7 +15,7 @@
 
     <!-- API feature -->
     <feature name="sample-api" description="Sample Collection and Storage :: API" version="1.13.2-SNAPSHOT">
-      <bundle dependency="true">mvn:commons-codec/commons-codec/1.7</bundle>
+      <bundle dependency="true">mvn:commons-codec/commons-codec/1.9</bundle>
       <feature>camel-core</feature>
       <feature>opennms-core</feature>
       <feature>opennms-config-jaxb</feature>
@@ -38,7 +38,7 @@
       <feature>camel-http</feature>
       <feature>opennms-snmp</feature>
       <feature>sample-api</feature>
-      <bundle dependency="true">mvn:commons-codec/commons-codec/1.7</bundle>
+      <bundle dependency="true">mvn:commons-codec/commons-codec/1.9</bundle>
       <bundle>mvn:org.opennms.core/org.opennms.core.camel/1.13.2-SNAPSHOT</bundle>
       <bundle>mvn:org.opennms.netmgt.sample/sampler-config-snmp/1.13.2-SNAPSHOT</bundle>
     </feature>
