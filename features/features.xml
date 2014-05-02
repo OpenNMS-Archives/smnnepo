@@ -74,6 +74,17 @@
       <bundle>mvn:org.opennms.netmgt.sample/sample-storage-cassandra/1.13.2-SNAPSHOT</bundle>
     </feature>
 
+    <feature name="sample-storage-rrd" description="Sample Collection and Storage :: RRD" version="1.13.2-SNAPSHOT">
+      <feature>sample-api</feature>
+      <feature>opennms-collection-api</feature>
+      <feature>opennms-collection-persistence-rrd</feature>
+      <feature>opennms-rrd-api</feature>
+      <feature>opennms-rrd-jrobin</feature>
+
+      <bundle>mvn:org.opennms.features.collection/org.opennms.features.collection.sampler/1.13.2-SNAPSHOT</bundle>
+      <bundle>mvn:org.opennms.netmgt.sample/sample-storage-rrd/1.13.2-SNAPSHOT</bundle>
+    </feature>
+
     <feature name="sample-graphs" description="Sample Collection and Storage :: Graphing" version="1.13.2-SNAPSHOT">
       <feature>sample-api</feature>
       <feature>sample-config-snmp</feature>

@@ -35,10 +35,6 @@ public class Resource implements Comparable<Resource>, Serializable {
         m_type = null;
     }
 
-    public Resource(final Agent agent, final String name) {
-        this(agent, null, name);
-    }
-
     public Resource(final Agent agent, final String type, final String name) {
         m_agent = agent;
         m_name = name;
