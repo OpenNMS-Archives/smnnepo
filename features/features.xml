@@ -68,6 +68,14 @@
       <bundle>mvn:org.opennms.netmgt.sample/cassandra-driver/1.0.0-beta1</bundle>
     </feature>
 
+    <feature name="sample-graphs" description="Sample Collection and Storage :: Graphing" version="1.13.2-SNAPSHOT">
+      <feature>sample-api</feature>
+      <feature>sample-config-snmp</feature>
+      <feature>http-whiteboard</feature>
+      <feature>cxf-jaxrs</feature>
+      <bundle>mvn:org.opennms.netmgt.sample/sample-graphs/1.13.2-SNAPSHOT</bundle>
+    </feature>
+
     <feature name="sample-storage-cassandra" description="Sample Collection and Storage :: Cassandra" version="1.13.2-SNAPSHOT">
       <feature>sample-api</feature>
       <feature>cassandra-driver</feature>
@@ -83,14 +91,6 @@
 
       <bundle>mvn:org.opennms.features.collection/org.opennms.features.collection.sampler/1.13.2-SNAPSHOT</bundle>
       <bundle>mvn:org.opennms.netmgt.sample/sample-storage-rrd/1.13.2-SNAPSHOT</bundle>
-    </feature>
-
-    <feature name="sample-graphs" description="Sample Collection and Storage :: Graphing" version="1.13.2-SNAPSHOT">
-      <feature>sample-api</feature>
-      <feature>sample-config-snmp</feature>
-      <feature>http-whiteboard</feature>
-      <feature>cxf-jaxrs</feature>
-      <bundle>mvn:org.opennms.netmgt.sample/sample-graphs/1.13.2-SNAPSHOT</bundle>
     </feature>
 
     <!-- File sample storage -->
@@ -132,6 +132,20 @@
       <!-- <feature>sampler-jmx</feature> -->
       <!-- Store samples in a file -->
       <feature>sample-storage-file</feature>
+    </feature>
+
+    <feature name="sampler-with-rrd-storage" description="Sample Collection and Storage :: Integration :: Sampler with RRD storage" version="1.13.2-SNAPSHOT">
+      <feature>camel-blueprint</feature>
+      <!-- Pull in the collection configurations -->
+      <feature>sampler-config</feature>
+      <!-- Provide a scheduler to execute the sampler tasks -->
+      <feature>sampler-scheduler</feature>
+      <!-- Provide an SNMP sampler implementation -->
+      <feature>sampler-snmp</feature>
+      <!-- TODO Provide a JMX sampler implementation -->
+      <!-- <feature>sampler-jmx</feature> -->
+      <!-- Store samples in RRD files -->
+      <feature>sample-storage-rrd</feature>
     </feature>
 
     <feature name="sampler-with-activemq-export" description="Sample Collection and Storage :: Integration :: Sampler with ActiveMQ export" version="1.13.2-SNAPSHOT">
