@@ -30,9 +30,9 @@ package org.opennms.netmgt.sampler.storage.rrd;
 
 import java.io.File;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 
-import org.eclipse.persistence.queries.AttributeGroup;
 import org.opennms.netmgt.api.sample.Metric;
 import org.opennms.netmgt.api.sample.Resource;
 import org.opennms.netmgt.api.sample.Results;
@@ -42,12 +42,14 @@ import org.opennms.netmgt.api.sample.SampleRepository;
 import org.opennms.netmgt.api.sample.SampleSet;
 import org.opennms.netmgt.api.sample.Timestamp;
 import org.opennms.netmgt.collection.api.AttributeGroupType;
-import org.opennms.netmgt.collection.persistence.rrd.PersistOperationBuilder;
-import org.opennms.netmgt.collection.sampler.SamplerCollectionAgent;
+import org.opennms.netmgt.collection.api.ServiceCollector;
+import org.opennms.netmgt.collection.api.ServiceParameters;
+import org.opennms.netmgt.collection.persistence.rrd.BasePersister;
+import org.opennms.netmgt.collection.persistence.rrd.OneToOnePersister;
 import org.opennms.netmgt.collection.sampler.SamplerCollectionAttribute;
 import org.opennms.netmgt.collection.sampler.SamplerCollectionAttributeType;
 import org.opennms.netmgt.collection.sampler.SamplerCollectionResource;
-import org.opennms.netmgt.rrd.RrdException;
+import org.opennms.netmgt.collection.sampler.SamplerCollectionSet;
 import org.opennms.netmgt.rrd.RrdRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,23 +80,26 @@ public class RrdSampleRepository implements SampleRepository {
 	@Override
 	public void save(SampleSet sampleSet) {
 		// Create a new collection set.
-		//SamplerCollectionSet collectionSet = new SamplerCollectionSet();
-		//collectionSet.setCollectionTimestamp(new Date());
+		SamplerCollectionSet collectionSet = new SamplerCollectionSet();
+		collectionSet.setCollectionTimestamp(new Date());
 
 		// Create an RrdRepository
 		RrdRepository repository = getRrdRepository();
 
+		BasePersister persister = new OneToOnePersister(new ServiceParameters(Collections.<String,Object>emptyMap()), repository);
+
 		for (Resource resource : sampleSet.getResources()) {
-			SamplerCollectionAgent agent = new SamplerCollectionAgent(resource.getAgent());
+//			SamplerCollectionAgent agent = new SamplerCollectionAgent(resource.getAgent());
 			SamplerCollectionResource collectionResource = new SamplerCollectionResource(resource);
 			for (String groupName : sampleSet.getGroups(resource)) {
-				AttributeGroup group = new AttributeGroup(groupName);
+//				AttributeGroup group = new AttributeGroup(groupName);
 				AttributeGroupType groupType = new AttributeGroupType(groupName, AttributeGroupType.IF_TYPE_IGNORE);
 				for (Sample sample : sampleSet.getSamples(resource, groupName)) {
 					SamplerCollectionAttributeType attribType = new SamplerCollectionAttributeType(groupType, sample.getMetric());
 					SamplerCollectionAttribute attrib = new SamplerCollectionAttribute(attribType, collectionResource, sample);
 					collectionResource.getGroup(groupType).addAttribute(attrib);
 
+					/*
 					PersistOperationBuilder builder = new PersistOperationBuilder(repository, collectionResource, attrib.getName());
 					builder.declareAttribute(attribType);
 					builder.setAttributeValue(attribType, attrib.getNumericValue());
@@ -104,11 +109,16 @@ public class RrdSampleRepository implements SampleRepository {
 					} catch (RrdException e) {
 						LOG.error("Exception thrown when trying to store to RRD", e);
 					}
+					*/
 				}
 			}
-			//collectionSet.getCollectionResources().add(collectionResource);
+			collectionSet.getCollectionResources().add(collectionResource);
 		}
-		//collectionSet.setStatus(ServiceCollector.COLLECTION_SUCCEEDED);
+
+		collectionSet.setStatus(ServiceCollector.COLLECTION_SUCCEEDED);
+
+		// Run the BasePersister as a visitor on the resource so that the RRD values are stored
+		collectionSet.visit(persister);
 	}
 
 	public RrdRepository getRrdRepository() {
@@ -120,7 +130,7 @@ public class RrdSampleRepository implements SampleRepository {
 		repo.setStep(getStep(collectionName));
 		repo.setHeartBeat((2 * getStep(collectionName)));
 		*/
-		repo.setRrdBaseDir(new File("/var/opennms/rrd"));
+		repo.setRrdBaseDir(new File("/var/opennms/rrd/sampler"));
 		//repo.setRraList(getRRAList(collectionName));
 		repo.setRraList(Collections.singletonList("RRA:AVERAGE:0.5:1:8928"));
 		repo.setStep(300);
