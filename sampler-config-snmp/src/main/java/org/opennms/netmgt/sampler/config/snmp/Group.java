@@ -16,6 +16,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.opennms.netmgt.api.sample.Metric;
 import org.opennms.netmgt.api.sample.Resource;
 import org.opennms.netmgt.api.sample.SampleSet;
+import org.opennms.netmgt.collection.api.CollectionResource;
 import org.opennms.netmgt.config.api.collection.IGroup;
 import org.opennms.netmgt.config.api.collection.IMibObject;
 import org.opennms.netmgt.snmp.AggregateTracker;
@@ -102,7 +103,7 @@ public class Group implements IGroup {
     }
 
     public CollectionTracker createCollectionTracker(final SnmpAgent agent, final SampleSet sampleSet) {
-        final Resource groupResource = new Resource(agent, "node", m_name);
+        final Resource groupResource = new Resource(agent, CollectionResource.RESOURCE_TYPE_NODE, m_name);
 
         final Collection<Collectable> trackers = new ArrayList<Collectable>();
         for (final MibObject mibObj : m_mibObjects) {

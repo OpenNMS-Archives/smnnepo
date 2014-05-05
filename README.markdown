@@ -12,7 +12,7 @@ Running the Standalone Sampler
           Make sure it has both the "collection-package-name" and "polling-package-name" attributes.
 
 3. Build [SMNnepO](http://github.com/OpenNMS/smnnepo.git).
-4. Download and unpack [Karaf 2.3](http://karaf.apache.org/index/community/download.html), version 2.3.3 or higher.
+4. Download and unpack [Karaf 2.3](http://karaf.apache.org/index/community/download.html), version 2.3.4 or higher.
 5. Run Karaf (bin/karaf).
 6. Set the configuration URLs to connect to the running OpenNMS system.
 

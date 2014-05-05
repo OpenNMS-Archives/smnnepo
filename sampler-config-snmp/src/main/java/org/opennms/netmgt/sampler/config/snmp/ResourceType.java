@@ -15,14 +15,16 @@ import org.opennms.netmgt.sampler.config.snmp.PropertiesUtils.SymbolTable;
 import org.opennms.netmgt.snmp.SnmpObjId;
 import org.opennms.netmgt.snmp.SnmpRowResult;
 import org.opennms.netmgt.snmp.SnmpValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *  <resourceType name="hrStorageIndex" label="Storage (MIB-2 Host Resources)">
  *	  <resourceName>
- *      <m_template>${hrStorageDescr}</m_template>
+ *      <template>${hrStorageDescr}</template>
  *    </resourceName>
- *    <resourceLabel><m_template>${hrStorageDescr}</m_template></resourceLabel>
- *    <resourceKind><m_template>${hrStorageType}</m_template></resourceKind>
+ *    <resourceLabel><template>${hrStorageDescr}</template></resourceLabel>
+ *    <resourceKind><template>${hrStorageType}</template></resourceKind>
  *    <column oid=".1.3.6.1.2.1.25.2.3.1.2" alias="hrStorageType"  type="string" />
  *    <column oid=".1.3.6.1.2.1.25.2.3.1.3" alias="hrStorageDescr" type="string" />
  *  </resourceType>
@@ -34,6 +36,7 @@ import org.opennms.netmgt.snmp.SnmpValue;
 @XmlRootElement(name="resourceType")
 @XmlAccessorType(XmlAccessType.NONE)
 public class ResourceType implements IResourceType {
+    private static final Logger LOG = LoggerFactory.getLogger(ResourceType.class);
 
     @XmlAttribute(name="name")
     private String m_name;
@@ -135,7 +138,12 @@ public class ResourceType implements IResourceType {
                     } else if (column.getAlias().equals(symbol)) {
                         SnmpObjId base = column.getOid();
                         SnmpValue value = row.getValue(base);
-                        return column.getValue(value);
+                        if (value == null) {
+                            LOG.warn("Value of column alias {} was not found in SNMP row: {}", column.getAlias(), row);
+                            return null;
+                        } else {
+                            return column.getValue(value);
+                        }
                     }
                 }
                 return null;
