@@ -87,23 +87,26 @@ public class RrdSampleRepository implements SampleRepository {
 		for (Resource resource : sampleSet.getResources()) {
 			SamplerCollectionAgent agent = new SamplerCollectionAgent(resource.getAgent());
 			SamplerCollectionResource collectionResource = new SamplerCollectionResource(resource);
-			PersistOperationBuilder builder = new PersistOperationBuilder(repository, collectionResource, "rrdName");
 			for (String groupName : sampleSet.getGroups(resource)) {
 				AttributeGroup group = new AttributeGroup(groupName);
 				AttributeGroupType groupType = new AttributeGroupType(groupName, AttributeGroupType.IF_TYPE_IGNORE);
 				for (Sample sample : sampleSet.getSamples(resource, groupName)) {
-					SamplerCollectionAttributeType attribType = new SamplerCollectionAttributeType(groupType, sample);
+					SamplerCollectionAttributeType attribType = new SamplerCollectionAttributeType(groupType, sample.getMetric());
 					SamplerCollectionAttribute attrib = new SamplerCollectionAttribute(attribType, collectionResource, sample);
 					collectionResource.getGroup(groupType).addAttribute(attrib);
+
+					PersistOperationBuilder builder = new PersistOperationBuilder(repository, collectionResource, attrib.getName());
 					builder.declareAttribute(attribType);
+					builder.setAttributeValue(attribType, attrib.getNumericValue());
+
+					try {
+						builder.commit();
+					} catch (RrdException e) {
+						LOG.error("Exception thrown when trying to store to RRD", e);
+					}
 				}
 			}
 			//collectionSet.getCollectionResources().add(collectionResource);
-			try {
-				builder.commit();
-			} catch (RrdException e) {
-				LOG.error("Exception thrown when trying to store to RRD", e);
-			}
 		}
 		//collectionSet.setStatus(ServiceCollector.COLLECTION_SUCCEEDED);
 	}

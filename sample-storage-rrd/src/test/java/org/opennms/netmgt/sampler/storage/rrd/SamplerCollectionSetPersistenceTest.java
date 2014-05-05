@@ -110,7 +110,7 @@ public class SamplerCollectionSetPersistenceTest {
 
         Sample sample = new Sample(m_resource, new Metric("mibObjectAlias", MetricType.COUNTER, "mibGroup"), Timestamp.now(), new CounterValue(100));
         AttributeGroupType groupType = new AttributeGroupType("mibGroup", AttributeGroupType.IF_TYPE_IGNORE);
-        SamplerCollectionAttributeType attributeType = new SamplerCollectionAttributeType(groupType, sample);
+        SamplerCollectionAttributeType attributeType = new SamplerCollectionAttributeType(groupType, sample.getMetric());
         SamplerCollectionAttribute attribute = new SamplerCollectionAttribute(attributeType, m_collectionResource, sample);
         m_collectionResource.getGroup(groupType).addAttribute(attribute);
         
@@ -132,7 +132,7 @@ public class SamplerCollectionSetPersistenceTest {
 
         Sample sample = new Sample(m_resource, new Metric("mibObjectAlias", MetricType.COUNTER, "mibGroup"), Timestamp.now(), new CounterValue(100));
         AttributeGroupType groupType = new AttributeGroupType("mibGroup", AttributeGroupType.IF_TYPE_IGNORE);
-        SamplerCollectionAttributeType attributeType = new SamplerCollectionAttributeType(groupType, sample);
+        SamplerCollectionAttributeType attributeType = new SamplerCollectionAttributeType(groupType, sample.getMetric());
         SamplerCollectionAttribute attribute = new SamplerCollectionAttribute(attributeType, m_collectionResource, sample);
         m_collectionResource.getGroup(groupType).addAttribute(attribute);
 
