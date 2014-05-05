@@ -33,6 +33,8 @@
     <module>sampler-routes</module>
     <module>sampler-scheduler</module>
     <module>sample-graphs</module>
+    <module>sampler-repo</module>
+    <module>sampler-repo-webapp</module>
   </modules>
 
   <properties>
