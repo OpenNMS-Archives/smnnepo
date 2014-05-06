@@ -143,4 +143,15 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
+
+  <distributionManagement>
+    <repository>
+      <id>opennms-repo</id>
+      <url>scpexe://maven.opennms.org/var/www/sites/opennms.org/site/repo/maven2</url>
+    </repository>
+    <snapshotRepository>
+      <id>opennms-snapshots</id>
+      <url>scpexe://maven.opennms.org/var/www/sites/opennms.org/site/repo/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
 </project>
