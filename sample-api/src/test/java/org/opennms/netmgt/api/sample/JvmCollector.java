@@ -23,7 +23,7 @@ class JvmCollector {
 
 	@SuppressWarnings("deprecation")
 	public JvmCollector() throws UnknownHostException {
-		m_resource = new Resource(new Agent(InetAddress.getLocalHost(), 80, "http"), "jvm", "resources");
+		m_resource = new Resource(new Agent(InetAddress.getLocalHost(), 80, "http"), "jvm", "resources", "resources");
 		m_resource.setAttribute("version", "6");
 		m_resource.setAttribute("vendor", "openjdk");
 

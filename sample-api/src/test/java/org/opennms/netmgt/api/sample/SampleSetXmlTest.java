@@ -39,7 +39,7 @@ public class SampleSetXmlTest extends XmlTestNoCastor<SampleSet> {
                     "   <timestamp time=\"1398182585227\" unit=\"MILLISECONDS\"/>\n" + 
                     "   <samples>\n" + 
                     "      <sample>\n" + 
-                    "         <resource name=\"resource_name\" type=\"resource_type\">\n" + 
+                    "         <resource name=\"resource_name\" label=\"resource_label\" type=\"resource_type\">\n" + 
                     "            <agent>\n" + 
                     "               <address>127.0.0.1</address>\n" + 
                     "               <port>80</port>\n" + 
@@ -61,7 +61,7 @@ public class SampleSetXmlTest extends XmlTestNoCastor<SampleSet> {
 
     private static SampleSet getSampleSetXml() throws UnknownHostException {
         final Timestamp time = new Timestamp(1398182585227l, TimeUnit.MILLISECONDS);
-        final Resource resource = new Resource(new Agent(new IPAddress("127.0.0.1"), 80, "snmp", "1"), "resource_type", "resource_name");
+        final Resource resource = new Resource(new Agent(new IPAddress("127.0.0.1"), 80, "snmp", "1"), "resource_type", "resource_name", "resource_label");
         final Metric metric = new Metric("metric", MetricType.COUNTER, "metrics");
         final SampleSet samplesIn = new SampleSet(time);
         samplesIn.addMeasurement(resource, metric, new GaugeValue(1));

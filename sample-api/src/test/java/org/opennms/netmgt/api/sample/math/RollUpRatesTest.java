@@ -23,7 +23,7 @@ import org.opennms.netmgt.api.sample.Timestamp;
 public class RollUpRatesTest {
 
 	private final Agent m_agent = new Agent(new InetSocketAddress("127.0.0.1", 161), "SNMP", "localhost");
-	private final Resource m_resource = new Resource(m_agent, "type", "name");
+	private final Resource m_resource = new Resource(m_agent, "type", "name", "label");
 	private final Metric m_metric = new Metric("metric", MetricType.COUNTER, "group");
 
 

@@ -81,7 +81,7 @@ public class SamplerCollectionSetPersistenceTest {
         // Set up the collection results
         m_agent = new Agent(new InetSocketAddress(InetAddressUtils.getLocalHostAddress(), 161), "SNMP", NODE_ID);
         m_agent.setParameter("nodeId", "1");
-        m_resource = new Resource(m_agent, CollectionResource.RESOURCE_TYPE_NODE, "samples");
+        m_resource = new Resource(m_agent, CollectionResource.RESOURCE_TYPE_NODE, "samples", null);
         m_collectionResource = new SamplerCollectionResource(m_resource);
         m_repository = createRrdRepository();
     }

@@ -113,8 +113,10 @@ public class ResourceType implements IResourceType {
 
     public Resource getResource(Agent agent, SnmpRowResult row) {
         String resourceName = createResourceName(row);
-        Resource resource = new Resource(agent, getTypeName(), resourceName);
+        String resourceLabel = createResourceLabel(row);
+        Resource resource = new Resource(agent, getTypeName(), resourceName, resourceLabel);
 
+        // Add all of the columns as attributes of the Resource
         for(Column column : m_columns) {
             SnmpValue val = row.getValue(column.getOid());
             if (val != null) {
@@ -126,13 +128,31 @@ public class ResourceType implements IResourceType {
     }
 
     private String createResourceName(final SnmpRowResult row) {
-        String nameTemplate = getResourceNameExpression().getTemplate();
+        String template = getResourceNameExpression().getTemplate();
+        if (template == null) {
+            return m_name;
+        } else {
+            return evaluateExpressionTemplate(template, row);
+        }
+    }
 
+    private String createResourceLabel(final SnmpRowResult row) {
+        String template = getResourceLabelExpression().getTemplate();
+        if (template == null) {
+            return null;
+        } else {
+            return evaluateExpressionTemplate(template, row);
+        }
+    }
+
+    private String evaluateExpressionTemplate(final String template, final SnmpRowResult row) {
         SymbolTable symbolTable = new SymbolTable() {
 
             @Override
             public String getSymbolValue(String symbol) {
                 for (Column column : m_columns) {
+                    // ${index} is a special case value that means to insert the
+                    // SNMP instance number
                     if ("index".equals(symbol)) {
                         return row.getInstance().toString();
                     } else if (column.getAlias().equals(symbol)) {
@@ -149,7 +169,7 @@ public class ResourceType implements IResourceType {
                 return null;
             }
         };
-        return PropertiesUtils.substitute(nameTemplate, symbolTable);
+        return PropertiesUtils.substitute(template, symbolTable);
     }
 
     public static ResourceType asResourceType(final IResourceType type) {

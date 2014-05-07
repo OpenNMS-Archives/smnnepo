@@ -29,7 +29,7 @@ import org.opennms.netmgt.api.sample.Timestamp;
 
 public class RateTest extends Util {
 	private Agent m_agent = new Agent(new InetSocketAddress("127.0.0.1", 161), "SNMP", "localhost");
-	private Resource m_resource = new Resource(m_agent, "type", "name");
+	private Resource m_resource = new Resource(m_agent, "type", "name", "label");
 	private Metric m_metric = new Metric("ifInOctets", MetricType.COUNTER, "mib2-interfaces");
 
 	private int m_step = 300;

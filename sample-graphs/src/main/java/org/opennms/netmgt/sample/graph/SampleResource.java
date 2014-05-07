@@ -47,7 +47,7 @@ public class SampleResource {
 		Agent agent = m_agentRepository.getAgentById(agentId);
 
 		// SNMP:127.0.0.1:161|ifIndex|wlan0-84:3a:4b:0e:89:94
-		Resource r = new Resource(agent, resourceType, resourceName);
+		Resource r = new Resource(agent, resourceType, resourceName, "label");
 		
 		/*
 		 * FIXME: Start and end as integer seconds. This works, but "Java(tm)

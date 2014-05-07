@@ -103,7 +103,7 @@ public class Group implements IGroup {
     }
 
     public CollectionTracker createCollectionTracker(final SnmpAgent agent, final SampleSet sampleSet) {
-        final Resource groupResource = new Resource(agent, CollectionResource.RESOURCE_TYPE_NODE, m_name);
+        final Resource groupResource = new Resource(agent, CollectionResource.RESOURCE_TYPE_NODE, m_name, null);
 
         final Collection<Collectable> trackers = new ArrayList<Collectable>();
         for (final MibObject mibObj : m_mibObjects) {

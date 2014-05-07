@@ -116,13 +116,6 @@ public class SamplerCollectionAgent implements CollectionAgent {
 	 */
 	@Override
 	public File getStorageDir() {
-		/*
-		File rrdBaseDir = repository.getRrdBaseDir();
-		File nodeDir = new File(rrdBaseDir, String.valueOf(getNodeId()));
-		File typeDir = new File(nodeDir, get);
-		File instDir = new File(typeDir, m_inst.replaceAll("\\s+", "_").replaceAll(":", "_").replaceAll("\\\\", "_").replaceAll("[\\[\\]]", "_"));
-		return instDir;
-		*/
 		return new File(String.valueOf(getNodeId()));
 	}
 
@@ -169,7 +162,7 @@ public class SamplerCollectionAgent implements CollectionAgent {
 
 	@Override
 	public int getType() {
-		return -1;
+		return org.opennms.netmgt.poller.NetworkInterface.TYPE_INET;
 	}
 
 	/**

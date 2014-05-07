@@ -31,7 +31,6 @@ package org.opennms.netmgt.sampler.storage.rrd;
 import java.io.File;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 
 import org.opennms.netmgt.api.sample.Metric;
 import org.opennms.netmgt.api.sample.Resource;
@@ -58,28 +57,9 @@ public class RrdSampleRepository implements SampleRepository {
 
 	private static final Logger LOG = LoggerFactory.getLogger(RrdSampleRepository.class);
 
-	private HashMap<String, AttributeGroupType> m_groupTypeList = new HashMap<String, AttributeGroupType>();
-	private HashMap<String, SamplerCollectionAttributeType> m_attribTypeList = new HashMap<String, SamplerCollectionAttributeType>();
-
-	/**
-	 * TODO: We need to figure out how to init the RRD directory
-	 */
-	/*
-	private void initializeRrdDirs() {
-		// If the RRD file repository directory does NOT already exist, create it.
-		LOG.debug("initializeRrdRepository: Initializing RRD repo from JdbcCollector...");
-		File f = // GET RRD REPOSITORY SOMEHOW
-		if (!f.isDirectory()) {
-			if (!f.mkdirs()) {
-				throw new RuntimeException("Unable to create RRD file " + "repository.  Path doesn't already exist and could not make directory: " + m_jdbcCollectionDao.getConfig().getRrdRepository());
-			}
-		}
-	}
-	*/
-
 	@Override
 	public void save(SampleSet sampleSet) {
-		// Create a new collection set.
+		// Create a new collection set
 		SamplerCollectionSet collectionSet = new SamplerCollectionSet();
 		collectionSet.setCollectionTimestamp(new Date());
 
@@ -98,18 +78,6 @@ public class RrdSampleRepository implements SampleRepository {
 					SamplerCollectionAttributeType attribType = new SamplerCollectionAttributeType(groupType, sample.getMetric());
 					SamplerCollectionAttribute attrib = new SamplerCollectionAttribute(attribType, collectionResource, sample);
 					collectionResource.getGroup(groupType).addAttribute(attrib);
-
-					/*
-					PersistOperationBuilder builder = new PersistOperationBuilder(repository, collectionResource, attrib.getName());
-					builder.declareAttribute(attribType);
-					builder.setAttributeValue(attribType, attrib.getNumericValue());
-
-					try {
-						builder.commit();
-					} catch (RrdException e) {
-						LOG.error("Exception thrown when trying to store to RRD", e);
-					}
-					*/
 				}
 			}
 			collectionSet.getCollectionResources().add(collectionResource);

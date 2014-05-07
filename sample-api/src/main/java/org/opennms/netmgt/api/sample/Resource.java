@@ -22,6 +22,9 @@ public class Resource implements Comparable<Resource>, Serializable {
     @XmlAttribute(name="name")
     private final String m_name;
     
+    @XmlAttribute(name="label")
+    private final String m_label;
+    
     @XmlAttribute(name="type")
     private final String m_type;
     
@@ -32,12 +35,14 @@ public class Resource implements Comparable<Resource>, Serializable {
     public Resource() {
         m_agent = null;
         m_name = null;
+        m_label = null;
         m_type = null;
     }
 
-    public Resource(final Agent agent, final String type, final String name) {
+    public Resource(final Agent agent, final String type, final String name, final String label) {
         m_agent = agent;
         m_name = name;
+        m_label = label;
         m_type = type;
     }
 
@@ -51,6 +56,10 @@ public class Resource implements Comparable<Resource>, Serializable {
 
     public String getName() {
         return m_name;
+    }
+
+    public String getLabel() {
+        return m_label;
     }
 
     public Agent getAgent() {

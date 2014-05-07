@@ -40,6 +40,7 @@ import org.opennms.netmgt.api.sample.SampleSetDispatcher;
 import org.opennms.netmgt.api.sample.support.SimpleFileRepository;
 import org.opennms.netmgt.api.sample.support.SingletonBeanFactory;
 import org.opennms.netmgt.api.sample.support.SingletonBeanFactoryImpl;
+import org.opennms.netmgt.collection.api.CollectionResource;
 import org.opennms.netmgt.config.snmp.SnmpConfig;
 import org.opennms.netmgt.sampler.config.snmp.SnmpAgent;
 import org.opennms.netmgt.sampler.config.snmp.SnmpMetricRepository;
@@ -241,8 +242,9 @@ public class SnmpCollectorTest extends CamelBlueprintTestSupport implements Test
 				"SNMP",
 				"1"
 			),
-			"node",
-			"ucd-loadavg"
+			CollectionResource.RESOURCE_TYPE_NODE,
+			"ucd-loadavg",
+			null
 		);
 
 		// Retrieve all results from the repository that match the resource and metrics

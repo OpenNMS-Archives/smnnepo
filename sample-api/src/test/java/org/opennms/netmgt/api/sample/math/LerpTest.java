@@ -30,7 +30,7 @@ public class LerpTest {
 	private void assertLerp(LinkedHashMap<Long, Double> samples, LinkedHashMap<Long, Double> expected, long heartBeat, long step, TimeUnit stepUnits) {
 
 		Agent agent = new Agent(new InetSocketAddress("127.0.0.1", 161), "SNMP", "localhost");
-		Resource resource = new Resource(agent, "type", "name");
+		Resource resource = new Resource(agent, "type", "name", "label");
 		Metric metric = new Metric("metric", MetricType.GAUGE, "group");
 
 		Results in = new Results(resource, metric);

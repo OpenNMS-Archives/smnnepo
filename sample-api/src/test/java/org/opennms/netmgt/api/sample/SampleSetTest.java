@@ -19,7 +19,7 @@ public class SampleSetTest {
 	@Test
 	public void testSerialization() throws IOException, ClassNotFoundException {
 		Timestamp time = new Timestamp(System.currentTimeMillis(), TimeUnit.MILLISECONDS);
-		Resource resource = new Resource(new Agent(new InetSocketAddress(InetAddress.getLocalHost(), 80), "snmp", "1"), "resource_type", "resource_name");
+		Resource resource = new Resource(new Agent(new InetSocketAddress(InetAddress.getLocalHost(), 80), "snmp", "1"), "resource_type", "resource_name", "resource_label");
 		Metric metric = new Metric("metric", MetricType.COUNTER, "metrics");
 		SampleSet samplesIn = new SampleSet(time);
 
