@@ -14,7 +14,7 @@
   </dependencySets>
   <files>
     <file>
-      <source>README.markdown</source>
+      <source>../README.markdown</source>
       <fileMode>0644</fileMode>
     </file>
   </files>
