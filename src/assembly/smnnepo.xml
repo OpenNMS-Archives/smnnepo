@@ -1,0 +1,21 @@
+<assembly>
+  <id>smnnepo</id>
+  <formats>
+    <format>zip</format>
+  </formats>
+  <includeBaseDirectory>true</includeBaseDirectory>
+  <dependencySets>
+    <dependencySet>
+      <includes>
+        <include>org.opennms.netmgt.sample:sampler-repo-webapp:war:${project.version}</include>
+      </includes>
+      <outputDirectory></outputDirectory>
+    </dependencySet>
+  </dependencySets>
+  <files>
+    <file>
+      <source>README.markdown</source>
+      <fileMode>0644</fileMode>
+    </file>
+  </files>
+</assembly>
