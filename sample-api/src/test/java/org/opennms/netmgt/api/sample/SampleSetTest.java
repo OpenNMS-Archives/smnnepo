@@ -48,9 +48,9 @@ public class SampleSetTest {
 		assertEquals(1, samplesOut.getGroups(resource).size());
 		assertEquals("metrics", samplesOut.getGroups(resource).iterator().next());
 
-		validateSamples(samplesOut.getSamples("metrics"));
-		validateSamples(samplesOut.getSamples(resource));
-		validateSamples(samplesOut.getSamples(resource, "metrics"));
+		validateSamples(samplesOut.getSamplesForGroup("metrics"));
+		validateSamples(samplesOut.getSamplesForResource(resource));
+		validateSamples(samplesOut.getSamplesForResourceAndGroup(resource, "metrics"));
 		validateSamples(samplesOut.getSamples());
 	}
 

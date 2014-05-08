@@ -74,7 +74,7 @@ public class RrdSampleRepository implements SampleRepository {
 			for (String groupName : sampleSet.getGroups(resource)) {
 //				AttributeGroup group = new AttributeGroup(groupName);
 				AttributeGroupType groupType = new AttributeGroupType(groupName, AttributeGroupType.IF_TYPE_IGNORE);
-				for (Sample sample : sampleSet.getSamples(resource, groupName)) {
+				for (Sample sample : sampleSet.getSamplesForResourceAndGroup(resource, groupName)) {
 					SamplerCollectionAttributeType attribType = new SamplerCollectionAttributeType(groupType, sample.getMetric());
 					SamplerCollectionAttribute attrib = new SamplerCollectionAttribute(attribType, collectionResource, sample);
 					collectionResource.getGroup(groupType).addAttribute(attrib);

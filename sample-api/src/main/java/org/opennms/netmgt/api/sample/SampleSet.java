@@ -155,17 +155,17 @@ public class SampleSet implements Serializable {
         return m_byResourceGroup.containsKey(resource) ? m_byResourceGroup.get(resource).keySet() : null;
     }
 
-    public Collection<Sample> getSamples(String groupName) {
+    public Collection<Sample> getSamplesForGroup(String groupName) {
         indexByGroup();
         return m_byGroup.get(groupName);
     }
 
-    public Collection<Sample> getSamples(Resource resource) {
+    public Collection<Sample> getSamplesForResource(Resource resource) {
         indexByResource();
         return m_byResource.get(resource);
     }
 
-    public Collection<Sample> getSamples(Resource resource, String groupName) {
+    public Collection<Sample> getSamplesForResourceAndGroup(Resource resource, String groupName) {
         indexByResourceGroup();
         return m_byResourceGroup.containsKey(resource) ? m_byResourceGroup.get(resource).get(groupName) : null;
     }
@@ -178,6 +178,9 @@ public class SampleSet implements Serializable {
         return m_measurements;
     }
 
+    /**
+     * TODO Make this better.
+     */
     public String toString() {
         return "SampleSet"+getSamples();
     }

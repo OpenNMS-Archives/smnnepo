@@ -100,6 +100,13 @@
       <bundle>blueprint:file:etc/blueprint-file-storage.xml</bundle>
     </feature>
 
+    <!-- XML sample storage -->
+    <feature name="sample-storage-xml" description="Sample Collection and Storage :: XML Storage" version="1.13.2-SNAPSHOT">
+      <configfile override="true" finalname="/etc/blueprint-xml-storage.xml">mvn:org.opennms.netmgt.sample/sampler-routes/1.13.2-SNAPSHOT/xml/xml-storage</configfile>
+      <feature>sample-api</feature>
+      <bundle>blueprint:file:etc/blueprint-xml-storage.xml</bundle>
+    </feature>
+
     <!-- ActiveMQ sample dispatcher -->
     <feature name="sample-dispatch-activemq" description="Sample Collection and Storage :: ActiveMQ Dispatcher" version="1.13.2-SNAPSHOT">
       <configfile override="true" finalname="/etc/blueprint-activemq-dispatch.xml">mvn:org.opennms.netmgt.sample/sampler-routes/1.13.2-SNAPSHOT/xml/activemq-dispatch</configfile>
@@ -132,6 +139,20 @@
       <!-- <feature>sampler-jmx</feature> -->
       <!-- Store samples in a file -->
       <feature>sample-storage-file</feature>
+    </feature>
+
+    <feature name="sampler-with-xml-storage" description="Sample Collection and Storage :: Integration :: Sampler with XML storage" version="1.13.2-SNAPSHOT">
+      <feature>camel-blueprint</feature>
+      <!-- Pull in the collection configurations -->
+      <feature>sampler-config</feature>
+      <!-- Provide a scheduler to execute the sampler tasks -->
+      <feature>sampler-scheduler</feature>
+      <!-- Provide an SNMP sampler implementation -->
+      <feature>sampler-snmp</feature>
+      <!-- TODO Provide a JMX sampler implementation -->
+      <!-- <feature>sampler-jmx</feature> -->
+      <!-- Store samples in an XML file -->
+      <feature>sample-storage-xml</feature>
     </feature>
 
     <feature name="sampler-with-rrd-storage" description="Sample Collection and Storage :: Integration :: Sampler with RRD storage" version="1.13.2-SNAPSHOT">
