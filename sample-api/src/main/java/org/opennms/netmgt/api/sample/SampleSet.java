@@ -2,6 +2,7 @@ package org.opennms.netmgt.api.sample;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -143,6 +144,10 @@ public class SampleSet implements Serializable {
 
     public Timestamp getTimestamp() {
         return m_timestamp;
+    }
+
+    public Date getTimestampAsDate() {
+        return m_timestamp.asDate();
     }
 
     public Set<String> getGroups() {

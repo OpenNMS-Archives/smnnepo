@@ -15,9 +15,9 @@
 ">
 
   <!-- Configuration properties -->
-  <cm:property-placeholder id="properties" persistent-id="org.opennms.netmgt.sampler.persister" update-strategy="none">
+  <cm:property-placeholder id="properties" persistent-id="org.opennms.netmgt.sampler.persister.xml" update-strategy="none">
     <cm:default-properties>
-      <!-- <cm:property name="brokerName" value="persisterBroker"/> -->
+      <cm:property name="directory" value="xml"/>
     </cm:default-properties>
   </cm:property-placeholder>
 
@@ -44,8 +44,36 @@
       <choice>
         <when>
           <simple>${body.samples.size} &gt; 0</simple>
+          <!-- Prettify the timestamp into something human-readable -->
+          <setHeader headerName="timestampDate">
+            <simple>${body.timestampAsDate}</simple>
+          </setHeader>
+          <setHeader headerName="timestampString">
+            <simple>${date:header.timestampDate:yyyy-MM-dd-hh:mm:ss.SSS}</simple>
+          </setHeader>
+
+          <!-- Marshal the SampleSet to XML -->
           <marshal ref="jaxbXml" />
-          <to uri="file:/var/opennms/rrd/samplerXml" />
+          <!-- Sniff the agent ID out of any sample because they should be all the same -->
+          <setHeader headerName="agentId">
+            <xpath >/sample-set/samples/sample[1]/resource/agent/id/text()</xpath>
+          </setHeader>
+
+          <!-- Get the timestamp from the sample-set's timestamp tag -->
+          <!--
+          <setHeader headerName="timestampString">
+            <xpath>/sample-set/timestamp/@time</xpath>
+          </setHeader>
+          -->
+
+          <!-- 
+            Set the filename to be something like
+            2014-05-08-11:19:37.074-SNMP:192.168.1.2:161.xml
+          -->
+          <setHeader headerName="CamelFileName">
+            <simple>${headers.timestampString}-${headers.agentId}.xml</simple>
+          </setHeader>
+          <to uri="file:{{directory}}" />
         </when>
       </choice>
     </route>
