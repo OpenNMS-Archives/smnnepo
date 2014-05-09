@@ -41,7 +41,7 @@ Configuring OpenNMS
 
 2. Copy the sampler .war file from the source build above, or the binary distribution, to your <code>$OPENNMS\_HOME/jetty-webapps</code> directory.
 3. If you do not already have a custom jetty.xml, copy <code>$OPENNMS\_HOME/etc/examples/jetty.xml</code> to <code>$OPENNMS\_HOME/etc</code>.
-4. Add a handler for the sampler-repo inside the &lt;Set name="handlers"&gt; array:
+4. Add a handler for the sampler-repo inside the &lt;Set name="handlers"&gt; array, before the ROOT servlet:
 
         <Item>
           <New class="org.eclipse.jetty.webapp.WebAppContext">
