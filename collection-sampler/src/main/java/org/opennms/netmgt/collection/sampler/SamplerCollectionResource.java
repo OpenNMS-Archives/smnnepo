@@ -59,7 +59,11 @@ public class SamplerCollectionResource extends AbstractCollectionResource {
 			"ifIndex".equalsIgnoreCase(m_resource.getType()) 
 		) {
 			// The name field contains the interface label
-			return new File(nodeDir, m_resource.getName());
+			String resourceName = m_resource.getName();
+			// Replace spaces, backslashes, and square brackets with underscores.
+			// Remove colons.
+			resourceName = resourceName.replaceAll("\\s+", "_").replaceAll(":", "").replaceAll("\\\\", "_").replaceAll("[\\[\\]]", "_");
+			return new File(nodeDir, resourceName);
 		} else {
 			// TODO: Do we need to sanitize the resource names in the following manner?? Probably.
 			/*

@@ -28,7 +28,6 @@
 
 package org.opennms.netmgt.sampler.storage.rrd;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.Date;
 
@@ -57,6 +56,8 @@ public class RrdSampleRepository implements SampleRepository {
 
 	private static final Logger LOG = LoggerFactory.getLogger(RrdSampleRepository.class);
 
+	private RrdRepository m_repo;
+
 	@Override
 	public void save(SampleSet sampleSet) {
 		// Create a new collection set
@@ -69,10 +70,10 @@ public class RrdSampleRepository implements SampleRepository {
 		BasePersister persister = new OneToOnePersister(new ServiceParameters(Collections.<String,Object>emptyMap()), repository);
 
 		for (Resource resource : sampleSet.getResources()) {
-//			SamplerCollectionAgent agent = new SamplerCollectionAgent(resource.getAgent());
+			//SamplerCollectionAgent agent = new SamplerCollectionAgent(resource.getAgent());
 			SamplerCollectionResource collectionResource = new SamplerCollectionResource(resource);
 			for (String groupName : sampleSet.getGroups(resource)) {
-//				AttributeGroup group = new AttributeGroup(groupName);
+				//AttributeGroup group = new AttributeGroup(groupName);
 				AttributeGroupType groupType = new AttributeGroupType(groupName, AttributeGroupType.IF_TYPE_IGNORE);
 				for (Sample sample : sampleSet.getSamplesForResourceAndGroup(resource, groupName)) {
 					SamplerCollectionAttributeType attribType = new SamplerCollectionAttributeType(groupType, sample.getMetric());
@@ -90,20 +91,44 @@ public class RrdSampleRepository implements SampleRepository {
 	}
 
 	public RrdRepository getRrdRepository() {
-		RrdRepository repo = new RrdRepository();
+		return m_repo;
+		
+		//m_repo = RrdRepository repo = new RrdRepository();
 		// TODO Make these parameters configurable
+		/*
+		<rrd step="300">
+			<rra>RRA:AVERAGE:0.5:1:2016</rra>
+			<rra>RRA:AVERAGE:0.5:12:1488</rra>
+			<rra>RRA:AVERAGE:0.5:288:366</rra>
+			<rra>RRA:MAX:0.5:288:366</rra>
+			<rra>RRA:MIN:0.5:288:366</rra>
+		</rrd>
+		*/
+
 		/*
 		repo.setRrdBaseDir(new File(getRrdPath()));
 		repo.setRraList(getRRAList(collectionName));
 		repo.setStep(getStep(collectionName));
 		repo.setHeartBeat((2 * getStep(collectionName)));
 		*/
+
+		/**
 		repo.setRrdBaseDir(new File("/var/opennms/rrd/sampler"));
-		//repo.setRraList(getRRAList(collectionName));
-		repo.setRraList(Collections.singletonList("RRA:AVERAGE:0.5:1:8928"));
+		repo.setRraList(Arrays.asList(
+			"RRA:AVERAGE:0.5:1:2016",
+			"RRA:AVERAGE:0.5:12:1488",
+			"RRA:AVERAGE:0.5:288:366",
+			"RRA:MAX:0.5:288:366",
+			"RRA:MIN:0.5:288:366"
+		));
 		repo.setStep(300);
 		repo.setHeartBeat((2 * 300));
 		return repo;
+		**/
+	}
+
+	public void setRrdRepository(RrdRepository repo) {
+		m_repo = repo;
 	}
 
 	@Override

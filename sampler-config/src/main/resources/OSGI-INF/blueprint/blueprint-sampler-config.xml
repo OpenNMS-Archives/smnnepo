@@ -85,7 +85,15 @@
         <simple>GET</simple>
       </setHeader>
       <to uri="http://dummyhost?httpClientConfigurer=customHttpClientConfigurer&amp;authUsername={{username}}&amp;authPassword={{password}}&amp;authMethod=Basic" />
-      <unmarshal ref="jaxbXml"/>
+      <choice>
+        <when>
+          <simple>${body} == null</simple>
+          <log loggingLevel="WARN" message="blueprint-sampler-config.xml: parseJaxbXml: Could not fetch JAXB document from: ${headers.CamelHttpUri}"/>
+        </when>
+        <otherwise>
+          <unmarshal ref="jaxbXml"/>
+        </otherwise>
+      </choice>
     </route>
 
     <!-- Direct route to fetch the config -->
@@ -119,8 +127,11 @@
       <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Loading Collectd Configuration" />
       <transform><constant>{{collectdConfigUrl}}</constant></transform>
       <to uri="direct:parseJaxbXml"/>
-      <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Collectd Configuration parsed, setting instance" />
-      <bean ref="collectdConfiguration" method="setInstance"/>
+      <filter>
+        <simple>${body} != null</simple>
+        <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Collectd Configuration parsed, setting instance" />
+        <bean ref="collectdConfiguration" method="setInstance"/>
+      </filter>
     </route>
 
     <route id="schedulerStart">

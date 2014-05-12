@@ -17,11 +17,33 @@
   <!-- Configuration properties -->
   <cm:property-placeholder id="properties" persistent-id="org.opennms.netmgt.sampler.storage.rrd" update-strategy="none">
     <cm:default-properties>
+      <cm:property name="rrd.base.dir" value="/opt/opennms/share/rrd"/>
+      <cm:property name="rrdStorageDirectory" value="${rrd.base.dir}/sampler"/>
+      <cm:property name="step" value="300"/>
+      <cm:property name="heartBeat" value="600"/>
     </cm:default-properties>
   </cm:property-placeholder>
 
-  <!-- Create the repository that will save to RRDs -->
-  <bean id="rrdSampleRepository" class="org.opennms.netmgt.sampler.storage.rrd.RrdSampleRepository"/>
+  <!-- Create the RRD repository -->
+  <bean id="rrdRepository" class="org.opennms.netmgt.rrd.RrdRepository">
+    <property name="rrdBaseDir" value="${rrdStorageDirectory}"/>
+    <property name="rraList">
+      <list>
+        <value>RRA:AVERAGE:0.5:1:2016</value>
+        <value>RRA:AVERAGE:0.5:12:1488</value>
+        <value>RRA:AVERAGE:0.5:288:366</value>
+        <value>RRA:MAX:0.5:288:366</value>
+        <value>RRA:MIN:0.5:288:366</value>
+      </list>
+    </property>
+    <property name="step" value="${step}"/>
+    <property name="heartBeat" value="${heartBeat}"/>
+  </bean>
+
+  <!-- Create the sample repository that will save to RRDs -->
+  <bean id="rrdSampleRepository" class="org.opennms.netmgt.sampler.storage.rrd.RrdSampleRepository">
+    <property name="rrdRepository" ref="rrdRepository"/>
+  </bean>
 
   <service ref="rrdSampleRepository" interface="org.opennms.netmgt.api.sample.SampleSetDispatcher">
     <service-properties>
