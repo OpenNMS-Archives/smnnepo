@@ -150,19 +150,22 @@ public class ResourceType implements IResourceType {
 
             @Override
             public String getSymbolValue(String symbol) {
-                for (Column column : m_columns) {
-                    // ${index} is a special case value that means to insert the
-                    // SNMP instance number
-                    if ("index".equals(symbol)) {
-                        return row.getInstance().toString();
-                    } else if (column.getAlias().equals(symbol)) {
-                        SnmpObjId base = column.getOid();
-                        SnmpValue value = row.getValue(base);
-                        if (value == null) {
-                            LOG.warn("Value of column alias {} was not found in SNMP row: {}", column.getAlias(), row);
-                            return null;
-                        } else {
-                            return column.getValue(value);
+                // ${index} is a special case value that means to insert the
+                // SNMP instance number
+                if ("index".equalsIgnoreCase(symbol)) {
+                    return row.getInstance().toString();
+                } else {
+                    // If it's a different symbol, then look in the columns for the alias value
+                    for (Column column : m_columns) {
+                        if (column.getAlias().equals(symbol)) {
+                            SnmpObjId base = column.getOid();
+                            SnmpValue value = row.getValue(base);
+                            if (value == null) {
+                                LOG.warn("Value of column alias {} was not found in SNMP row: {}", column.getAlias(), row);
+                                return null;
+                            } else {
+                                return column.getValue(value);
+                            }
                         }
                     }
                 }
