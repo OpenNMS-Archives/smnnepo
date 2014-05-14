@@ -112,5 +112,11 @@
       <artifactId>org.opennms.core.test-api.snmp</artifactId>
       <scope>test</scope>
     </dependency>
-    </dependencies>
+    <dependency>
+      <groupId>org.opennms.features.collection</groupId>
+      <artifactId>org.opennms.features.collection.sampler</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 </project>

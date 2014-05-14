@@ -60,22 +60,24 @@ public class SamplerCollectionResource extends AbstractCollectionResource {
 		) {
 			// The name field contains the interface label
 			String resourceName = m_resource.getName();
-			// Replace spaces, backslashes, and square brackets with underscores.
+			// Replace spaces, slashes, backslashes, and square brackets with underscores.
 			// Remove colons.
-			resourceName = resourceName.replaceAll("\\s+", "_").replaceAll(":", "").replaceAll("\\\\", "_").replaceAll("[\\[\\]]", "_");
+			resourceName = resourceName.replaceAll("\\s+", "_").replaceAll(":", "").replaceAll("\\\\", "_").replaceAll("/", "_").replaceAll("[\\[\\]]", "_");
 			return new File(nodeDir, resourceName);
 		} else {
-			// TODO: Do we need to sanitize the resource names in the following manner?? Probably.
-			/*
-			File instDir = new File(typeDir, m_inst.replaceAll("\\s+", "_").replaceAll(":", "_").replaceAll("\\\\", "_").replaceAll("[\\[\\]]", "_"));
-			return instDir;
-			 */
+			String resourceName = m_resource.getName();
+
+			// Replace spaces, slashes, backslashes, and square brackets with underscores.
+			// Remove colons.
+			resourceName = resourceName.replaceAll("\\s+", "_").replaceAll(":", "").replaceAll("\\\\", "_").replaceAll("/", "_").replaceAll("[\\[\\]]", "_");
+
 			// This is an indexed resource so we need to construct a directory based on the resource type and instance
 			IndexStorageStrategy strategy = new IndexStorageStrategy();
 			strategy.setResourceTypeName(m_resource.getType());
 			// TODO: Do we ever need to do this?
 			//strategy.setParameters(m_resource.getAttributes());
-			String resourcePath = new IndexStorageStrategy().getRelativePathForAttribute(getParent(), m_resource.getName());
+
+			String resourcePath = strategy.getRelativePathForAttribute(getParent(), resourceName);
 			File resourceDir = new File(repository.getRrdBaseDir(), resourcePath);
 			return resourceDir;
 		}

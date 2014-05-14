@@ -40,7 +40,10 @@ import org.opennms.netmgt.api.sample.SampleSetDispatcher;
 import org.opennms.netmgt.api.sample.support.SimpleFileRepository;
 import org.opennms.netmgt.api.sample.support.SingletonBeanFactory;
 import org.opennms.netmgt.api.sample.support.SingletonBeanFactoryImpl;
+import org.opennms.netmgt.collection.api.CollectionResource;
+import org.opennms.netmgt.collection.sampler.SamplerCollectionResource;
 import org.opennms.netmgt.config.snmp.SnmpConfig;
+import org.opennms.netmgt.rrd.RrdRepository;
 import org.opennms.netmgt.sampler.config.snmp.SnmpAgent;
 import org.opennms.netmgt.sampler.config.snmp.SnmpMetricRepository;
 import org.slf4j.Logger;
@@ -70,6 +73,7 @@ public class SnmpCollectorTokenExpansionTest extends CamelBlueprintTestSupport i
 	private TestContext m_testContext;
 	private SampleRepository m_sampleRepository;
 	private CountDownLatch m_latch = null;
+	private SampleSet m_sampleSet = null;
 	private SnmpMetricRepository m_snmpMetricRepository;
 
 	/**
@@ -140,6 +144,7 @@ public class SnmpCollectorTokenExpansionTest extends CamelBlueprintTestSupport i
 		@Override
 		public void save(SampleSet samples) {
 			super.save(samples);
+			m_sampleSet = samples;
 			System.err.println("Called SampleRepository.save()");
 			if (m_latch != null) {
 				m_latch.countDown();
@@ -211,6 +216,10 @@ public class SnmpCollectorTokenExpansionTest extends CamelBlueprintTestSupport i
 		MockEndpoint sampleSaved = getMockEndpoint("mock:seda:saveToRepository");
 		sampleSaved.expectedMessageCount(1);
 
+		// Make some constants to reuse in the regex below
+		final String baseDir = "TEST";
+		final String nodeId = "1";
+
 		for(int i = 1; i <= AGENT_COUNT; i++) {
 			Agent agent = new Agent(
 				new InetSocketAddress(
@@ -222,11 +231,25 @@ public class SnmpCollectorTokenExpansionTest extends CamelBlueprintTestSupport i
 			);
 			agent.setParameter(SnmpAgent.PARAM_SYSOBJECTID, ".1.3.6.1.4.1.4526.100.10.7");
 			agent.setParameter(SnmpAgent.PARAM_COMMUNITY, "public");
+			agent.setParameter("nodeId", nodeId);
 			template.sendBody("seda:collectAgent", agent);
 		}
 
 		MockEndpoint.assertIsSatisfied(sampleSaved);
 		m_latch.await();
+
+		RrdRepository repo = new RrdRepository();
+		repo.setRrdBaseDir(new File(baseDir));
+
+		assertTrue(m_sampleSet != null);
+		LOG.debug(m_sampleSet.toString());
+		for (Resource resource : m_sampleSet.getResources()) {
+			CollectionResource collectionResource = new SamplerCollectionResource(resource);
+			File resourceDir = collectionResource.getResourceDir(repo);
+			LOG.debug("Resource directory: {}", collectionResource.getResourceDir(repo));
+			// We should get indices 1 through 6
+			assertTrue(resourceDir.toString(), resourceDir.toString().matches("^" + baseDir + "/" + nodeId + "/pethMainPseGroupIndex/[1-6]$"));
+		}
 
 		Set<Metric> metricSet = m_snmpMetricRepository.getMetrics("mib2-powerethernet");
 		assertNotNull(metricSet);

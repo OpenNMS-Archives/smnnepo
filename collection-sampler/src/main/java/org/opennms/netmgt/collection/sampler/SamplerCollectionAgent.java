@@ -86,7 +86,12 @@ public class SamplerCollectionAgent implements CollectionAgent {
 	 */
 	@Override
 	public int getNodeId() {
-		return m_agent.getNodeId();
+		Integer nodeId = m_agent.getNodeId();
+		if (nodeId != null) {
+			return nodeId;
+		} else {
+			return -1;
+		}
 	}
 
 	/**
@@ -116,7 +121,12 @@ public class SamplerCollectionAgent implements CollectionAgent {
 	 */
 	@Override
 	public File getStorageDir() {
-		return new File(String.valueOf(getNodeId()));
+		int nodeId = getNodeId(); 
+		if (nodeId > 0) {
+			return new File(String.valueOf(nodeId));
+		} else {
+			return null;
+		}
 	}
 
 	/**
