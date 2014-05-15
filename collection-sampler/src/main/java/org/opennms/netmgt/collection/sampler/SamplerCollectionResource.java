@@ -29,20 +29,30 @@
 package org.opennms.netmgt.collection.sampler;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Map;
 
 import org.opennms.netmgt.api.sample.Resource;
 import org.opennms.netmgt.collection.api.CollectionResource;
+import org.opennms.netmgt.collection.api.CollectionSetVisitor;
 import org.opennms.netmgt.collection.support.AbstractCollectionResource;
 import org.opennms.netmgt.collection.support.IndexStorageStrategy;
+import org.opennms.netmgt.model.ResourceTypeUtils;
 import org.opennms.netmgt.rrd.RrdRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SamplerCollectionResource extends AbstractCollectionResource {
+	private static final Logger LOG = LoggerFactory.getLogger(SamplerCollectionResource.class);
 
 	private final Resource m_resource;
+	private final RrdRepository m_repository;
 
-	public SamplerCollectionResource(Resource resource) {
+	public SamplerCollectionResource(Resource resource, RrdRepository repository) {
 		super(new SamplerCollectionAgent(resource.getAgent()));
 		m_resource = resource;
+		m_repository = repository;
 	}
 
 	@Override
@@ -115,4 +125,18 @@ public class SamplerCollectionResource extends AbstractCollectionResource {
 		}
 	}
 
+	@Override
+	public void visit(CollectionSetVisitor visitor) {
+		File resourceDir = getResourceDir(m_repository);
+		for (Map.Entry<String,String> entry : m_resource.getAttributes().entrySet()) {
+			try {
+				ResourceTypeUtils.updateStringProperty(resourceDir, entry.getValue(), entry.getKey());
+			} catch (FileNotFoundException e) {
+				LOG.error("Unable to save string attribute {}->{}", entry.getKey(), entry.getValue(), e);
+			} catch(IOException e) {
+				LOG.error("Unable to save string attribute {}->{}", entry.getKey(), entry.getValue(), e);
+			}
+		}
+		super.visit(visitor);
+	}
 }
