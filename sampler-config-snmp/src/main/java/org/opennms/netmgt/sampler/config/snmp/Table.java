@@ -138,7 +138,15 @@ public class Table implements ITable {
 
                 for(Column column : m_columns) {
                     Metric metric = column.createMetric(getName());
-                    if (metric != null) { 
+                    // If the column is not a numeric metric...
+                    if (metric == null) {
+                        // Fetch its value and add it as a resource string attribute
+                        SnmpValue snmpValue = row.getValue(column.getOid());
+                        if (snmpValue != null) {
+                            String attrValue = column.getValue(snmpValue);
+                            resource.setAttribute(column.getAlias(), attrValue);
+                        }
+                    } else {
                         SnmpValue snmpValue = row.getValue(column.getOid());
 
                         if (snmpValue != null) {
@@ -157,7 +165,7 @@ public class Table implements ITable {
         Set<Metric> metrics = new HashSet<Metric>();
         for(Column column : m_columns) {
             Metric metric = column.createMetric(getName());
-            // string columns do not represetn metrics and null is returned
+            // string columns do not represent metrics and null is returned
             if (metric != null) { metrics.add(metric); }
         }
         return metrics;
