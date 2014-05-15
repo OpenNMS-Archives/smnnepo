@@ -25,7 +25,8 @@
       <cm:property name="location.name" value="remote" />
       <cm:property name="username" value="admin"/>
       <cm:property name="password" value="admin"/>
-      </cm:default-properties>
+      <cm:property name="refreshInterval" value="300000"/> <!-- milliseconds -->
+    </cm:default-properties>
   </cm:property-placeholder>
 
   <cm:property-placeholder id="properties" persistent-id="org.opennms.netmgt.sampler.config.snmp" update-strategy="none">
@@ -131,6 +132,15 @@
       <from uri="timer://runOnce?repeatCount=1&amp;delay=5000" />
       <log loggingLevel="INFO" message="blueprint-sampler-config-snmp.xml: Triggering Startup" />
       <to uri="direct:start" />
+    </route>
+
+    <route id="triggerReloadConfiguration">
+      <from uri="timer://reloadConfigs?delay=30000&amp;period={{refreshInterval}}" />
+      <log loggingLevel="INFO" message="blueprint-sampler-config-snmp.xml: Reloading Configuration" />
+      <multicast parallelProcessing="true">
+        <to uri="direct:loadDataCollectionConfig"/>
+        <to uri="direct:loadSnmpConfig"/>
+      </multicast>
     </route>
 
     <route id="loadAllConfigs">

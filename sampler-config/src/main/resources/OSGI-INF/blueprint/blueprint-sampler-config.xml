@@ -27,6 +27,7 @@
       <cm:property name="password" value="admin"/>
       <cm:property name="collectdConfigUrl" value="{{rest.root}}/config/{{location.name}}/collection"/>
       <cm:property name="agentListUrl" value="{{rest.root}}/config/agents"/>
+      <cm:property name="refreshInterval" value="300000"/> <!-- milliseconds -->
     </cm:default-properties>
   </cm:property-placeholder>
 
@@ -107,6 +108,12 @@
       <from uri="timer://runOnce?repeatCount=1&amp;delay=30000" />
       <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Triggering Startup" />
       <to uri="direct:start" />
+    </route>
+
+    <route id="triggerReloadConfiguration">
+      <from uri="timer://reloadConfigs?delay=30000&amp;period={{refreshInterval}}" />
+      <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Reloading Configuration" />
+      <to uri="direct:loadCollectdConfiguration"/>
     </route>
 
     <route id="startLoadConfigurations">
