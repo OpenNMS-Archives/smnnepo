@@ -134,7 +134,15 @@
       <url>http://maven.opennms.org/content/groups/sonatype.org-release</url>
     </repository>
   </repositories>
+
   <pluginRepositories>
+    <pluginRepository>
+      <snapshots><enabled>true</enabled></snapshots>
+      <releases><enabled>false</enabled></releases>
+      <id>opennms-snapshots</id>
+      <name>OpenNMS Snapshot Maven Repository</name>
+      <url>http://maven.opennms.org/content/groups/opennms.org-snapshot</url>
+    </pluginRepository>
     <pluginRepository>
       <id>apache-snapshots</id>
       <name>Apache Snapshots Repository</name>
@@ -143,4 +151,5 @@
       <snapshots><enabled>true</enabled></snapshots>
     </pluginRepository>
   </pluginRepositories>
+
 </project>

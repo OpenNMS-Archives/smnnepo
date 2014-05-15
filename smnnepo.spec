@@ -1,6 +1,3 @@
-#
-#  $Id$
-#
 # The version used to be passed from build.xml. It's hardcoded here
 # the build system generally passes --define "version X" to rpmbuild.
 %{!?version:%define version 1.13.0}
@@ -34,6 +31,8 @@ AutoProv: no
 %define with_tests	0%{nil}
 %define with_docs	1%{nil}
 
+%define repodir %{_tmppath}/m2-repo
+
 Name:			smnnepo
 Summary:		SMNnepO
 Release:		%releasenumber
@@ -55,9 +54,18 @@ This is SMNnepO.
 %{extrainfo}
 %{extrainfo2}
 
+%package -n opennms-smnnepo
+Summary:	System repository for OpenNMS SMNnepO components.
+Group:		Applications/System
+Requires:	opennms-core >= %{version}-0
+
+%description -n opennms-smnnepo
+A maven repository that provides SMNnepO dependencies to OpenNMS so
+that they don't have to be downloaded over the network.
+
 %prep
 
-rm -rf "$RPM_BUILD_DIR"/m2-repo
+rm -rf "%{repodir}"
 tar -xvzf $RPM_SOURCE_DIR/%{name}-source-%{version}-%{release}.tar.gz -C $RPM_BUILD_DIR
 %define setupdir %{packagedir}
 
@@ -72,8 +80,15 @@ rm -rf $RPM_BUILD_ROOT
 DONT_GPRINTIFY="yes, please do not"
 export DONT_GPRINTIFY
 
-./compile.pl -Dmaven.repo.local="$RPM_BUILD_DIR"/m2-repo clean install
-wget -O "$RPM_BUILD_DIR"/karaf.tar.gz "http://apache.mirrors.pair.com/karaf/%{karaf_version}/apache-karaf-%{karaf_version}.tar.gz"
+./compile.pl -Dmaven.repo.local="%{repodir}" install
+cd sampler-repo-exclude
+	../compile.pl -Dmaven.repo.local="target/localRepo" compile
+	cd target/maven-repo
+		find * -type f | sort -u > "%{_tmppath}/maven-excludes.txt"
+	cd ../..
+cd ..
+
+wget -O "%{_tmppath}/karaf.tar.gz" "http://apache.mirrors.pair.com/karaf/%{karaf_version}/apache-karaf-%{karaf_version}.tar.gz"
 
 ##############################################################################
 # installation
@@ -83,19 +98,25 @@ wget -O "$RPM_BUILD_DIR"/karaf.tar.gz "http://apache.mirrors.pair.com/karaf/%{ka
 DONT_GPRINTIFY="yes, please do not"
 export DONT_GPRINTIFY
 
-mkdir -p "$RPM_BUILD_ROOT%{instprefix}"
-rmdir "$RPM_BUILD_ROOT%{instprefix}"
-tar -xvzf "$RPM_BUILD_DIR"/karaf.tar.gz
+PREFIXPREFIX=`dirname "$RPM_BUILD_ROOT%{instprefix}"`
+
+mkdir -p "$PREFIXPREFIX"
+tar -xvzf "%{_tmppath}"/karaf.tar.gz
 mv apache-karaf-* "$RPM_BUILD_ROOT%{instprefix}"
-rm -rf "$RPM_BUILD_DIR"/m2-repo/org/opennms/netmgt/sample/sampler-repo-webapp
-rsync -ar "$RPM_BUILD_DIR"/m2-repo/ "$RPM_BUILD_ROOT%{instprefix}/system/"
+rm -rf "%{repodir}"/org/opennms/netmgt/sample/sampler-repo*
+
+cd "%{repodir}"
+	rsync -ar * "$RPM_BUILD_ROOT%{instprefix}/system/"
+	mkdir -p "$RPM_BUILD_ROOT/opt/opennms/system/"
+	rsync -ar --exclude-from="%{_tmppath}/maven-excludes.txt" * "$RPM_BUILD_ROOT/opt/opennms/system/"
+cd -
 
 find "${RPM_BUILD_ROOT}%{instprefix}" ! -type d | \
 	grep -v "${RPM_BUILD_ROOT}%{instprefix}/etc" | \
 	sed -e "s,${RPM_BUILD_ROOT},," > %{_tmppath}/files.main
 
 %clean
-rm -rf "$RPM_BUILD_ROOT" "$RPM_BUILD_DIR"/m2-repo
+rm -rf "$RPM_BUILD_ROOT" "%{repodir}"
 
 ##############################################################################
 # file setup
@@ -104,3 +125,7 @@ rm -rf "$RPM_BUILD_ROOT" "$RPM_BUILD_DIR"/m2-repo
 %files -f %{_tmppath}/files.main
 %defattr(664 root root 775)
 %config %{instprefix}/etc/*
+
+%files -n opennms-smnnepo
+%defattr(664 root root 775)
+/opt/opennms/system
