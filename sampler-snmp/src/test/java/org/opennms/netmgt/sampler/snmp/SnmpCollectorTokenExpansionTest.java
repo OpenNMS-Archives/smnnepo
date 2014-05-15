@@ -244,7 +244,7 @@ public class SnmpCollectorTokenExpansionTest extends CamelBlueprintTestSupport i
 		assertTrue(m_sampleSet != null);
 		LOG.debug(m_sampleSet.toString());
 		for (Resource resource : m_sampleSet.getResources()) {
-			CollectionResource collectionResource = new SamplerCollectionResource(resource);
+			CollectionResource collectionResource = new SamplerCollectionResource(resource, repo);
 			File resourceDir = collectionResource.getResourceDir(repo);
 			LOG.debug("Resource directory: {}", collectionResource.getResourceDir(repo));
 			// We should get indices 1 through 6
