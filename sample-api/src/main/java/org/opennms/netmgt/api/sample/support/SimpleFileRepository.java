@@ -52,7 +52,7 @@ public class SimpleFileRepository implements SampleRepository {
     		out = new PrintWriter(new BufferedWriter(new FileWriter(m_sampleFile, true)));
     		
             for(Sample m : samples.getSamples()) {
-                LOG.info(String.format(
+                LOG.debug(String.format(
                 		"Saving Measurement: %s for %s at %s = %.1f",
                 		m.getMetric().getName(),
                 		m.getResource().getIdentifier(),
