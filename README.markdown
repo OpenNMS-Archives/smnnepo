@@ -40,27 +40,18 @@ Configuring OpenNMS
       Make sure it has both the "collection-package-name" and "polling-package-name" attributes.
 
 2. Copy the sampler .war file from the source build above, or the binary distribution, to your <code>$OPENNMS\_HOME/jetty-webapps</code> directory.
-3. If you do not already have a custom jetty.xml, copy <code>$OPENNMS\_HOME/etc/examples/jetty.xml</code> to <code>$OPENNMS\_HOME/etc</code>.
-4. Add a handler for the sampler-repo inside the &lt;Set name="handlers"&gt; array, before the ROOT servlet:
-
-        <Item>
-          <New class="org.eclipse.jetty.webapp.WebAppContext">
-            <Set name="War"><SystemProperty name="opennms.home" />/jetty-webapps/sampler-repo-webapp-1.13.2-20140506.195600-1.war</Set>
-            <Set name="ContextPath">/sampler-repo</Set>
-          </New>
-        </Item>
-
-5. Restart OpenNMS.
+   The default scripts expect you to call it "smnnepo.war".
+3. Restart OpenNMS.
 
 Configuring and Running the Sampler
 -----------------------------------
 
 1. Download and unpack [Karaf 2.3](http://karaf.apache.org/index/community/download.html), version 2.3.4 or higher.
 2. Run Karaf (bin/karaf).
-3. Set the configuration to be able to find the maven repository in the sampler-repo webapp.
+3. Set the configuration to be able to find the maven repository in the smnnepo webapp.
 
         config:edit org.ops4j.pax.url.mvn
-        config:propset org.ops4j.pax.url.mvn.repositories http://localhost:8980/sampler-repo@snapshots@id=opennms-repo
+        config:propset org.ops4j.pax.url.mvn.repositories http://localhost:8980/smnnepo@snapshots@id=opennms-repo
         config:update
 
 4. Set the configuration URLs to connect to the running OpenNMS system.
