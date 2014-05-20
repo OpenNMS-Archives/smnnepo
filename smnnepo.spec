@@ -9,6 +9,8 @@
 %{!?packagedir:%define packagedir smnnepo-%version-%{releasenumber}}
 # Where OpenNMS binaries live
 %{!?bindir:%define bindir %instprefix/bin}
+# Where the SMNnepO WAR should go
+%{!?webappdir:%define webappdir /opt/opennms/jetty-webapps}
 
 %{!?jdk:%define jdk jdk >= 2000:1.6}
 
@@ -34,7 +36,7 @@ AutoProv: no
 %define repodir %{_tmppath}/m2-repo
 
 Name:			smnnepo
-Summary:		SMNnepO
+Summary:		The OpenNMS Sampler/SMNnepO
 Release:		%releasenumber
 Version:		%version
 License:		LGPL/GPL
@@ -54,12 +56,12 @@ This is SMNnepO.
 %{extrainfo}
 %{extrainfo2}
 
-%package -n opennms-smnnepo
+%package -n opennms-webapp-smnnepo
 Summary:	System repository for OpenNMS SMNnepO components.
 Group:		Applications/System
-Requires:	opennms-core >= %{version}-0
+Requires:	opennms-webapp-jetty >= %{version}-0
 
-%description -n opennms-smnnepo
+%description -n opennms-webapp-smnnepo
 A maven repository that provides SMNnepO dependencies to OpenNMS so
 that they don't have to be downloaded over the network.
 
@@ -81,12 +83,6 @@ DONT_GPRINTIFY="yes, please do not"
 export DONT_GPRINTIFY
 
 ./compile.pl -Dmaven.repo.local="%{repodir}" install
-cd sampler-repo-exclude
-	../compile.pl -Dmaven.repo.local="target/localRepo" compile
-	cd target/maven-repo
-		find * -type f | sort -u > "%{_tmppath}/maven-excludes.txt"
-	cd ../..
-cd ..
 
 wget -O "%{_tmppath}/karaf.tar.gz" "http://apache.mirrors.pair.com/karaf/%{karaf_version}/apache-karaf-%{karaf_version}.tar.gz"
 
@@ -100,16 +96,20 @@ export DONT_GPRINTIFY
 
 PREFIXPREFIX=`dirname "$RPM_BUILD_ROOT%{instprefix}"`
 
-mkdir -p "$PREFIXPREFIX"
+install -d -m 755 "$PREFIXPREFIX"
 tar -xvzf "%{_tmppath}"/karaf.tar.gz
 mv apache-karaf-* "$RPM_BUILD_ROOT%{instprefix}"
-rm -rf "%{repodir}"/org/opennms/netmgt/sample/sampler-repo*
 
-cd "%{repodir}"
-	rsync -ar * "$RPM_BUILD_ROOT%{instprefix}/system/"
-	mkdir -p "$RPM_BUILD_ROOT/opt/opennms/system/"
-	rsync -ar --exclude-from="%{_tmppath}/maven-excludes.txt" * "$RPM_BUILD_ROOT/opt/opennms/system/"
-cd -
+install -d -m 755 "$RPM_BUILD_ROOT%{webappdir}"
+install -c -m 644 "sampler-repo-webapp/target"/*.war "$RPM_BUILD_ROOT%{webappdir}/smnnepo.war"
+
+# set up the system directory
+#rm -rf "%{repodir}"/org/opennms/netmgt/sample/sampler-repo*
+#cd "%{repodir}"
+#	rsync -ar * "$RPM_BUILD_ROOT%{instprefix}/system/"
+#	mkdir -p "$RPM_BUILD_ROOT/opt/opennms/system/"
+#	rsync -ar --exclude-from="%{_tmppath}/maven-excludes.txt" * "$RPM_BUILD_ROOT/opt/opennms/system/"
+#cd -
 
 find "${RPM_BUILD_ROOT}%{instprefix}" ! -type d | \
 	grep -v "${RPM_BUILD_ROOT}%{instprefix}/etc" | \
@@ -126,6 +126,6 @@ rm -rf "$RPM_BUILD_ROOT" "%{repodir}"
 %defattr(664 root root 775)
 %config %{instprefix}/etc/*
 
-%files -n opennms-smnnepo
+%files -n opennms-webapp-smnnepo
 %defattr(664 root root 775)
-/opt/opennms/system
+%{webappdir}
