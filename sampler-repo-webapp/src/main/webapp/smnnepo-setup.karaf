@@ -1,0 +1,21 @@
+
+ONMS=$1
+LOCATION=$2
+
+config:edit org.ops4j.pax.url.mvn
+config:propset org.ops4j.pax.url.mvn.repositories http://$ONMS:8980/sampler-repo@snapshots@id=opennms-repo
+config:update
+	
+config:edit org.opennms.netmgt.sampler.config
+config:propset rest.root http://$ONMS:8980/opennms/rest
+config:propset location.name "$LOCATION"
+config:propset username admin
+config:propset password admin
+config:update
+
+config:edit org.opennms.netmgt.sampler.persister
+config:propset brokerUri "vm:(broker:(network:static:tcp://$ONMS:61616)?brokerName=persisterBroker&persistent=false&useJmx=false)"
+config:update
+
+features:addurl mvn:org.opennms.netmgt.sample/karaf/1.13.2-SNAPSHOT/xml
+features:install -v sampler-with-activemq-export
