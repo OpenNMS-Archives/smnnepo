@@ -1,0 +1,158 @@
+#!/bin/sh -
+#
+# chkconfig:   345 99 01
+# description: Starts and stops the OpenNMS SMNnepO distributed client
+# processname: java
+# pidfile:     /var/run/smnnepo.pid
+#
+### BEGIN INIT INFO
+# Provides:          smnnepo
+# Required-Start:    $network
+# Required-Stop:     $network
+# Should-Start:      $local_fs
+# Should-Stop:       $local_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: SMNnepO remote client
+# Description:       Remote client for distributed collection.
+### END INIT INFO
+
+NAME="smnnepo"
+DESC="SMNnepO Distributed Client"
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+PIDFILE="/var/run/$NAME.pid"
+SMNNEPO_HOME="@INSTPREFIX@"
+OPENNMS="http://localhost:8980/"
+LOCATION="Default"
+RUNAS="root"
+
+CONFFILE="/etc/default/$NAME"
+
+if [ -f $CONFFILE ]; then
+        . $CONFFILE
+elif [ -f "/etc/sysconfig/$NAME" ]; then
+        CONFFILE="/etc/sysconfig/$NAME"
+        . $CONFFILE
+fi
+
+pid_running() {
+	if [ -f "$PIDFILE" ]; then
+		# Pull the PID out of the pidfile
+		POLLER_PID=`cat $PIDFILE`
+		if [ ! -z $POLLER_PID ]; then
+			# Check to see if the process is still alive
+			ps -p $POLLER_PID >/dev/null 2>&1
+			# If it is dead, then unset POLLER_PID
+			if [ $? -gt 0 ]; then
+				rm -f "$PIDFILE"
+				unset POLLER_PID
+				return
+			fi
+
+			return 
+		fi
+	fi
+	return
+}
+
+case "$1" in
+
+	start)
+		pid_running
+		if [ ! -z $POLLER_PID ]; then
+			echo "$DESC is running."
+			exit 0
+		fi
+
+		if [ x$RUNAS != xroot ]; then
+			SUDO_PREFIX="sudo -u $RUNAS"
+			CHUID="--chuid $RUNAS"
+		fi
+
+		echo -n "Starting $DESC: "
+		if [ -z "$OPENNMS" ] || [ -z "$LOCATION" ]; then
+			echo "no configuration"
+			exit 0
+		fi
+
+		if [ -x /sbin/start-stop-daemon ]; then
+			start-stop-daemon --start --background --quiet --oknodo --pidfile $PIDFILE --make-pidfile $CHUID --startas $SMNNEPO_HOME/bin/karaf -- server >/dev/null
+			if $?; then
+				sleep 5
+				echo "running script"
+			fi
+		else
+			$SUDO_PREFIX $SMNNEPO_HOME/bin/karaf server &
+			RETVAL="$?"
+			echo "$!" > "$PIDFILE"
+			if $RETVAL; then
+				echo "OK"
+				echo "running script"
+				exit 0
+			else
+				echo "FAILED"
+				exit $RETVAL
+			fi
+		fi
+		#echo "."
+		;;
+
+	stop)
+		echo -n "Stopping $DESC: "
+		if [ -x /sbin/start-stop-daemon ]; then
+			start-stop-daemon --stop --quiet --retry 15 --pidfile $PIDFILE > /dev/null
+			#echo "."
+		else
+			pid_running
+			if [ ! -z $POLLER_PID ]; then
+				kill `cat $PIDFILE`
+				rm -f "$PIDFILE" 2>&1
+			else 
+				echo "FAILED: $DESC is not running."
+				exit 1
+			fi
+
+			echo "OK"
+			exit 0
+		fi
+		;;
+
+	restart)
+		$0 stop
+		sleep 2
+		$0 start
+		exit $?
+		;;
+
+	try-restart)
+		pid_running
+		if [ ! -z $POLLER_PID ]; then
+			$0 restart
+			exit $?
+		fi
+		echo "$DESC not running."
+		exit 0
+		;;
+
+
+	force-reload)
+		$0 try-restart
+		exit $?
+		;;
+
+	status)
+		pid_running
+		if [ ! -z $POLLER_PID ]; then
+			echo "$DESC is running."
+			exit 0
+		else
+			echo "$DESC is stopped."
+			exit 3
+		fi
+		;;
+
+	*)
+		echo "Usage: $0 {start|stop|restart|try-restart|force-reload|status}" >&2
+		exit 1
+		;;
+esac

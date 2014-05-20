@@ -82,7 +82,7 @@ rm -rf $RPM_BUILD_ROOT
 DONT_GPRINTIFY="yes, please do not"
 export DONT_GPRINTIFY
 
-./compile.pl -Dmaven.repo.local="%{repodir}" install
+./compile.pl -Dmaven.repo.local="%{repodir}" clean install
 
 wget -O "%{_tmppath}/karaf.tar.gz" "http://apache.mirrors.pair.com/karaf/%{karaf_version}/apache-karaf-%{karaf_version}.tar.gz"
 
@@ -103,6 +103,17 @@ mv apache-karaf-* "$RPM_BUILD_ROOT%{instprefix}"
 install -d -m 755 "$RPM_BUILD_ROOT%{webappdir}"
 install -c -m 644 "sampler-repo-webapp/target"/*.war "$RPM_BUILD_ROOT%{webappdir}/smnnepo.war"
 
+install -d -m 755 "$RPM_BUILD_ROOT%{_initrddir}" "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"
+
+sed -e 's,@INSTPREFIX@,%{instprefix},g' "smnnepo.init" > "$RPM_BUILD_ROOT%{_initrddir}"/smnnepo
+chmod 755 "$RPM_BUILD_ROOT%{_initrddir}"/smnnepo
+
+echo "# The root of the OpenNMS install (eg, http://localhost:8980/)" >  "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
+echo "OPENNMS="                                                       >> "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
+echo ""                                                               >> "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
+echo "# The name of this location (from monitoring-locations.xml)"    >> "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
+echo "LOCATION="                                                      >> "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
+
 # set up the system directory
 #rm -rf "%{repodir}"/org/opennms/netmgt/sample/sampler-repo*
 #cd "%{repodir}"
@@ -115,6 +126,7 @@ find "${RPM_BUILD_ROOT}%{instprefix}" ! -type d | \
 	grep -v "${RPM_BUILD_ROOT}%{instprefix}/etc" | \
 	sed -e "s,${RPM_BUILD_ROOT},," > %{_tmppath}/files.main
 
+
 %clean
 rm -rf "$RPM_BUILD_ROOT" "%{repodir}"
 
@@ -124,6 +136,8 @@ rm -rf "$RPM_BUILD_ROOT" "%{repodir}"
 
 %files -f %{_tmppath}/files.main
 %defattr(664 root root 775)
+%{_initrddir}/smnnepo
+%config(noreplace) %{_sysconfdir}/sysconfig/smnnepo
 %config %{instprefix}/etc/*
 
 %files -n opennms-webapp-smnnepo
