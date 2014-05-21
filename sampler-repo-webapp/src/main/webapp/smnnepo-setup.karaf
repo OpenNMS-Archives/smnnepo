@@ -7,12 +7,16 @@ if { $3 } {
 	LOCATION=$2;
 }
 
+echo "OpenNMS Root: $ONMS"
+echo "Broker: $BROKER"
+echo "Monitoring Location: $LOCATION"
+
 config:edit org.ops4j.pax.url.mvn
-config:propset org.ops4j.pax.url.mvn.repositories http://$ONMS/smnnepo@snapshots@id=opennms-repo
+config:propset org.ops4j.pax.url.mvn.repositories $ONMS/smnnepo@snapshots@id=opennms-repo
 config:update
 	
 config:edit org.opennms.netmgt.sampler.config
-config:propset rest.root http://$ONMS/opennms/rest
+config:propset rest.root $ONMS/opennms/rest
 config:propset location.name "$LOCATION"
 config:propset username admin
 config:propset password admin
