@@ -61,7 +61,8 @@ case "$1" in
 		if [ $RETVAL -eq 0 ]; then
 			sleep 5
 			echo -n "configuring container: URL=$OPENNMS, LOCATION=$LOCATION: "
-			"$SMNNEPO_HOME"/bin/client "$OPENNMS/smnnepo/smnnepo-setup.karaf" "$LOCATION" >/tmp/smnnepo.log 2>&1
+			OPENNMS=`echo "$OPENNMS" | sed -e 's,/$,,'`
+			"$SMNNEPO_HOME"/bin/client "source" "\"$OPENNMS/smnnepo/smnnepo-setup.karaf\"" "\"$OPENNMS\"" "\"$LOCATION\"" >/tmp/smnnepo.log 2>&1
 			RETVAL="$?"
 			if [ $RETVAL -eq 0 ]; then
 				echo "OK"

@@ -101,8 +101,8 @@ install -d -m 755 "$PREFIXPREFIX"
 tar -xvzf "%{_tmppath}"/apache-karaf-%{karaf_version}.tar.gz
 mv "apache-karaf-%{karaf_version}" "$RPM_BUILD_ROOT%{instprefix}"
 
-install -d -m 755 "$RPM_BUILD_ROOT%{webappdir}"
-install -c -m 644 "sampler-repo-webapp/target"/*.war "$RPM_BUILD_ROOT%{webappdir}/smnnepo.war"
+install -d -m 755 "$RPM_BUILD_ROOT%{webappdir}"/smnnepo
+unzip -d "$RPM_BUILD_ROOT%{webappdir}"/smnnepo "sampler-repo-webapp/target"/*.war
 
 install -d -m 755 "$RPM_BUILD_ROOT%{_initrddir}" "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"
 
@@ -110,10 +110,10 @@ sed -e 's,@INSTPREFIX@,%{instprefix},g' "smnnepo.init" > "$RPM_BUILD_ROOT%{_init
 chmod 755 "$RPM_BUILD_ROOT%{_initrddir}"/smnnepo
 
 echo "# The root of the OpenNMS install (eg, http://localhost:8980/)" >  "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
-echo "OPENNMS="                                                       >> "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
+echo "OPENNMS=\"\""                                                   >> "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
 echo ""                                                               >> "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
 echo "# The name of this location (from monitoring-locations.xml)"    >> "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
-echo "LOCATION="                                                      >> "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
+echo "LOCATION=\"\""                                                  >> "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
 
 # set up the system directory
 #rm -rf "%{repodir}"/org/opennms/netmgt/sample/sampler-repo*
@@ -128,8 +128,12 @@ find "${RPM_BUILD_ROOT}%{instprefix}" ! -type d \
 	| grep -v "${RPM_BUILD_ROOT}%{instprefix}/etc" \
 	| grep -v "${RPM_BUILD_ROOT}%{instprefix}/bin" \
 	| sed -e "s,${RPM_BUILD_ROOT},," \
-	> %{_tmppath}/files.main
+	> "%{_tmppath}"/files.main
 
+find "${RPM_BUILD_ROOT}%{webappdir}/smnnepo" ! -type d \
+	| grep -v -E '\.karaf$' \
+	| sed -e "s,${RPM_BUILD_ROOT},," \
+	> "%{_tmppath}"/files.webapp
 
 %clean
 rm -rf "$RPM_BUILD_ROOT" "%{repodir}"
@@ -145,6 +149,6 @@ rm -rf "$RPM_BUILD_ROOT" "%{repodir}"
 %config %{instprefix}/etc/*
 %attr(775,root,root) %{instprefix}/bin/*
 
-%files -n opennms-webapp-smnnepo
+%files -n opennms-webapp-smnnepo -f %{_tmppath}/files.webapp
 %defattr(664 root root 775)
-%{webappdir}/*.war
+%config(noreplace) %{webappdir}/smnnepo/*.karaf
