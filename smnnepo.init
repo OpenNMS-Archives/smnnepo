@@ -20,8 +20,8 @@ NAME="smnnepo"
 DESC="SMNnepO Distributed Client"
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 SMNNEPO_HOME="@INSTPREFIX@"
-OPENNMS="http://localhost:8980/"
-LOCATION="Default"
+OPENNMS=""
+LOCATION=""
 RUNAS="root"
 
 CONFFILE="/etc/default/$NAME"
@@ -34,7 +34,7 @@ elif [ -f "/etc/sysconfig/$NAME" ]; then
 fi
 
 is_running() {
-	"$SMNNEPO_HOME"/bin/status >/dev/null
+	"$SMNNEPO_HOME"/bin/status >/dev/null 2>&1
 }
 
 case "$1" in
@@ -60,17 +60,29 @@ case "$1" in
 		RETVAL="$?"
 		if [ $RETVAL -eq 0 ]; then
 			sleep 5
-			echo "running script"
+			echo -n "configuring container: URL=$OPENNMS, LOCATION=$LOCATION: "
+			"$SMNNEPO_HOME"/bin/client "$OPENNMS/smnnepo/smnnepo-setup.karaf" "$LOCATION" >/tmp/smnnepo.log 2>&1
+			RETVAL="$?"
+			if [ $RETVAL -eq 0 ]; then
+				echo "OK"
+				exit 0
+			else
+				echo "FAILED, see /tmp/smnnepo.log for details"
+				exit $RETVAL
+			fi
 		else
+			echo "FAILED"
 			exit $RETVAL
 		fi
 		;;
 
 	stop)
+		echo -n "Stopping $DESC: "
 		if is_running; then
 			"$SMNNEPO_HOME"/bin/stop >/dev/null
 			RETVAL="$?"
 			if [ $RETVAL -eq 0 ]; then
+				echo "OK"
 				exit 0
 			else
 				echo "FAILED"
@@ -83,7 +95,7 @@ case "$1" in
 		;;
 
 	restart)
-		$0 stop
+		$0 stop >/dev/null 2>&1
 		sleep 2
 		$0 start
 		exit $?
