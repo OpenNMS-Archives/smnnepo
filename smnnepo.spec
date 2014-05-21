@@ -109,21 +109,18 @@ install -d -m 755 "$RPM_BUILD_ROOT%{_initrddir}" "$RPM_BUILD_ROOT%{_sysconfdir}/
 sed -e 's,@INSTPREFIX@,%{instprefix},g' "smnnepo.init" > "$RPM_BUILD_ROOT%{_initrddir}"/smnnepo
 chmod 755 "$RPM_BUILD_ROOT%{_initrddir}"/smnnepo
 
-echo "# The root of the OpenNMS install (eg, http://localhost:8980/)" >  "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
-echo "OPENNMS=\"\""                                                   >> "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
-echo ""                                                               >> "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
-echo "# The name of this location (from monitoring-locations.xml)"    >> "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
-echo "LOCATION=\"\""                                                  >> "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
+sed -e 's,@INSTPREFIX@,%{instprefix},g' "smnnepo.sh" > "$RPM_BUILD_ROOT%{instprefix}"/bin/start-smnnepo
+chmod 755 "$RPM_BUILD_ROOT%{instprefix}"/bin/start-smnnepo
 
-# set up the system directory
-#rm -rf "%{repodir}"/org/opennms/netmgt/sample/sampler-repo*
-#cd "%{repodir}"
-#	rsync -ar * "$RPM_BUILD_ROOT%{instprefix}/system/"
-#	mkdir -p "$RPM_BUILD_ROOT/opt/opennms/system/"
-#	rsync -ar --exclude-from="%{_tmppath}/maven-excludes.txt" * "$RPM_BUILD_ROOT/opt/opennms/system/"
-#cd -
+echo "# The root of the OpenNMS install (eg, http://localhost:8980/)"    >  "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
+echo "OPENNMS=\"\""                                                      >> "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
+echo ""                                                                  >> "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
+echo "# The ActiveMQ broker URL (defaults to 61616 on the OpenNMS host)" >> "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
+echo "BROKER=\"\""                                                       >> "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
+echo ""                                                                  >> "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
+echo "# The name of this location (from monitoring-locations.xml)"       >> "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
+echo "LOCATION=\"\""                                                     >> "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
 
-echo sed -e "s,^%{instprefix}/bin,%%attr(755,root,root) %{instprefix}/bin,"
 find "${RPM_BUILD_ROOT}%{instprefix}" ! -type d \
 	| grep -v "${RPM_BUILD_ROOT}%{instprefix}/etc" \
 	| grep -v "${RPM_BUILD_ROOT}%{instprefix}/bin" \

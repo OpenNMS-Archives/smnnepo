@@ -20,18 +20,6 @@ NAME="smnnepo"
 DESC="SMNnepO Distributed Client"
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 SMNNEPO_HOME="@INSTPREFIX@"
-OPENNMS=""
-LOCATION=""
-RUNAS="root"
-
-CONFFILE="/etc/default/$NAME"
-
-if [ -f $CONFFILE ]; then
-        . $CONFFILE
-elif [ -f "/etc/sysconfig/$NAME" ]; then
-        CONFFILE="/etc/sysconfig/$NAME"
-        . $CONFFILE
-fi
 
 is_running() {
 	"$SMNNEPO_HOME"/bin/status >/dev/null 2>&1
@@ -45,36 +33,8 @@ case "$1" in
 			exit 0
 		fi
 
-		if [ x$RUNAS != xroot ]; then
-			SUDO_PREFIX="sudo -u $RUNAS"
-			CHUID="--chuid $RUNAS"
-		fi
-
-		echo -n "Starting $DESC: "
-		if [ -z "$OPENNMS" ] || [ -z "$LOCATION" ]; then
-			echo "no configuration"
-			exit 0
-		fi
-
-		"$SMNNEPO_HOME"/bin/start >/dev/null
-		RETVAL="$?"
-		if [ $RETVAL -eq 0 ]; then
-			sleep 5
-			echo -n "configuring container: URL=$OPENNMS, LOCATION=$LOCATION: "
-			OPENNMS=`echo "$OPENNMS" | sed -e 's,/$,,'`
-			"$SMNNEPO_HOME"/bin/client "source" "\"$OPENNMS/smnnepo/smnnepo-setup.karaf\"" "\"$OPENNMS\"" "\"$LOCATION\"" >/tmp/smnnepo.log 2>&1
-			RETVAL="$?"
-			if [ $RETVAL -eq 0 ]; then
-				echo "OK"
-				exit 0
-			else
-				echo "FAILED, see /tmp/smnnepo.log for details"
-				exit $RETVAL
-			fi
-		else
-			echo "FAILED"
-			exit $RETVAL
-		fi
+		"$SMNNEPO_HOME"/bin/start-smnnepo
+		exit $?
 		;;
 
 	stop)
