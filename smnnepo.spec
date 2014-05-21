@@ -33,7 +33,8 @@ AutoProv: no
 %define with_tests	0%{nil}
 %define with_docs	1%{nil}
 
-%define repodir %{_tmppath}/m2-repo
+#%define repodir %{_tmppath}/m2-repo
+%define repodir $HOME/.m2/repository
 
 Name:			smnnepo
 Summary:		The OpenNMS Sampler/SMNnepO
@@ -67,7 +68,7 @@ that they don't have to be downloaded over the network.
 
 %prep
 
-rm -rf "%{repodir}"
+#rm -rf "%{repodir}"
 tar -xvzf $RPM_SOURCE_DIR/%{name}-source-%{version}-%{release}.tar.gz -C $RPM_BUILD_DIR
 %define setupdir %{packagedir}
 
@@ -84,7 +85,7 @@ export DONT_GPRINTIFY
 
 ./compile.pl -Dmaven.repo.local="%{repodir}" clean install
 
-wget -O "%{_tmppath}/karaf.tar.gz" "http://apache.mirrors.pair.com/karaf/%{karaf_version}/apache-karaf-%{karaf_version}.tar.gz"
+wget -c -O "%{_tmppath}/apache-karaf-%{karaf_version}.tar.gz" "http://apache.mirrors.pair.com/karaf/%{karaf_version}/apache-karaf-%{karaf_version}.tar.gz"
 
 ##############################################################################
 # installation
@@ -97,8 +98,8 @@ export DONT_GPRINTIFY
 PREFIXPREFIX=`dirname "$RPM_BUILD_ROOT%{instprefix}"`
 
 install -d -m 755 "$PREFIXPREFIX"
-tar -xvzf "%{_tmppath}"/karaf.tar.gz
-mv apache-karaf-* "$RPM_BUILD_ROOT%{instprefix}"
+tar -xvzf "%{_tmppath}"/apache-karaf-%{karaf_version}.tar.gz
+mv "apache-karaf-%{karaf_version}" "$RPM_BUILD_ROOT%{instprefix}"
 
 install -d -m 755 "$RPM_BUILD_ROOT%{webappdir}"
 install -c -m 644 "sampler-repo-webapp/target"/*.war "$RPM_BUILD_ROOT%{webappdir}/smnnepo.war"
@@ -122,9 +123,12 @@ echo "LOCATION="                                                      >> "$RPM_B
 #	rsync -ar --exclude-from="%{_tmppath}/maven-excludes.txt" * "$RPM_BUILD_ROOT/opt/opennms/system/"
 #cd -
 
-find "${RPM_BUILD_ROOT}%{instprefix}" ! -type d | \
-	grep -v "${RPM_BUILD_ROOT}%{instprefix}/etc" | \
-	sed -e "s,${RPM_BUILD_ROOT},," > %{_tmppath}/files.main
+echo sed -e "s,^%{instprefix}/bin,%%attr(755,root,root) %{instprefix}/bin,"
+find "${RPM_BUILD_ROOT}%{instprefix}" ! -type d \
+	| grep -v "${RPM_BUILD_ROOT}%{instprefix}/etc" \
+	| grep -v "${RPM_BUILD_ROOT}%{instprefix}/bin" \
+	| sed -e "s,${RPM_BUILD_ROOT},," \
+	> %{_tmppath}/files.main
 
 
 %clean
@@ -136,10 +140,11 @@ rm -rf "$RPM_BUILD_ROOT" "%{repodir}"
 
 %files -f %{_tmppath}/files.main
 %defattr(664 root root 775)
-%{_initrddir}/smnnepo
+%attr(775,root,root) %{_initrddir}/smnnepo
 %config(noreplace) %{_sysconfdir}/sysconfig/smnnepo
 %config %{instprefix}/etc/*
+%attr(775,root,root) %{instprefix}/bin/*
 
 %files -n opennms-webapp-smnnepo
 %defattr(664 root root 775)
-%{webappdir}
+%{webappdir}/*.war
