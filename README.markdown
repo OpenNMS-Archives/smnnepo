@@ -7,6 +7,46 @@ It will either install the sampler code by accessing the public OpenNMS maven
 repository, or can be configured to instead pull all necessary code from a
 webapp.
 
+Installing from RPMs
+====================
+
+There are now standalone RPMs available for running SMNnepO and OpenNMS.
+
+Installing the SMNnepO Client RPM
+---------------------------------
+
+On the system that should be doing collection, download the "smnnepo" RPM
+from http://yum.opennms.org/branches/pjsm-2.0/common/opennms/ and install
+it, like so: <code>rpm -Uvh smnnepo-1.13\*.rpm</code>
+
+
+Installing the SMNnepO Server Components
+----------------------------------------
+
+First, you should be running OpenNMS from the <code>pjsm/2.0</code> branch for now.
+RPMs are available at http://yum.opennms.org/branches/pjsm-2.0/common/opennms/
+
+You'll need OpenNMS (at least <code>opennms-core</code> and
+<code>opennms-webapp-jetty</code>), as well as the SMNnepO webapp from the
+same location (<code>opennms-webapp-smnnepo</code>).  Configure OpenNMS for
+monitoring locations like you would normally (see below for details), and
+then start it up.
+
+Starting the SMNnepO Server
+---------------------------
+
+1. Connect to the OpenNMS karaf: <code>ssh -p 8101 admin@localhost</code> (password is 'admin')
+2. Run the configuration script: <code>source http://localhost:8980/smnnepo/opennms-setup.karaf</code>
+
+Starting the SMNnepO Client
+---------------------------
+
+1. Edit /etc/sysconfig/smnnepo, and put in the URL for the root of your
+OpenNMS server, the name of your monitoring location, and (optionally) the
+URL for your broker.
+2. Start the SMNnepO client: <code>sudo /etc/init.d/smnnepo start</code>
+
+
 Installing the Sampler
 ======================
 
@@ -19,12 +59,6 @@ Installing from Source
 The finished sampler code will be installed in your maven directory, and a war
 file suitable for installation elsewhere will be in the
 <code>sampler-repo-webapp/target/</code> directory.
-
-Installing from Binary
-----------------------
-
-The <code>opennms-sampler-XXXXX.zip</code> file contains a compiled .war file
-for installation in your OpenNMS instance.
 
 Running the Standalone Sampler
 ==============================
