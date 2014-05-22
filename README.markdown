@@ -46,6 +46,10 @@ OpenNMS server, the name of your monitoring location, and (optionally) the
 URL for your broker.
 2. Start the SMNnepO client: <code>sudo /etc/init.d/smnnepo start</code>
 
+<hr>
+
+Old/Manual/Obsolete Instructions Below
+======================================
 
 Installing the Sampler
 ======================
