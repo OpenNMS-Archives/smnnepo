@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Map;
 
+import org.apache.aries.blueprint.ext.PropertyPlaceholder;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.RouteDefinition;
@@ -59,6 +60,16 @@ public class TrapReceiverContextTest extends CamelBlueprintTestSupport {
 		return true;
 	}
 
+	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void doPostSetup() throws Exception {
+		final PropertyPlaceholder properties = context().getRegistry().lookupByNameAndType("properties", PropertyPlaceholder.class);
+		final Map defaultProperties = properties.getDefaultProperties();
+		defaultProperties.put("trapListenAddress", "127.0.0.1");
+		defaultProperties.put("trapListenPort", "9162");
+		properties.setDefaultProperties(defaultProperties);
+	}
+
 	// The location of our Blueprint XML file to be used for testing
 	@Override
 	protected String getBlueprintDescriptor() {
@@ -100,7 +111,7 @@ public class TrapReceiverContextTest extends CamelBlueprintTestSupport {
 		pdu.setSpecific(0);
 		pdu.setTimeStamp(666L);
 		pdu.setAgentAddress(localAddr);
-		pdu.send(localhost, 162, "public");
+		pdu.send(localhost, 9162, "public");
 		Thread.sleep(5000);
 
 		assertMockEndpointsSatisfied();

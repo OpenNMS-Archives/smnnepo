@@ -17,6 +17,8 @@
   <!-- Configuration properties -->
   <cm:property-placeholder id="properties" persistent-id="org.opennms.netmgt.sampler.trapReceiver" update-strategy="none">
     <cm:default-properties>
+      <cm:property name="trapListenAddress" value="0.0.0.0" />
+      <cm:property name="trapListenPort" value="162" />
       <cm:property name="brokerName" value="localhost" />
       <cm:property name="brokerUri" value="vm:(broker:(network:static:tcp://127.0.0.1:61616)?brokerName=${brokerName}&amp;persistent=false&amp;useJmx=false)" />
     </cm:default-properties>
@@ -28,7 +30,7 @@
 
     <!-- Receive SNMP traps via Camel and forward them over ActiveMQ-->
     <route id="receiveSampleSet">
-      <from uri="snmp:127.0.0.1:162?protocol=udp&amp;type=TRAP"/>
+      <from uri="snmp:{{trapListenAddress}}:{{trapListenPort}}?protocol=udp&amp;type=TRAP"/>
       <log message="Received trap: ${body}"/>
       <bean ref="snmpTrapProcessor" />
       <to uri="activemq:snmpTrap?disableReplyTo=true" />
