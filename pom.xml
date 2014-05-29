@@ -23,6 +23,7 @@
   <modules>
     <module>features</module>
     <module>cassandra-driver</module>
+    <module>camel-trap-processor</module>
     <module>collection-sampler</module>
     <module>sample-api</module>
     <module>sample-test</module>
