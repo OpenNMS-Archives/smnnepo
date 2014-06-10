@@ -2,10 +2,9 @@ config:edit org.ops4j.pax.url.mvn
 config:propappend org.ops4j.pax.url.mvn.repositories ", http://localhost:8980/sampler-repo@snapshots@id=opennms-repo"
 config:update
 
-features:addurl mvn:org.opennms.netmgt.sample/karaf/1.13.2-SNAPSHOT/xml
+features:addurl mvn:org.opennms.netmgt.sample/karaf/1.13.2-PJSM-SNAPSHOT/xml
 config:edit org.opennms.netmgt.sampler.storage.rrd
-config:propset rrdStorageDirectory /opt/opennms/share/rrd/snmp
+config:propset rrdStorageDirectory ${opennms.home}/share/rrd/snmp
 config:update
 
-
-
+features:install sample-receiver-activemq

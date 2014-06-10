@@ -38,6 +38,10 @@ Starting the SMNnepO Server
 1. Connect to the OpenNMS karaf: <code>ssh -p 8101 admin@localhost</code> (password is 'admin')
 2. Run the configuration script: <code>source http://localhost:8980/smnnepo/opennms-setup.karaf</code>
 
+This will update your local feature repository, and then install the
+"<code>sample-receiver-activemq</code>" feature, to allow for listening
+on an internal ActiveMQ server.
+
 Starting the SMNnepO Client
 ---------------------------
 
