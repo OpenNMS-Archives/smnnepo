@@ -100,6 +100,7 @@ PREFIXPREFIX=`dirname "$RPM_BUILD_ROOT%{instprefix}"`
 install -d -m 755 "$PREFIXPREFIX"
 tar -xvzf "%{_tmppath}"/apache-karaf-%{karaf_version}.tar.gz
 mv "apache-karaf-%{karaf_version}" "$RPM_BUILD_ROOT%{instprefix}"
+touch "%{instprefix}/etc/org.opennms.minion.controller.cfg"
 
 install -d -m 755 "$RPM_BUILD_ROOT%{webappdir}"/smnnepo
 unzip -d "$RPM_BUILD_ROOT%{webappdir}"/smnnepo "sampler-repo-webapp/target"/*.war

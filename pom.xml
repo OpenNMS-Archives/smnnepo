@@ -29,6 +29,7 @@
     <module>sample-test</module>
     <module>sample-storage-cassandra</module>
     <module>sample-storage-rrd</module>
+    <module>sampler-controller</module>
     <module>sampler-config</module>
     <module>sampler-config-snmp</module>
     <module>sampler-snmp</module>
