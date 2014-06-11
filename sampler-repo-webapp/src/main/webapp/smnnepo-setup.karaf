@@ -27,4 +27,4 @@ config:propset brokerUri "vm:(broker:(network:static:$BROKER)?brokerName=persist
 config:update
 
 features:addurl mvn:org.opennms.netmgt.sample/karaf/1.13.2-PJSM-SNAPSHOT/xml
-features:install -v sampler-with-activemq-export
+features:install -v sampler-controller sampler-with-activemq-export
