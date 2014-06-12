@@ -109,12 +109,12 @@ Configuring and Running the Sampler
 5. Install and run SMNnepO
        1. Collector and File Storage in single Karaf
 
-              features:addurl mvn:org.opennms.netmgt.sample/karaf/1.13.2-PJSM-SNAPSHOT/xml
+              features:addurl mvn:org.opennms.netmgt.sample/karaf/1.13.4-PJSM-SNAPSHOT/xml
               features:install -v sampler-with-file-storage
 
        1. Collector and RRD Storage in single Karaf
 
-              features:addurl mvn:org.opennms.netmgt.sample/karaf/1.13.2-PJSM-SNAPSHOT/xml
+              features:addurl mvn:org.opennms.netmgt.sample/karaf/1.13.4-PJSM-SNAPSHOT/xml
               config:edit org.opennms.netmgt.sampler.storage.rrd
               config:propset rrdStorageDirectory /opt/opennms/share/rrd/sampler
               config:update
@@ -122,13 +122,13 @@ Configuring and Running the Sampler
 
        1. Collector in Karaf forwarding sample sets to OpenNMS via ActiveMQ
 
-              features:addurl mvn:org.opennms.netmgt.sample/karaf/1.13.2-PJSM-SNAPSHOT/xml
+              features:addurl mvn:org.opennms.netmgt.sample/karaf/1.13.4-PJSM-SNAPSHOT/xml
               features:install -v sampler-with-activemq-export
 
           1. OpenNMS receiving sample sets and storing in a file
 
                   ssh -p 8101 admin@localhost
-                  features:addurl mvn:org.opennms.netmgt.sample/karaf/1.13.2-PJSM-SNAPSHOT/xml
+                  features:addurl mvn:org.opennms.netmgt.sample/karaf/1.13.4-PJSM-SNAPSHOT/xml
                   features:install -v sample-storage-file sample-receiver-activemq
 
           1. OpenNMS receiving sample sets and storing in RRDs
@@ -137,7 +137,7 @@ Configuring and Running the Sampler
               Collectd while this is running or both systems will be writing RRDs into the same directory.
 
                   ssh -p 8101 admin@localhost
-                  features:addurl mvn:org.opennms.netmgt.sample/karaf/1.13.2-PJSM-SNAPSHOT/xml
+                  features:addurl mvn:org.opennms.netmgt.sample/karaf/1.13.4-PJSM-SNAPSHOT/xml
                   config:edit org.opennms.netmgt.sampler.storage.rrd
                   config:propset rrdStorageDirectory /opt/opennms/share/rrd/snmp
                   config:update

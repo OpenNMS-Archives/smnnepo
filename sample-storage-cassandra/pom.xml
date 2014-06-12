@@ -9,7 +9,7 @@
   <parent>
     <groupId>org.opennms.netmgt.sample</groupId>
     <artifactId>sample-parent</artifactId>
-    <version>1.13.2-PJSM-SNAPSHOT</version>
+    <version>1.13.4-PJSM-SNAPSHOT</version>
   </parent>
 
   <properties>
@@ -69,6 +69,22 @@
       <artifactId>findbugs</artifactId>
       <scope>provided</scope>
       <version>2.0.3</version>
+      <exclusions>
+        <exclusion>
+          <groupId>asm</groupId>
+          <artifactId>asm</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>asm</groupId>
+          <artifactId>asm-commons</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <!-- for findbugs -->
+    <dependency>
+      <groupId>org.ow2.asm</groupId>
+      <artifactId>asm-all</artifactId>
+      <version>${asmVersion}</version>
     </dependency>
   </dependencies>
 </project>
