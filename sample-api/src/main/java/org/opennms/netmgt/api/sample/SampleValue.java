@@ -33,6 +33,8 @@ public abstract class SampleValue<T extends Number> extends Number implements Co
     protected T getValue() {
         return m_value;
     }
+    
+    public abstract BigInteger bigIntegerValue();
 
     public static SampleValue<?> compose(ByteBuffer data) {
         byte dataType = data.get();

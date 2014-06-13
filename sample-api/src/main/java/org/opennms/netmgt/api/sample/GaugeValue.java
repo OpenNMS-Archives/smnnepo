@@ -1,5 +1,7 @@
 package org.opennms.netmgt.api.sample;
 
+import java.math.BigInteger;
+
 
 public class GaugeValue extends SampleValue<Double> {
     private static final long serialVersionUID = 2L;
@@ -53,6 +55,11 @@ public class GaugeValue extends SampleValue<Double> {
     @Override
     public long longValue() {
         return getValue().longValue();
+    }
+    
+    @Override
+    public BigInteger bigIntegerValue() {
+    	return BigInteger.valueOf(longValue());
     }
 
     @Override

@@ -1,8 +1,10 @@
 package org.opennms.netmgt.api.sample;
 
+import java.math.BigInteger;
+
 
 public class DeriveValue extends SampleValue<Long> {
-    private static final long serialVersionUID = 2L;
+	private static final long serialVersionUID = 2L;
 
     public DeriveValue() {
         this(null);
@@ -55,6 +57,12 @@ public class DeriveValue extends SampleValue<Long> {
         // TODO Auto-generated method stub
         return getValue();
     }
+
+    @Override
+	public BigInteger bigIntegerValue() {
+        // TODO Auto-generated method stub
+    	return BigInteger.ZERO;
+	}
 
     @Override
     public float floatValue() {
