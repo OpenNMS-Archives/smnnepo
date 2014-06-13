@@ -77,8 +77,13 @@ public class CounterValue extends SampleValue<BigInteger> {
     public double doubleValue() {
         return getValue().doubleValue();
     }
-
+    
     @Override
+	public BigInteger bigIntegerValue() {
+    	return getValue();
+	}
+
+	@Override
     public MetricType getType() {
         return MetricType.COUNTER;
     }
