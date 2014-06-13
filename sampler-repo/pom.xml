@@ -45,6 +45,7 @@
                 <feature>sample-receiver-activemq</feature>
                 <feature>sample-storage-file</feature>
                 <feature>sample-storage-rrd</feature>
+                <feature>sampler-controller</feature>
                 <feature>sampler-with-activemq-export</feature>
                 <feature>sampler-with-file-storage</feature>
                 <feature>sampler-with-rrd-storage</feature>
