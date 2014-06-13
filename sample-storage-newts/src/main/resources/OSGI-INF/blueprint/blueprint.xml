@@ -18,7 +18,7 @@
   <reference id="newtsRepository" interface="org.opennms.newts.api.SampleRepository" availability="mandatory" />
   
   <!-- construct an adaptor to assist converting collector samples to newts samples -->
-  <bean id="newtsAdapter" class="org.opennms.netmgt.sampler.storage.newts.NewtsRepositoryAdaptor">
+  <bean id="newtsAdapter" class="org.opennms.netmgt.sampler.storage.newts.NewtsRepositoryAdapter">
     <argument ref="newtsRepository" />
   </bean>
   

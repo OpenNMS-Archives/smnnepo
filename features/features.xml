@@ -8,6 +8,9 @@
     <!--  activemq features -->
     <repository>mvn:org.apache.activemq/activemq-karaf/5.9.0/xml/features</repository>
 
+    <!--  newts features -->
+    <repository>mvn:org.opennms.newts/karaf/1.0.0-SNAPSHOT/xml/features</repository>
+
     <!-- CXF features -->
     <!--<repository>mvn:org.apache.cxf.karaf/apache-cxf/2.7.7/xml/features</repository>-->
 
@@ -67,27 +70,12 @@
       <bundle>mvn:org.opennms.netmgt.sample/sampler-snmp/1.13.2-PJSM-SNAPSHOT</bundle>
     </feature>
 
-    <!-- Cassandra sampler storage and graphing features-->
-    <feature name="cassandra-driver" description="Sample Collection and Storage :: Cassandra Driver" version="1.13.2-PJSM-SNAPSHOT">
-      <bundle dependency="true">mvn:commons-cli/commons-cli/1.2</bundle>
-      <bundle dependency="true">mvn:commons-lang/commons-lang/2.6</bundle>
-      <bundle dependency="true">mvn:joda-time/joda-time/2.2</bundle>
-      <bundle dependency="true">mvn:org.xerial.snappy/snappy-java/1.0.5-M3</bundle>
-      <bundle>mvn:org.opennms.netmgt.sample/cassandra-driver/1.0.0-beta1</bundle>
-    </feature>
-
     <feature name="sample-graphs" description="Sample Collection and Storage :: Graphing" version="1.13.2-PJSM-SNAPSHOT">
       <feature>sample-api</feature>
       <feature>sample-config-snmp</feature>
       <feature>http-whiteboard</feature>
       <feature>cxf-jaxrs</feature>
       <bundle>mvn:org.opennms.netmgt.sample/sample-graphs/1.13.2-PJSM-SNAPSHOT</bundle>
-    </feature>
-
-    <feature name="sample-storage-cassandra" description="Sample Collection and Storage :: Cassandra" version="1.13.2-PJSM-SNAPSHOT">
-      <feature>sample-api</feature>
-      <feature>cassandra-driver</feature>
-      <bundle>mvn:org.opennms.netmgt.sample/sample-storage-cassandra/1.13.2-PJSM-SNAPSHOT</bundle>
     </feature>
 
     <feature name="sample-storage-rrd" description="Sample Collection and Storage :: RRD" version="1.13.2-PJSM-SNAPSHOT">
@@ -99,21 +87,6 @@
 
       <bundle>mvn:org.opennms.features.collection/org.opennms.features.collection.sampler/1.13.2-PJSM-SNAPSHOT</bundle>
       <bundle>mvn:org.opennms.netmgt.sample/sample-storage-rrd/1.13.2-PJSM-SNAPSHOT</bundle>
-    </feature>
-
-    <feature name="jackson" description="Jackson JSON library" version="2.1.4">
-      <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/2.1.4</bundle>
-      <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/2.1.4</bundle>
-      <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/2.1.4</bundle>
-    </feature>
-
-    <feature name="newts-api" description="Newts API" version="1.0.0-SNAPSHOT">
-      <feature>jackson</feature>
-      <bundle dependency="true">mvn:commons-codec/commons-codec/1.9</bundle>
-      <bundle dependency="true">mvn:com.google.guava/guava/15.0</bundle>
-      <bundle dependency="true">mvn:org.apache.commons/commons-jexl/2.1.1</bundle>
-      <bundle>mvn:org.opennms.newts/newts-api/1.0.0-SNAPSHOT</bundle>
-
     </feature>
 
     <feature name="sample-storage-newts" description="Sample Collection and Storage :: Newts" version="1.13.2-PJSM-SNAPSHOT">

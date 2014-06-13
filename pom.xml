@@ -22,12 +22,10 @@
 
   <modules>
     <module>features</module>
-    <module>cassandra-driver</module>
     <module>camel-trap-processor</module>
     <module>collection-sampler</module>
     <module>sample-api</module>
     <module>sample-test</module>
-    <module>sample-storage-cassandra</module>
     <module>sample-storage-rrd</module>
     <module>sample-storage-newts</module>
     <module>sampler-controller</module>
