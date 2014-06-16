@@ -28,7 +28,8 @@
     <module>sample-test</module>
     <module>sample-storage-rrd</module>
     <module>sample-storage-newts</module>
-    <module>sampler-controller</module>
+    <module>minion-controller-api</module>
+    <module>minion-controller-core</module>
     <module>sampler-config</module>
     <module>sampler-config-snmp</module>
     <module>sampler-snmp</module>

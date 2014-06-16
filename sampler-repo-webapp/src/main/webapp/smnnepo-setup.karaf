@@ -26,5 +26,9 @@ config:edit org.opennms.netmgt.sampler.persister
 config:propset brokerUri "vm:(broker:(network:static:$BROKER)?brokerName=persisterBroker&persistent=false&useJmx=false)"
 config:update
 
+config:edit org.opennms.minion.controller
+config:propset location "$LOCATION"
+config:update
+
 features:addurl mvn:org.opennms.netmgt.sample/karaf/1.13.4-PJSM-SNAPSHOT/xml
-features:install -v sampler-controller sampler-with-activemq-export
+features:install -v minion-controller sampler-with-activemq-export

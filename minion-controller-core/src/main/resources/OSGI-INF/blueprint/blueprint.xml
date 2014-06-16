@@ -16,9 +16,6 @@
 ">
 
 	<cm:property-placeholder persistent-id="org.opennms.minion.controller" update-strategy="reload">
-		<cm:default-properties>
-			<cm:property name="uuid" value="" />
-		</cm:default-properties>
 	</cm:property-placeholder>
 
 	<reference id="configAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" />

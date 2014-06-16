@@ -13,18 +13,25 @@
   </parent>
 
   <properties>
-    <bundle.symbolicName>org.opennms.minion.controller</bundle.symbolicName>
-    <bundle.namespace>org.opennms.minion.controller</bundle.namespace>
+    <bundle.symbolicName>org.opennms.minion.controller.core</bundle.symbolicName>
+    <bundle.namespace>org.opennms.minion.controller.core</bundle.namespace>
   </properties>
 
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>sampler-controller</artifactId>
+  <groupId>org.opennms.minion</groupId>
+  <artifactId>minion-controller-core</artifactId>
 
-  <name>Sample Collection and Storage :: Controller</name>
+  <name>Minion :: Controller Core</name>
 
   <packaging>bundle</packaging>
   
   <dependencies>
+    <dependency>
+      <groupId>org.opennms.minion</groupId>
+      <artifactId>minion-controller-api</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>
@@ -33,6 +40,12 @@
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.compendium</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.karaf.admin</groupId>
+      <artifactId>org.apache.karaf.admin.core</artifactId>
+      <version>${karafVersion}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -50,6 +63,6 @@
       <artifactId>logback-classic</artifactId>
       <scope>test</scope>
     </dependency>
-    </dependencies>
+  </dependencies>
 
 </project>

@@ -47,7 +47,7 @@
                 <feature>sample-storage-rrd</feature>
                 <feature>sample-storage-newts</feature>
                 <feature>newts-cassandra</feature>
-                <feature>sampler-controller</feature>
+                <feature>minion-controller</feature>
                 <feature>sampler-with-activemq-export</feature>
                 <feature>sampler-with-file-storage</feature>
                 <feature>sampler-with-rrd-storage</feature>

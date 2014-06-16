@@ -26,11 +26,9 @@
     </feature>
 
     <!-- Controller -->
-    <feature name="sampler-controller" description="Sample Collection and Storage :: Controller" version="1.13.4-PJSM-SNAPSHOT">
-      <config name="org.opennms.minion.controller">
-			uuid = 12345
-		</config>
-      <bundle>mvn:org.opennms.netmgt.sample/sampler-controller/1.13.4-PJSM-SNAPSHOT</bundle>
+    <feature name="minion-controller" description="Minion :: Controller" version="1.13.4-PJSM-SNAPSHOT">
+      <bundle>mvn:org.opennms.minion/minion-controller-api/1.13.4-PJSM-SNAPSHOT</bundle>
+      <bundle>mvn:org.opennms.minion/minion-controller-core/1.13.4-PJSM-SNAPSHOT</bundle>
     </feature>
 
     <!-- Config features -->
