@@ -14,6 +14,9 @@
     <!-- CXF features -->
     <!--<repository>mvn:org.apache.cxf.karaf/apache-cxf/2.7.7/xml/features</repository>-->
 
+    <!-- Karaf Enterprise features (needed for "JMS" feature) -->
+    <repository>mvn:org.apache.karaf.assemblies.features/enterprise/${karafVersion}/xml/features</repository>
+
     <!-- Sampler features -->
 
     <!-- API feature -->
@@ -27,6 +30,12 @@
 
     <!-- Controller -->
     <feature name="minion-controller" description="Minion :: Controller" version="1.13.4-PJSM-SNAPSHOT">
+      <feature>karaf-framework</feature>
+      <feature version="${karafVersion}">jms</feature>
+      <!--
+      <bundle>mvn:org.apache.karaf.jms:org.apache.karaf.jms.core</bundle>
+      <bundle>mvn:org.apache.karaf.admin:org.apache.karaf.admin.core</bundle>
+      -->
       <bundle>mvn:org.opennms.minion/minion-controller-api/1.13.4-PJSM-SNAPSHOT</bundle>
       <bundle>mvn:org.opennms.minion/minion-controller-core/1.13.4-PJSM-SNAPSHOT</bundle>
     </feature>

@@ -28,6 +28,7 @@ config:update
 
 config:edit org.opennms.minion.controller
 config:propset location "$LOCATION"
+config:propset broker "$BROKER"
 config:update
 
 features:addurl mvn:org.opennms.netmgt.sample/karaf/1.13.4-PJSM-SNAPSHOT/xml

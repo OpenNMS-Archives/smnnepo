@@ -43,6 +43,12 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>org.apache.karaf.jms</groupId>
+      <artifactId>org.apache.karaf.jms.core</artifactId>
+      <version>${karafVersion}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.karaf.admin</groupId>
       <artifactId>org.apache.karaf.admin.core</artifactId>
       <version>${karafVersion}</version>

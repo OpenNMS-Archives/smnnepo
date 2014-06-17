@@ -83,6 +83,13 @@
       <type>xml</type>
     </dependency>
     <dependency>
+      <groupId>org.apache.karaf.assemblies.features</groupId>
+      <artifactId>enterprise</artifactId>
+      <version>${karafVersion}</version>
+      <type>xml</type>
+      <classifier>features</classifier>
+    </dependency>
+    <dependency>
       <groupId>org.opennms.netmgt.sample</groupId>
       <artifactId>sampler-config</artifactId>
       <version>${project.version}</version>
