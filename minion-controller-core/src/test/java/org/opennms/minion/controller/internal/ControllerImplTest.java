@@ -16,7 +16,7 @@ import org.opennms.minion.controller.api.Controller;
 import org.opennms.minion.controller.api.IMinionStatus;
 
 public class ControllerImplTest {
-    private Date m_testStart = null;
+    private static Date m_testStart = new Date();
     private MockConfigurationAdmin m_configurationAdmin = null;
     private MockAdminService m_adminService = null;
     private MockJmsService m_jmsService = null;
@@ -24,8 +24,6 @@ public class ControllerImplTest {
 
     @Before
     public void setUp() throws Exception {
-        m_testStart = new Date();
-
         m_configurationAdmin = new MockConfigurationAdmin();
         m_configurationAdmin.setProperty(Controller.PID, "location", "Test");
         m_configurationAdmin.setProperty(Controller.PID, "broker", "vm://test?create=true");
