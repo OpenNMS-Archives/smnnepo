@@ -1,13 +1,18 @@
 package org.opennms.minion.controller.internal;
 
 import java.io.IOException;
+import java.io.StringWriter;
+import java.net.URI;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.UUID;
 
+import javax.xml.bind.JAXBContext;
+
 import org.apache.karaf.admin.AdminService;
 import org.apache.karaf.admin.Instance;
+import org.apache.karaf.jms.JmsService;
 import org.opennms.minion.controller.api.Controller;
 import org.opennms.minion.controller.api.ControllerException;
 import org.opennms.minion.controller.api.IMinionStatus;
@@ -21,6 +26,7 @@ public class ControllerImpl implements Controller {
 
     private AdminService m_adminService;
     private ConfigurationAdmin m_configurationAdmin;
+    private JmsService m_jmsService;
 
     @Override
     public void init() throws ControllerException {
@@ -35,6 +41,22 @@ public class ControllerImpl implements Controller {
         final String location = getLocation();
         if (location == null) {
             throw new ControllerException("Location is not set!  Please make sure you set location='Location Name' in the " + PID + " configuration.");
+        }
+
+        String initMessageBody = null;
+        final IMinionStatus status = getStatus();
+        try {
+            final StringWriter writer = new StringWriter();
+            JAXBContext.newInstance(MinionStatusImpl.class).createMarshaller().marshal(status, writer);
+            initMessageBody = writer.toString();
+        } catch (final Exception e) {
+            throw new ControllerException("Failed to marshal status: " + status, e);
+        }
+
+        try {
+            m_jmsService.send("controllerFactory", "initialization", initMessageBody, null, null, null);
+        } catch (final Exception e) {
+            throw new ControllerException("Failed to send message: " + initMessageBody, e);
         }
 
         LOG.debug("Controller initialized. ID is {}.", getId());
@@ -56,6 +78,19 @@ public class ControllerImpl implements Controller {
 
     protected void setLocation(final String location) throws ControllerException {
         saveProperty("location", location);
+    }
+    
+    public URI getBrokerURI() throws ControllerException {
+        final String broker = loadProperty("broker");
+        try {
+            return URI.create(broker);
+        } catch (final IllegalArgumentException e) {
+            throw new ControllerException("Invalid broker URI: " + broker, e);
+        }
+    }
+
+    protected void setBrokerURI(final URI brokerUri) throws ControllerException {
+        saveProperty("broker", brokerUri.toString());
     }
 
     @Override
@@ -133,4 +168,12 @@ public class ControllerImpl implements Controller {
         m_configurationAdmin = configurationAdmin;
     }
 
+    public void setJmsService(final JmsService jmsService) throws ControllerException {
+        try {
+            jmsService.create("controllerFactory", "activemq", getBrokerURI().toString());
+        } catch (final Exception e) {
+            throw new ControllerException("Failed to create controllerBroker", e);
+        }
+        m_jmsService = jmsService;
+    }
 }
