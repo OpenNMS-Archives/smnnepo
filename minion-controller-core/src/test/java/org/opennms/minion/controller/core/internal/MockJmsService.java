@@ -17,7 +17,7 @@ public class MockJmsService implements JmsService {
 
     @Override
     public List<String> connectionFactories() throws Exception {
-        throw new UnsupportedOperationException("Not yet implemented!");
+        return new ArrayList<String>(m_factories.keySet());
     }
 
     @Override
@@ -35,7 +35,10 @@ public class MockJmsService implements JmsService {
 
     @Override
     public void delete(String name) throws Exception {
-        throw new UnsupportedOperationException("Not yet implemented!");
+        if (!m_factories.containsKey(name)) {
+            throw new IllegalArgumentException("No such factory: " + name);
+        }
+        m_factories.remove(name);
     }
 
     @Override

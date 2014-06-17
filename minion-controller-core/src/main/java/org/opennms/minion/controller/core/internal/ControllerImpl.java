@@ -57,7 +57,7 @@ public class ControllerImpl implements Controller {
         }
 
         try {
-            m_jmsService.send(FACTORY_NAME, INITIALIZATION_QUEUE, initMessageBody, null, null, null);
+            getJmsService().send(FACTORY_NAME, INITIALIZATION_QUEUE, initMessageBody, null, null, null);
         } catch (final Exception e) {
             throw new ControllerException("Failed to send message: " + initMessageBody, e);
         }
@@ -171,15 +171,28 @@ public class ControllerImpl implements Controller {
         m_configurationAdmin = configurationAdmin;
     }
 
-    public void setJmsService(final JmsService jmsService) throws ControllerException {
+    protected JmsService getJmsService() throws ControllerException {
+        assertJmsServiceFactoryCreated();
+        return m_jmsService;
+    }
+
+    protected void assertJmsServiceFactoryCreated() throws ControllerException {
         try {
-            final List<String> factories = jmsService.connectionFactories();
-            if (factories == null || (!factories.contains("jms/" + FACTORY_NAME) && !factories.contains(FACTORY_NAME))) {
-                jmsService.create(FACTORY_NAME, "activemq", getBrokerURI().toString());
+            final List<String> factories = m_jmsService.connectionFactories();
+            if (factories.contains(FACTORY_NAME)) {
+                return;
             }
+            if (factories.contains("jms/" + FACTORY_NAME)) {
+                return;
+            }
+            LOG.debug("Creating JMS service factory {} using broker URI: {}", FACTORY_NAME, getBrokerURI());
+            m_jmsService.create(FACTORY_NAME, "activemq", getBrokerURI().toString());
         } catch (final Exception e) {
             throw new ControllerException("Failed to create controllerBroker", e);
         }
+    }
+
+    public void setJmsService(final JmsService jmsService) throws ControllerException {
         m_jmsService = jmsService;
     }
 }
