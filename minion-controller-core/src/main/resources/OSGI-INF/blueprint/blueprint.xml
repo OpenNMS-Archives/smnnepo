@@ -19,9 +19,11 @@
 	</cm:property-placeholder>
 
 	<reference id="configAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" />
-
+	<reference id="adminService" interface="org.apache.karaf.admin.AdminService" />
+	
 	<bean id="controller" class="org.opennms.minion.controller.internal.ControllerImpl" init-method="init">
 		<property name="configurationAdmin" ref="configAdmin" />
+		<property name="adminService" ref="adminService" />
 	</bean>
 
 	<service id="controllerService" ref="controller" interface="org.opennms.minion.controller.api.Controller" />
