@@ -83,7 +83,7 @@ rm -rf $RPM_BUILD_ROOT
 DONT_GPRINTIFY="yes, please do not"
 export DONT_GPRINTIFY
 
-./compile.pl -Dmaven.repo.local="%{repodir}" clean install
+./compile.pl -DkarafVersion=%{karaf_version} -Dmaven.repo.local="%{repodir}" clean install
 
 wget -c -O "%{_tmppath}/apache-karaf-%{karaf_version}.tar.gz" "http://apache.mirrors.pair.com/karaf/%{karaf_version}/apache-karaf-%{karaf_version}.tar.gz"
 
