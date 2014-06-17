@@ -22,7 +22,7 @@
 	<reference id="configAdmin"  interface="org.osgi.service.cm.ConfigurationAdmin" />
 	<reference id="jmsService"   interface="org.apache.karaf.jms.JmsService" />
 	
-	<bean id="controller" class="org.opennms.minion.controller.internal.ControllerImpl" init-method="init">
+	<bean id="controller" class="org.opennms.minion.controller.core.internal.ControllerImpl" init-method="init">
 		<property name="configurationAdmin" ref="configAdmin" />
 		<property name="adminService" ref="adminService" />
 		<property name="jmsService" ref="jmsService" />

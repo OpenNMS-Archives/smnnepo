@@ -1,4 +1,4 @@
-package org.opennms.minion.controller.internal;
+package org.opennms.minion.controller.core.internal;
 
 import java.util.Date;
 

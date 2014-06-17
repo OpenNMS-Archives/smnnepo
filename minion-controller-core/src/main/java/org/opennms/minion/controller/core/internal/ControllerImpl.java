@@ -1,4 +1,4 @@
-package org.opennms.minion.controller.internal;
+package org.opennms.minion.controller.core.internal;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -6,6 +6,7 @@ import java.net.URI;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.UUID;
 
 import javax.xml.bind.JAXBContext;
@@ -23,6 +24,8 @@ import org.slf4j.LoggerFactory;
 
 public class ControllerImpl implements Controller {
     private static final Logger LOG = LoggerFactory.getLogger(ControllerImpl.class);
+    private static final String FACTORY_NAME = "minionController";
+    private static final String INITIALIZATION_QUEUE = "initialization";
 
     private AdminService m_adminService;
     private ConfigurationAdmin m_configurationAdmin;
@@ -54,7 +57,7 @@ public class ControllerImpl implements Controller {
         }
 
         try {
-            m_jmsService.send("controllerFactory", "initialization", initMessageBody, null, null, null);
+            m_jmsService.send(FACTORY_NAME, INITIALIZATION_QUEUE, initMessageBody, null, null, null);
         } catch (final Exception e) {
             throw new ControllerException("Failed to send message: " + initMessageBody, e);
         }
@@ -170,7 +173,10 @@ public class ControllerImpl implements Controller {
 
     public void setJmsService(final JmsService jmsService) throws ControllerException {
         try {
-            jmsService.create("controllerFactory", "activemq", getBrokerURI().toString());
+            final List<String> factories = jmsService.connectionFactories();
+            if (factories == null || (!factories.contains("jms/" + FACTORY_NAME) && !factories.contains(FACTORY_NAME))) {
+                jmsService.create(FACTORY_NAME, "activemq", getBrokerURI().toString());
+            }
         } catch (final Exception e) {
             throw new ControllerException("Failed to create controllerBroker", e);
         }

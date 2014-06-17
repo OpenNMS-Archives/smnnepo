@@ -1,4 +1,4 @@
-package org.opennms.minion.controller.internal;
+package org.opennms.minion.controller.core.internal;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -14,6 +14,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opennms.minion.controller.api.Controller;
 import org.opennms.minion.controller.api.IMinionStatus;
+import org.opennms.minion.controller.core.internal.ControllerImpl;
+import org.opennms.minion.controller.core.internal.MinionStatusImpl;
 
 public class ControllerImplTest {
     private static Date m_testStart = new Date();
