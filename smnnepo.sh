@@ -5,6 +5,8 @@ MYDIR=`cd "$MYDIR"; pwd`
 SMNNEPO_HOME=`cd "$MYDIR"/..; pwd`
 
 SMNNEPO_HOME="@INSTPREFIX@"
+USERNAME="admin"
+PASSWORD="admin"
 OPENNMS=""
 BROKER=""
 LOCATION=""
@@ -42,15 +44,16 @@ fi
 "$SMNNEPO_HOME"/bin/start >/dev/null
 RETVAL="$?"
 if [ $RETVAL -eq 0 ]; then
-	sleep 5
+        # FIXME We can't start until karaf is ready to run the script need a script that will poll for readiness
+	sleep 60
 	OPENNMS=`echo "$OPENNMS" | sed -e 's,/$,,'`
 	if [ -n "$BROKER" ]; then
 		echo -n "configuring container: URL=$OPENNMS, Location=$LOCATION: "
-		"$SMNNEPO_HOME"/bin/client "source" "\"$OPENNMS/smnnepo/smnnepo-setup.karaf\"" "\"$OPENNMS\"" "\"$BROKER\"" "\"$LOCATION\"" >/tmp/smnnepo.log 2>&1
+		"$SMNNEPO_HOME"/bin/client "source" "\"$OPENNMS/smnnepo/smnnepo-setup.karaf\"" "\"$USERNAME\"" "\"$PASSWORD\"" "\"$OPENNMS\"" "\"$BROKER\"" "\"$LOCATION\"" >/tmp/smnnepo.log 2>&1
 		RETVAL="$?"
 	else
 		echo -n "configuring container: URL=$OPENNMS, Broker=$BROKER, Location=$LOCATION: "
-		"$SMNNEPO_HOME"/bin/client "source" "\"$OPENNMS/smnnepo/smnnepo-setup.karaf\"" "\"$OPENNMS\"" "\"$LOCATION\"" >/tmp/smnnepo.log 2>&1
+		"$SMNNEPO_HOME"/bin/client "source" "\"$OPENNMS/smnnepo/smnnepo-setup.karaf\"" "\"$USERNAME\"" "\"$PASSWORD\"" "\"$OPENNMS\"" "\"$LOCATION\"" >/tmp/smnnepo.log 2>&1
 		RETVAL="$?"
 	fi
 

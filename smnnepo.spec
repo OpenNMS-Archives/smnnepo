@@ -113,7 +113,13 @@ chmod 755 "$RPM_BUILD_ROOT%{_initrddir}"/smnnepo
 sed -e 's,@INSTPREFIX@,%{instprefix},g' "smnnepo.sh" > "$RPM_BUILD_ROOT%{instprefix}"/bin/start-smnnepo
 chmod 755 "$RPM_BUILD_ROOT%{instprefix}"/bin/start-smnnepo
 
-echo "# The root of the OpenNMS install (eg, http://localhost:8980/)"    >  "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
+echo "# The the user name for logging into the opennms rest server"      >  "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
+echo "USERNAME=\"admin\""                                                >> "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
+echo ""                                                                  >> "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
+echo "# The password for logging into the opennms rest server"           >> "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
+echo "PASSWORD=\"admin\""                                                >> "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
+echo ""                                                                  >> "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
+echo "# The root of the OpenNMS install (eg, http://localhost:8980/)"    >> "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
 echo "OPENNMS=\"\""                                                      >> "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
 echo ""                                                                  >> "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
 echo "# The ActiveMQ broker URL (defaults to 61616 on the OpenNMS host)" >> "$RPM_BUILD_ROOT%{_sysconfdir}/sysconfig"/smnnepo
