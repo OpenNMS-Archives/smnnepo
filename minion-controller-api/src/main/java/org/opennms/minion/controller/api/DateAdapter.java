@@ -19,11 +19,17 @@ public class DateAdapter extends XmlAdapter<String, Date> {
 
     @Override
     public Date unmarshal(final String v) throws Exception {
+        if (v == null) {
+            return null;
+        }
         return m_dateFormat.get().parse(v);
     }
 
     @Override
     public String marshal(final Date v) throws Exception {
+        if (v == null) {
+            return null;
+        }
         return m_dateFormat.get().format(v);
     }
 }
