@@ -5,20 +5,46 @@ if { $5 } {
 	BROKER=$4;
 	LOCATION=$5;
 } {
+	# If there is no explicit broker argument, assume that it is the same address as the REST root
 	BROKER=(($3 replaceAll "https?://" "tcp://") replaceAll "(//[^:]*):\d+.*$" "\$1:61616");
 	LOCATION=$4;
 }
-BROKERNAME=($LOCATION replaceAll "\s+" "_")
+BROKERNAME=($LOCATION replaceAll "[^A-z0-9]" "_")
+VMTRANSPORTNAME=sampler
+
 echo "OpenNMS Root: $ONMS"
-echo "Broker: $BROKER"
+echo "OpenNMS Broker URI: $BROKER"
 echo "Monitoring Location: $LOCATION"
 echo "Broker Name: $BROKERNAME"
+echo "VM Transport Connector: $VMTRANSPORTNAME"
 
+# Configure the local ActiveMQ dispatcher broker
+config:edit org.apache.activemq.server-default
+# Needs to be globally unique
+config:propset broker-name "$BROKERNAME"
+config:propset activemq.data ${karaf.base}/data/activemq
+config:propset config ${karaf.base}/etc/activemq-dispatch.xml
+config:propset brokerUri "$BROKER"
+config:propset vmBrokerName "$VMTRANSPORTNAME"
+config:update
 
+# Configure the ActiveMQ web UI
+# Don't use this for now because it conflicts with the OpenNMS MX4J HTTP interface
+#config:edit org.apache.activemq.webconsole
+#config:propset webconsole.jms.url "vm://$VMTRANSPORTNAME"
+#config:propset webconsole.jmx.url service:jmx:rmi:///jndi/rmi://localhost:1099/karaf-root
+#config:propset webconsole.jmx.user karaf
+#config:propset webconsole.jmx.password karaf
+#config:propset webconsole.jms.user system
+#config:propset webconsole.jms.password manager
+#config:update
+
+# Add the SMNnepO WAR as a PAX Maven repository URL
 config:edit org.ops4j.pax.url.mvn
 config:propset org.ops4j.pax.url.mvn.repositories $ONMS/smnnepo@snapshots@id=opennms-repo
 config:update
 	
+# Configure the REST parameters for the config bundle
 config:edit org.opennms.netmgt.sampler.config
 config:propset rest.root $ONMS/opennms/rest
 config:propset location.name "$LOCATION"
@@ -26,14 +52,24 @@ config:propset username $USER
 config:propset password $PASSWD
 config:update
 
-config:edit org.opennms.netmgt.sampler.persister
-config:propset brokerUri "vm:(broker:(network:static:$BROKER)?brokerName=$BROKERNAME&persistent=false&useJmx=false)"
+# Configure the ActiveMQ broker URI
+config:edit org.opennms.netmgt.sampler.persister.activemq
+#config:propset brokerUri "vm:(broker:(network:static:$BROKER)?brokerName=$BROKERNAME&persistent=false&useJmx=false)"
+# Talk to the local ActiveMQ via the VM transport connector
+config:propset brokerUri "vm://$VMTRANSPORTNAME"
 config:update
 
+#Configure the Minion location and broker URI
 config:edit org.opennms.minion.controller
 config:propset location "$LOCATION"
-config:propset broker "$BROKER"
+#config:propset broker "$BROKER"
+# Talk to the local ActiveMQ via the VM transport connector
+config:propset broker "vm://$VMTRANSPORTNAME"
 config:update
 
+# Add the required features URLs
+features:addurl mvn:org.apache.activemq/activemq-karaf/5.9.0/xml/features
 features:addurl mvn:org.opennms.netmgt.sample/karaf/1.13.4-PJSM-SNAPSHOT/xml
-features:install -v minion-controller sampler-with-activemq-export
+
+# Install all required Sampler features
+features:install -v activemq minion-controller sampler-with-activemq-export
