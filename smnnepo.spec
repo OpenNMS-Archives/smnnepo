@@ -102,6 +102,10 @@ tar -xvzf "%{_tmppath}"/apache-karaf-%{karaf_version}.tar.gz
 mv "apache-karaf-%{karaf_version}" "$RPM_BUILD_ROOT%{instprefix}"
 touch "$RPM_BUILD_ROOT%{instprefix}/etc/org.opennms.minion.controller.cfg"
 
+# Replace SSH address and port so that we don't conflict with OpenNMS
+sed -i "s#sshPort=8101#sshPort=8102#" "$RPM_BUILD_ROOT%{instprefix}/etc/org.apache.karaf.shell.cfg"
+sed -i "s#sshHost=0.0.0.0#sshHost=127.0.0.1#" "$RPM_BUILD_ROOT%{instprefix}/etc/org.apache.karaf.shell.cfg"
+
 install -d -m 755 "$RPM_BUILD_ROOT%{webappdir}"/smnnepo
 unzip -d "$RPM_BUILD_ROOT%{webappdir}"/smnnepo "sampler-repo-webapp/target"/*.war
 

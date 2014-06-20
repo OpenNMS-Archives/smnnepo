@@ -1,14 +1,14 @@
-<features xmlns="http://karaf.apache.org/xmlns/features/v1.0.0" name="opennms-sampler-1.13.4-PJSM-SNAPSHOT">    
+<features xmlns="http://karaf.apache.org/xmlns/features/v1.0.0" name="opennms-sampler-${project.version}">    
     <!-- OpenNMS features -->
-    <repository>mvn:org.opennms.karaf/opennms/1.13.4-PJSM-SNAPSHOT/xml/features</repository>
+    <repository>mvn:org.opennms.karaf/opennms/${project.version}/xml/features</repository>
 
-    <!-- camel features -->
+    <!-- Apache Camel features -->
     <repository>mvn:org.apache.camel.karaf/apache-camel/2.12.3/xml/features</repository>
     
-    <!--  activemq features -->
+    <!-- Apache ActiveMQ features -->
     <repository>mvn:org.apache.activemq/activemq-karaf/5.9.0/xml/features</repository>
 
-    <!--  newts features -->
+    <!-- Newts features -->
     <repository>mvn:org.opennms.newts/karaf/1.0.0-SNAPSHOT/xml/features</repository>
 
     <!-- CXF features -->
@@ -20,102 +20,103 @@
     <!-- Sampler features -->
 
     <!-- API feature -->
-    <feature name="sample-api" description="Sample Collection and Storage :: API" version="1.13.4-PJSM-SNAPSHOT">
+    <feature name="sample-api" description="Sample Collection and Storage :: API" version="${project.version}">
       <bundle dependency="true">mvn:commons-codec/commons-codec/1.9</bundle>
       <feature>camel-core</feature>
       <feature>opennms-core</feature>
       <feature>opennms-config-jaxb</feature>
-      <bundle>mvn:org.opennms.netmgt.sample/sample-api/1.13.4-PJSM-SNAPSHOT</bundle>
+      <bundle>mvn:org.opennms.netmgt.sample/sample-api/${project.version}</bundle>
     </feature>
 
     <!-- Controller -->
-    <feature name="minion-controller" description="Minion :: Controller" version="1.13.4-PJSM-SNAPSHOT">
+    <feature name="minion-controller" description="Minion :: Controller" version="${project.version}">
       <feature>karaf-framework</feature>
       <feature version="${karafVersion}">jms</feature>
-      <bundle>mvn:org.opennms.minion/minion-api/1.13.4-PJSM-SNAPSHOT</bundle>
-      <bundle>mvn:org.opennms.minion/minion-controller/1.13.4-PJSM-SNAPSHOT</bundle>
+      <bundle>mvn:org.opennms.minion/minion-api/${project.version}</bundle>
+      <bundle>mvn:org.opennms.minion/minion-controller/${project.version}</bundle>
     </feature>
 
     <!-- Config features -->
-    <feature name="sampler-config" description="Sample Collection and Storage :: Configuration" version="1.13.4-PJSM-SNAPSHOT">
+    <feature name="sampler-config" description="Sample Collection and Storage :: Configuration" version="${project.version}">
       <feature>camel-blueprint</feature>
       <feature>camel-http</feature>
       <feature>camel-jaxb</feature>
       <feature>sample-api</feature>
-      <bundle>mvn:org.opennms.core/org.opennms.core.camel/1.13.4-PJSM-SNAPSHOT</bundle>
-      <bundle>mvn:org.opennms.netmgt.sample/sampler-config/1.13.4-PJSM-SNAPSHOT</bundle>
+      <bundle>mvn:org.opennms.core/org.opennms.core.camel/${project.version}</bundle>
+      <bundle>mvn:org.opennms.netmgt.sample/sampler-config/${project.version}</bundle>
     </feature>
 
-    <feature name="sampler-config-snmp" description="Sample Collection and Storage :: SNMP Configuration" version="1.13.4-PJSM-SNAPSHOT">
+    <feature name="sampler-config-snmp" description="Sample Collection and Storage :: SNMP Configuration" version="${project.version}">
       <feature>camel-blueprint</feature>
       <feature>camel-jaxb</feature>
       <feature>camel-http</feature>
       <feature>opennms-snmp</feature>
       <feature>sample-api</feature>
       <bundle dependency="true">mvn:commons-codec/commons-codec/1.9</bundle>
-      <bundle>mvn:org.opennms.core/org.opennms.core.camel/1.13.4-PJSM-SNAPSHOT</bundle>
-      <bundle>mvn:org.opennms.netmgt.sample/sampler-config-snmp/1.13.4-PJSM-SNAPSHOT</bundle>
+      <bundle>mvn:org.opennms.core/org.opennms.core.camel/${project.version}</bundle>
+      <bundle>mvn:org.opennms.netmgt.sample/sampler-config-snmp/${project.version}</bundle>
     </feature>
 
     <!-- Scheduler -->
-    <feature name="sampler-scheduler" description="Sample Collection and Storage :: Scheduler" version="1.13.4-PJSM-SNAPSHOT">
+    <feature name="sampler-scheduler" description="Sample Collection and Storage :: Scheduler" version="${project.version}">
       <feature>camel-blueprint</feature>
       <feature>sample-api</feature>
-      <bundle>mvn:org.opennms.netmgt.sample/sampler-scheduler/1.13.4-PJSM-SNAPSHOT</bundle>
+      <bundle>mvn:org.opennms.netmgt.sample/sampler-scheduler/${project.version}</bundle>
     </feature>
 
     <!-- Sampler -->
-    <feature name="sampler-snmp" description="Sample Collection and Storage :: SNMP Collector" version="1.13.4-PJSM-SNAPSHOT">
+    <feature name="sampler-snmp" description="Sample Collection and Storage :: SNMP Collector" version="${project.version}">
       <feature>camel-blueprint</feature>
       <feature>opennms-snmp</feature>
       <feature>sample-api</feature>
       <feature>sampler-config-snmp</feature>
-      <bundle>mvn:org.opennms.netmgt.sample/sampler-snmp/1.13.4-PJSM-SNAPSHOT</bundle>
+      <bundle>mvn:org.opennms.netmgt.sample/sampler-snmp/${project.version}</bundle>
     </feature>
 
-    <feature name="sample-graphs" description="Sample Collection and Storage :: Graphing" version="1.13.4-PJSM-SNAPSHOT">
+    <feature name="sample-graphs" description="Sample Collection and Storage :: Graphing" version="${project.version}">
       <feature>sample-api</feature>
       <feature>sample-config-snmp</feature>
       <feature>http-whiteboard</feature>
       <feature>cxf-jaxrs</feature>
-      <bundle>mvn:org.opennms.netmgt.sample/sample-graphs/1.13.4-PJSM-SNAPSHOT</bundle>
+      <bundle>mvn:org.opennms.netmgt.sample/sample-graphs/${project.version}</bundle>
     </feature>
 
-    <feature name="sample-storage-rrd" description="Sample Collection and Storage :: RRD" version="1.13.4-PJSM-SNAPSHOT">
+    <feature name="sample-storage-rrd" description="Sample Collection and Storage :: RRD" version="${project.version}">
       <feature>sample-api</feature>
       <feature>opennms-collection-api</feature>
       <feature>opennms-collection-persistence-rrd</feature>
       <feature>opennms-rrd-api</feature>
       <feature>opennms-rrd-jrobin</feature>
 
-      <bundle>mvn:org.opennms.features.collection/org.opennms.features.collection.sampler/1.13.4-PJSM-SNAPSHOT</bundle>
-      <bundle>mvn:org.opennms.netmgt.sample/sample-storage-rrd/1.13.4-PJSM-SNAPSHOT</bundle>
+      <bundle>mvn:org.opennms.features.collection/org.opennms.features.collection.sampler/${project.version}</bundle>
+      <bundle>mvn:org.opennms.netmgt.sample/sample-storage-rrd/${project.version}</bundle>
     </feature>
 
-    <feature name="sample-storage-newts" description="Sample Collection and Storage :: Newts" version="1.13.4-PJSM-SNAPSHOT">
+    <feature name="sample-storage-newts" description="Sample Collection and Storage :: Newts" version="${project.version}">
       <feature>sample-api</feature>
       <feature>newts-api</feature>
 
-      <bundle>mvn:org.opennms.netmgt.sample/sample-storage-newts/1.13.4-PJSM-SNAPSHOT</bundle>
+      <bundle>mvn:org.opennms.netmgt.sample/sample-storage-newts/${project.version}</bundle>
     </feature>
 
     <!-- File sample storage -->
-    <feature name="sample-storage-file" description="Sample Collection and Storage :: File Storage" version="1.13.4-PJSM-SNAPSHOT">
-      <configfile override="true" finalname="/etc/blueprint-file-storage.xml">mvn:org.opennms.netmgt.sample/sampler-routes/1.13.4-PJSM-SNAPSHOT/xml/file-storage</configfile>
+    <feature name="sample-storage-file" description="Sample Collection and Storage :: File Storage" version="${project.version}">
+      <configfile override="true" finalname="/etc/blueprint-file-storage.xml">mvn:org.opennms.netmgt.sample/sampler-routes/${project.version}/xml/blueprint-file-storage</configfile>
       <feature>sample-api</feature>
       <bundle>blueprint:file:etc/blueprint-file-storage.xml</bundle>
     </feature>
 
     <!-- XML sample storage -->
-    <feature name="sample-storage-xml" description="Sample Collection and Storage :: XML Storage" version="1.13.4-PJSM-SNAPSHOT">
-      <configfile override="true" finalname="/etc/blueprint-xml-storage.xml">mvn:org.opennms.netmgt.sample/sampler-routes/1.13.4-PJSM-SNAPSHOT/xml/xml-storage</configfile>
+    <feature name="sample-storage-xml" description="Sample Collection and Storage :: XML Storage" version="${project.version}">
+      <configfile override="true" finalname="/etc/blueprint-xml-storage.xml">mvn:org.opennms.netmgt.sample/sampler-routes/${project.version}/xml/blueprint-xml-storage</configfile>
       <feature>sample-api</feature>
       <bundle>blueprint:file:etc/blueprint-xml-storage.xml</bundle>
     </feature>
 
     <!-- ActiveMQ sample dispatcher -->
-    <feature name="sample-dispatch-activemq" description="Sample Collection and Storage :: ActiveMQ Dispatcher" version="1.13.4-PJSM-SNAPSHOT">
-      <configfile override="true" finalname="/etc/blueprint-activemq-dispatch.xml">mvn:org.opennms.netmgt.sample/sampler-routes/1.13.4-PJSM-SNAPSHOT/xml/activemq-dispatch</configfile>
+    <feature name="sample-dispatch-activemq" description="Sample Collection and Storage :: ActiveMQ Dispatcher" version="${project.version}">
+      <configfile override="true" finalname="/etc/blueprint-activemq-dispatch.xml">mvn:org.opennms.netmgt.sample/sampler-routes/${project.version}/xml/blueprint-activemq-dispatch</configfile>
+      <configfile override="true" finalname="/etc/activemq-dispatch.xml">mvn:org.opennms.netmgt.sample/sampler-routes/${project.version}/xml/activemq-dispatch</configfile>
       <feature>sample-api</feature>
       <feature>camel-jaxb</feature>
       <feature>activemq-camel</feature>
@@ -123,8 +124,9 @@
     </feature>
 
     <!-- ActiveMQ sample receiver -->
-    <feature name="sample-receiver-activemq" description="Sample Collection and Storage :: ActiveMQ Receiver" version="1.13.4-PJSM-SNAPSHOT">
-      <configfile override="true" finalname="/etc/blueprint-activemq-receiver.xml">mvn:org.opennms.netmgt.sample/sampler-routes/1.13.4-PJSM-SNAPSHOT/xml/activemq-receiver</configfile>
+    <feature name="sample-receiver-activemq" description="Sample Collection and Storage :: ActiveMQ Receiver" version="${project.version}">
+      <configfile override="true" finalname="/etc/blueprint-activemq-receiver.xml">mvn:org.opennms.netmgt.sample/sampler-routes/${project.version}/xml/blueprint-activemq-receiver</configfile>
+      <configfile override="true" finalname="/etc/activemq-receiver.xml">mvn:org.opennms.netmgt.sample/sampler-routes/${project.version}/xml/activemq-receiver</configfile>
       <feature>sample-api</feature>
       <feature>camel-jaxb</feature>
       <feature>activemq-camel</feature>
@@ -133,7 +135,7 @@
 
     <!-- Integration features -->
 
-    <feature name="sampler-with-file-storage" description="Sample Collection and Storage :: Integration :: Sampler with file storage" version="1.13.4-PJSM-SNAPSHOT">
+    <feature name="sampler-with-file-storage" description="Sample Collection and Storage :: Integration :: Sampler with file storage" version="${project.version}">
       <feature>camel-blueprint</feature>
       <!-- Pull in the collection configurations -->
       <feature>sampler-config</feature>
@@ -147,7 +149,7 @@
       <feature>sample-storage-file</feature>
     </feature>
 
-    <feature name="sampler-with-xml-storage" description="Sample Collection and Storage :: Integration :: Sampler with XML storage" version="1.13.4-PJSM-SNAPSHOT">
+    <feature name="sampler-with-xml-storage" description="Sample Collection and Storage :: Integration :: Sampler with XML storage" version="${project.version}">
       <feature>camel-blueprint</feature>
       <!-- Pull in the collection configurations -->
       <feature>sampler-config</feature>
@@ -161,7 +163,7 @@
       <feature>sample-storage-xml</feature>
     </feature>
 
-    <feature name="sampler-with-rrd-storage" description="Sample Collection and Storage :: Integration :: Sampler with RRD storage" version="1.13.4-PJSM-SNAPSHOT">
+    <feature name="sampler-with-rrd-storage" description="Sample Collection and Storage :: Integration :: Sampler with RRD storage" version="${project.version}">
       <feature>camel-blueprint</feature>
       <!-- Pull in the collection configurations -->
       <feature>sampler-config</feature>
@@ -175,7 +177,7 @@
       <feature>sample-storage-rrd</feature>
     </feature>
 
-    <feature name="sampler-with-activemq-export" description="Sample Collection and Storage :: Integration :: Sampler with ActiveMQ export" version="1.13.4-PJSM-SNAPSHOT">
+    <feature name="sampler-with-activemq-export" description="Sample Collection and Storage :: Integration :: Sampler with ActiveMQ export" version="${project.version}">
       <feature>camel-blueprint</feature>
       <!-- Pull in the collection configurations -->
       <feature>sampler-config</feature>
