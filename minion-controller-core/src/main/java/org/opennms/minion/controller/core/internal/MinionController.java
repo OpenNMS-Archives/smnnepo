@@ -16,14 +16,14 @@ import org.apache.karaf.admin.Instance;
 import org.apache.karaf.jms.JmsService;
 import org.opennms.minion.controller.api.Controller;
 import org.opennms.minion.controller.api.ControllerException;
-import org.opennms.minion.controller.api.IMinionStatus;
+import org.opennms.minion.controller.api.MinionStatusMessage;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ControllerImpl implements Controller {
-    private static final Logger LOG = LoggerFactory.getLogger(ControllerImpl.class);
+public class MinionController implements Controller {
+    private static final Logger LOG = LoggerFactory.getLogger(MinionController.class);
     private static final String FACTORY_NAME = "minionController";
     private static final String INITIALIZATION_QUEUE = "initialization";
 
@@ -47,10 +47,10 @@ public class ControllerImpl implements Controller {
         }
 
         String initMessageBody = null;
-        final IMinionStatus status = getStatus();
+        final MinionStatusMessage status = getStatus();
         try {
             final StringWriter writer = new StringWriter();
-            JAXBContext.newInstance(MinionStatusImpl.class).createMarshaller().marshal(status, writer);
+            JAXBContext.newInstance(MinionStatusMessageImpl.class).createMarshaller().marshal(status, writer);
             initMessageBody = writer.toString();
         } catch (final Exception e) {
             throw new ControllerException("Failed to marshal status: " + status, e);
@@ -97,8 +97,8 @@ public class ControllerImpl implements Controller {
     }
 
     @Override
-    public IMinionStatus getStatus() throws ControllerException {
-        final MinionStatusImpl minionStatus = new MinionStatusImpl();
+    public MinionStatusMessage getStatus() throws ControllerException {
+        final MinionStatusMessageImpl minionStatus = new MinionStatusMessageImpl();
         Instance rootInstance = null;
         for (final Instance instance : m_adminService.getInstances()) {
             if (instance.isRoot()) {

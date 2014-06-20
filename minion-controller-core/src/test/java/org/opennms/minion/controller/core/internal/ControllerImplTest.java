@@ -13,16 +13,16 @@ import org.apache.karaf.admin.Instance;
 import org.junit.Before;
 import org.junit.Test;
 import org.opennms.minion.controller.api.Controller;
-import org.opennms.minion.controller.api.IMinionStatus;
-import org.opennms.minion.controller.core.internal.ControllerImpl;
-import org.opennms.minion.controller.core.internal.MinionStatusImpl;
+import org.opennms.minion.controller.api.MinionStatusMessage;
+import org.opennms.minion.controller.core.internal.MinionController;
+import org.opennms.minion.controller.core.internal.MinionStatusMessageImpl;
 
 public class ControllerImplTest {
     private static Date m_testStart = new Date();
     private MockConfigurationAdmin m_configurationAdmin = null;
     private MockAdminService m_adminService = null;
     private MockJmsService m_jmsService = null;
-    private ControllerImpl m_controller = null;
+    private MinionController m_controller = null;
 
     @Before
     public void setUp() throws Exception {
@@ -35,7 +35,7 @@ public class ControllerImplTest {
         final Instance rootInstance = new MockInstance("root");
         m_adminService.addInstance(rootInstance);
 
-        m_controller = new ControllerImpl();
+        m_controller = new MinionController();
         m_controller.setAdminService(m_adminService);
         m_controller.setConfigurationAdmin(m_configurationAdmin);
         m_controller.setJmsService(m_jmsService);
@@ -52,7 +52,7 @@ public class ControllerImplTest {
         assertNotNull(messageText);
 
         final StringReader reader = new StringReader(messageText);
-        final MinionStatusImpl minionStatus = (MinionStatusImpl) (JAXBContext.newInstance(MinionStatusImpl.class).createUnmarshaller()).unmarshal(reader);
+        final MinionStatusMessageImpl minionStatus = (MinionStatusMessageImpl) (JAXBContext.newInstance(MinionStatusMessageImpl.class).createUnmarshaller()).unmarshal(reader);
         assertNotNull(minionStatus.getId());
         assertEquals(36, minionStatus.getId().length());
         assertEquals("Test", minionStatus.getLocation());
@@ -62,7 +62,7 @@ public class ControllerImplTest {
 
     @Test
     public void testGetStatus() throws Exception {
-        final IMinionStatus status = m_controller.getStatus();
+        final MinionStatusMessage status = m_controller.getStatus();
         assertNotNull(status);
         assertNotNull(status.getId());
         assertNotNull(status.getLocation());
