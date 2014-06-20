@@ -32,12 +32,8 @@
     <feature name="minion-controller" description="Minion :: Controller" version="1.13.4-PJSM-SNAPSHOT">
       <feature>karaf-framework</feature>
       <feature version="${karafVersion}">jms</feature>
-      <!--
-      <bundle>mvn:org.apache.karaf.jms:org.apache.karaf.jms.core</bundle>
-      <bundle>mvn:org.apache.karaf.admin:org.apache.karaf.admin.core</bundle>
-      -->
-      <bundle>mvn:org.opennms.minion/minion-controller-api/1.13.4-PJSM-SNAPSHOT</bundle>
-      <bundle>mvn:org.opennms.minion/minion-controller-core/1.13.4-PJSM-SNAPSHOT</bundle>
+      <bundle>mvn:org.opennms.minion/minion-api/1.13.4-PJSM-SNAPSHOT</bundle>
+      <bundle>mvn:org.opennms.minion/minion-controller/1.13.4-PJSM-SNAPSHOT</bundle>
     </feature>
 
     <!-- Config features -->
