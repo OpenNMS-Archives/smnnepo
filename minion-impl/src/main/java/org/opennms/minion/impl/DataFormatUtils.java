@@ -1,4 +1,4 @@
-package org.opennms.minion.controller.internal;
+package org.opennms.minion.impl;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;

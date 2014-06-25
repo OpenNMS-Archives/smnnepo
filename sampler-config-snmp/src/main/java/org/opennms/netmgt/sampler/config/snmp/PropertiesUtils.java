@@ -95,7 +95,7 @@ public abstract class PropertiesUtils {
      * @return The string with appropriate substitutions made.
      * @param mapArray a {@link java.util.Map} object.
      */
-    public static String substitute(String initialString, Map<String,String>... mapArray) {
+    public static String substitute(String initialString, @SuppressWarnings("unchecked") Map<String,String>... mapArray) {
         String workingString = initialString;
         for (Map<String,String> properties : mapArray) {
             if (properties != null)

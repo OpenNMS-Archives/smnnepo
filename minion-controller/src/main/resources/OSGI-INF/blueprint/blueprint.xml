@@ -17,11 +17,11 @@
 
 	<cm:property-placeholder persistent-id="org.opennms.minion.controller" update-strategy="reload">
 		<cm:default-properties>
-			<cm:property name="brokerUri" value="vm://localhost" />
+			<cm:property name="broker" value="vm://localhost" />
 		</cm:default-properties>
 	</cm:property-placeholder>
 
-	<bean id="minionJaxb" class="org.opennms.minion.controller.internal.DataFormatUtils" factory-method="getDataFormat" />
+	<bean id="minionJaxb" class="org.opennms.minion.impl.DataFormatUtils" factory-method="getDataFormat" />
 
 	<reference id="adminService" interface="org.apache.karaf.admin.AdminService" />
 	<reference id="configAdmin"  interface="org.osgi.service.cm.ConfigurationAdmin" />
@@ -34,7 +34,7 @@
 	</bean>
 
 	<bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
-		<property name="brokerURL" value="${brokerUri}" />
+		<property name="brokerURL" value="${broker}" />
 	</bean>
 
 	<camelContext id="activemqMessageSenderCamelContext" xmlns="http://camel.apache.org/schema/blueprint">

@@ -12,7 +12,7 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import org.junit.Test;
-import org.opennms.minion.controller.internal.MinionStatusMessageImpl;
+import org.opennms.minion.impl.MinionStatusMessageImpl;
 
 public class MinionStatusMessageTest {
     @Test

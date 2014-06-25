@@ -253,6 +253,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 
         template.requestBody("direct:loadCollectdConfiguration", null, String.class);
 
+        @SuppressWarnings("unchecked")
         SingletonBeanFactory<CollectdConfiguration> configSvc = bean("collectdConfiguration", SingletonBeanFactory.class);
 
         assertNotNull(configSvc);
@@ -265,6 +266,7 @@ public class SamplerRoutingTest extends CamelTestSupport {
 
         template.requestBody("direct:loadSnmpConfig", null, String.class);
 
+        @SuppressWarnings("unchecked")
         SingletonBeanFactory<SnmpConfig> configSvc = bean("snmpConfig", SingletonBeanFactory.class);
 
         assertNotNull(configSvc);
@@ -383,7 +385,9 @@ public class SamplerRoutingTest extends CamelTestSupport {
         template.sendBody("seda:start", null);
         result.await();
 
+        @SuppressWarnings("unchecked")
         SingletonBeanFactory<CollectdConfiguration> collectdConfig = bean("collectdConfiguration", SingletonBeanFactory.class);
+        @SuppressWarnings("unchecked")
         SingletonBeanFactory<SnmpConfig> snmpConfig = bean("snmpConfig", SingletonBeanFactory.class);		
 
         assertMockEndpointsSatisfied();

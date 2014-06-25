@@ -15,6 +15,7 @@ import org.opennms.minion.api.MinionException;
 import org.opennms.minion.api.MinionMessage;
 import org.opennms.minion.api.MinionMessageSender;
 import org.opennms.minion.api.MinionStatusMessage;
+import org.opennms.minion.impl.MinionStatusMessageImpl;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
@@ -27,8 +28,7 @@ public class MinionControllerImpl implements MinionController {
     private ConfigurationAdmin m_configurationAdmin;
     private final String m_endpointUri;
 
-    //@Produce(property="endpointUri")
-    @Produce(uri="direct:sendMinionMessage")
+    @Produce(property="endpointUri")
     protected MinionMessageSender m_messageSender;
 
     void setMessageSender(final MinionMessageSender sender) {

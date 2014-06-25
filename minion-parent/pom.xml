@@ -7,23 +7,18 @@
 ">
 
   <parent>
-    <groupId>org.opennms.minion</groupId>
-    <artifactId>minion-parent</artifactId>
+    <groupId>org.opennms.netmgt.sample</groupId>
+    <artifactId>sample-parent</artifactId>
     <version>1.13.4-PJSM-SNAPSHOT</version>
-    <relativePath>../minion-parent</relativePath>
   </parent>
 
-  <properties>
-    <bundle.symbolicName>org.opennms.minion.api</bundle.symbolicName>
-    <bundle.namespace>org.opennms.minion.api</bundle.namespace>
-  </properties>
-
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>minion-api</artifactId>
+  <groupId>org.opennms.minion</groupId>
+  <artifactId>minion-parent</artifactId>
 
-  <name>Minion :: API</name>
+  <name>Minion</name>
 
-  <packaging>bundle</packaging>
+  <packaging>pom</packaging>
 
   <dependencyManagement>
     <dependencies>
@@ -56,6 +51,12 @@
         <artifactId>camel-core</artifactId>
         <version>${camelVersion}</version>
         <scope>provided</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.camel</groupId>
