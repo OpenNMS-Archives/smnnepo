@@ -45,7 +45,7 @@ public class MinionControllerImpl implements MinionController {
     }
 
     @Override
-    public void init() throws MinionException {
+    public void start() throws MinionException {
         LOG.debug("Initializing controller.");
         assert m_configurationAdmin != null : "ConfigurationAdmin is missing!";
 
@@ -63,6 +63,14 @@ public class MinionControllerImpl implements MinionController {
         m_messageSender.sendMessage(status);
 
         LOG.debug("MinionController initialized. ID is {}.", getId());
+    }
+
+    @Override
+    public void stop() throws MinionException {
+        LOG.debug("MinionController shutting down.");
+        final MinionStatusMessageImpl message = (MinionStatusMessageImpl) getStatus();
+        message.setStatus(Instance.STOPPED);
+        m_messageSender.sendMessage(message);
     }
 
     @Override

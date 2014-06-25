@@ -74,7 +74,7 @@ public class MinionControllerImplTest {
         m_controller.setConfigurationAdmin(m_configurationAdmin);
         m_controller.setMessageSender(m_sender);
         
-        m_controller.init();
+        m_controller.start();
     }
 
     @Test

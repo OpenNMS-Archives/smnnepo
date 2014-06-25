@@ -26,7 +26,7 @@
 	<reference id="adminService" interface="org.apache.karaf.admin.AdminService" />
 	<reference id="configAdmin"  interface="org.osgi.service.cm.ConfigurationAdmin" />
 	
-	<bean id="controller" class="org.opennms.minion.controller.internal.MinionControllerImpl" activation="lazy">
+	<bean id="controller" class="org.opennms.minion.controller.internal.MinionControllerImpl" activation="lazy" destroy-method="stop">
 		<argument value="direct:sendMinionMessage" />
 
 		<property name="configurationAdmin" ref="configAdmin" />
@@ -41,7 +41,7 @@
 		<route id="fireStartMinionController">
 			<from uri="timer://runOnce?repeatCount=1&amp;delay=5000" />
 			<log loggingLevel="INFO" message="Initializing MinionController" />
-			<bean ref="controller" method="init" />
+			<bean ref="controller" method="start" />
 		</route>
 	    	    
 		<!-- Send Minion messages over ActiveMQ -->
