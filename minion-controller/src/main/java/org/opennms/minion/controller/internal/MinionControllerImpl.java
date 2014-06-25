@@ -1,38 +1,51 @@
 package org.opennms.minion.controller.internal;
 
 import java.io.IOException;
-import java.io.StringWriter;
-import java.net.URI;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.UUID;
 
-import javax.xml.bind.JAXBContext;
-
+import org.apache.camel.InOnly;
+import org.apache.camel.Produce;
 import org.apache.karaf.admin.AdminService;
 import org.apache.karaf.admin.Instance;
-import org.apache.karaf.jms.JmsService;
 import org.opennms.minion.api.MinionController;
-import org.opennms.minion.api.ControllerException;
+import org.opennms.minion.api.MinionException;
+import org.opennms.minion.api.MinionMessage;
+import org.opennms.minion.api.MinionMessageSender;
 import org.opennms.minion.api.MinionStatusMessage;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@InOnly
 public class MinionControllerImpl implements MinionController {
     private static final Logger LOG = LoggerFactory.getLogger(MinionControllerImpl.class);
-    private static final String FACTORY_NAME = "minionController";
-    private static final String INITIALIZATION_QUEUE = "initialization";
-
     private AdminService m_adminService;
     private ConfigurationAdmin m_configurationAdmin;
-    private JmsService m_jmsService;
+    private final String m_endpointUri;
+
+    //@Produce(property="endpointUri")
+    @Produce(uri="direct:sendMinionMessage")
+    protected MinionMessageSender m_messageSender;
+
+    void setMessageSender(final MinionMessageSender sender) {
+        m_messageSender = sender;
+    }
+
+    public MinionControllerImpl(final String endpointUri) {
+        m_endpointUri = endpointUri;
+    }
+
+    public String getEndpointUri() {
+        LOG.debug("getEndpointUri(): {}", m_endpointUri);
+        return m_endpointUri;
+    }
 
     @Override
-    public void init() throws ControllerException {
+    public void init() throws MinionException {
         LOG.debug("Initializing controller.");
         assert m_configurationAdmin != null : "ConfigurationAdmin is missing!";
 
@@ -40,89 +53,63 @@ public class MinionControllerImpl implements MinionController {
         if (id == null) {
             setId(UUID.randomUUID().toString());
         }
-        
+
         final String location = getLocation();
         if (location == null) {
-            throw new ControllerException("Location is not set!  Please make sure you set location='Location Name' in the " + PID + " configuration.");
+            throw new MinionException("Location is not set!  Please make sure you set location='Location Name' in the " + PID + " configuration.");
         }
 
-        String initMessageBody = null;
         final MinionStatusMessage status = getStatus();
-        try {
-            final StringWriter writer = new StringWriter();
-            JAXBContext.newInstance(MinionStatusMessageImpl.class).createMarshaller().marshal(status, writer);
-            initMessageBody = writer.toString();
-        } catch (final Exception e) {
-            throw new ControllerException("Failed to marshal status: " + status, e);
-        }
-
-        try {
-            getJmsService().send(FACTORY_NAME, INITIALIZATION_QUEUE, initMessageBody, null, null, null);
-        } catch (final Exception e) {
-            throw new ControllerException("Failed to send message: " + initMessageBody, e);
-        }
+        m_messageSender.sendMessage(status);
 
         LOG.debug("MinionController initialized. ID is {}.", getId());
     }
 
     @Override
-    public String getId() throws ControllerException {
+    public String getId() throws MinionException {
         final String property = loadProperty("id");
         return (property == null || property.isEmpty())? null : property;
     }
 
-    protected void setId(final String id) throws ControllerException {
+    protected void setId(final String id) throws MinionException {
         saveProperty("id", id);
     }
 
-    public String getLocation() throws ControllerException {
+    public String getLocation() throws MinionException {
         return loadProperty("location");
     }
 
-    protected void setLocation(final String location) throws ControllerException {
+    protected void setLocation(final String location) throws MinionException {
         saveProperty("location", location);
-    }
-    
-    public URI getBrokerURI() throws ControllerException {
-        final String broker = loadProperty("broker");
-        try {
-            return URI.create(broker);
-        } catch (final IllegalArgumentException e) {
-            throw new ControllerException("Invalid broker URI: " + broker, e);
-        }
-    }
-
-    protected void setBrokerURI(final URI brokerUri) throws ControllerException {
-        saveProperty("broker", brokerUri.toString());
     }
 
     @Override
-    public MinionStatusMessage getStatus() throws ControllerException {
-        final MinionStatusMessageImpl minionStatus = new MinionStatusMessageImpl();
+    public MinionStatusMessage getStatus() throws MinionException {
+        final MinionStatusMessageImpl minionStatus = new MinionStatusMessageImpl(getId(), MinionMessage.CURRENT_VERSION);
+
         Instance rootInstance = null;
         for (final Instance instance : m_adminService.getInstances()) {
             if (instance.isRoot()) {
                 rootInstance = instance;
             }
         }
-        
+
         if (rootInstance == null) {
-            throw new ControllerException("Unable to find root Karaf instance!");
+            throw new MinionException("Unable to find root Karaf instance!");
         }
 
-        minionStatus.setId(getId());
         minionStatus.setLocation(getLocation());
         try {
             minionStatus.setStatus(rootInstance.getState());
         } catch (final Exception e) {
             LOG.debug("Unable to get Karaf state.", e);
-            throw new ControllerException(e);
+            throw new MinionException(e);
         }
         minionStatus.setDate(new Date());
         return minionStatus;
     }
 
-    protected String loadProperty(final String propName) throws ControllerException {
+    protected String loadProperty(final String propName) throws MinionException {
         final Configuration config = getConfiguration();
         final Dictionary<String,Object> properties = config.getProperties();
         if (properties == null) {
@@ -133,33 +120,33 @@ public class MinionControllerImpl implements MinionController {
         return property;
     }
 
-    protected void saveProperty(final String key, final String value) throws ControllerException {
+    protected void saveProperty(final String key, final String value) throws MinionException {
         final Configuration config = getConfiguration();
         final Dictionary<String,Object> properties = config.getProperties() == null? new Hashtable<String,Object>() : config.getProperties();
         properties.put(key, value);
         try {
             config.update(properties);
         } catch (final IOException e) {
-            final ControllerException ce = new ControllerException("Failed to update configuration.", e);
+            final MinionException ce = new MinionException("Failed to update configuration.", e);
             LOG.error("Failed to update configuration.", e);
             throw ce;
         }
     }
 
-    protected Configuration getConfiguration() throws ControllerException {
+    protected Configuration getConfiguration() throws MinionException {
         try {
             final Configuration configuration = m_configurationAdmin.getConfiguration(PID);
             if (configuration == null) {
-                final ControllerException e = new ControllerException("The OSGi configuration (admin) registry was found for pid "+PID+", but a configuration could not be located/generated.  This shouldn't happen.");
+                final MinionException e = new MinionException("The OSGi configuration (admin) registry was found for pid "+PID+", but a configuration could not be located/generated.  This shouldn't happen.");
                 LOG.error("Error getting configuration.", e);
                 throw e;
-                
+
             }
             return configuration;
         } catch (final IOException e) {
-            final ControllerException ce = new ControllerException("Failed to get configuration from OSGi configuration registry for pid "+PID+".", e);
+            final MinionException ce = new MinionException("Failed to get configuration from OSGi configuration registry for pid "+PID+".", e);
             LOG.error("Error getting configuration.", e);
-            throw new ControllerException(ce);
+            throw new MinionException(ce);
         }
     }
 
@@ -169,30 +156,5 @@ public class MinionControllerImpl implements MinionController {
 
     public void setConfigurationAdmin(final ConfigurationAdmin configurationAdmin) {
         m_configurationAdmin = configurationAdmin;
-    }
-
-    protected JmsService getJmsService() throws ControllerException {
-        assertJmsServiceFactoryCreated();
-        return m_jmsService;
-    }
-
-    protected void assertJmsServiceFactoryCreated() throws ControllerException {
-        try {
-            final List<String> factories = m_jmsService.connectionFactories();
-            if (factories.contains(FACTORY_NAME)) {
-                return;
-            }
-            if (factories.contains("jms/" + FACTORY_NAME)) {
-                return;
-            }
-            LOG.debug("Creating JMS service factory {} using broker URI: {}", FACTORY_NAME, getBrokerURI());
-            m_jmsService.create(FACTORY_NAME, "activemq", getBrokerURI().toString());
-        } catch (final Exception e) {
-            throw new ControllerException("Failed to create controllerBroker", e);
-        }
-    }
-
-    public void setJmsService(final JmsService jmsService) throws ControllerException {
-        m_jmsService = jmsService;
     }
 }

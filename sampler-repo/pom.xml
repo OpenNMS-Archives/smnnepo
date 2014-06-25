@@ -24,7 +24,6 @@
       <plugin>
         <groupId>org.opennms.maven.plugins</groupId>
         <artifactId>features-maven-plugin</artifactId>
-        <version>1.1.1-SNAPSHOT</version>
 
         <executions>
           <execution>
@@ -59,7 +58,8 @@
 
                 <!-- Minion management features -->
                 <feature>minion-controller</feature>
-              </features>
+                <feature>dominion-controller</feature>
+                </features>
               <repository>target/maven-repo</repository>
             </configuration>
           </execution>

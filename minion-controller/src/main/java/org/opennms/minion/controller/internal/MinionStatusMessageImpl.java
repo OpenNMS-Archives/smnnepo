@@ -14,6 +14,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.opennms.minion.api.DateAdapter;
 import org.opennms.minion.api.MapAdapter;
+import org.opennms.minion.api.MinionException;
 import org.opennms.minion.api.MinionStatusMessage;
 
 @XmlRootElement(name="minion-status")
@@ -21,6 +22,9 @@ import org.opennms.minion.api.MinionStatusMessage;
 public class MinionStatusMessageImpl implements MinionStatusMessage {
     @XmlAttribute(name="id")
     private String m_id;
+
+    @XmlAttribute(name="version")
+    private Integer m_version;
 
     @XmlElement(name="location")
     private String m_location;
@@ -36,13 +40,28 @@ public class MinionStatusMessageImpl implements MinionStatusMessage {
     @XmlJavaTypeAdapter(MapAdapter.class)
     private Map<String,String> m_properties;
 
+    protected MinionStatusMessageImpl() {
+    }
+    
+    public MinionStatusMessageImpl(final String id, final Integer version) throws MinionException {
+        if (id == null) {
+            throw new MinionException("ID must be defined!");
+        }
+        if (version == null) {
+            throw new MinionException("Message version must be defined!");
+        }
+        m_id = id;
+        m_version = version;
+    }
+
     @Override
     public String getId() {
         return m_id;
     }
 
-    public void setId(final String id) {
-        m_id = id;
+    @Override
+    public int getVersion() {
+        return m_version.intValue();
     }
 
     @Override

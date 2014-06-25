@@ -18,11 +18,9 @@
 	<cm:property-placeholder persistent-id="org.opennms.minion.dominion.controller" update-strategy="reload">
 	</cm:property-placeholder>
 
-	<reference id="jmsService"   interface="org.apache.karaf.jms.JmsService" />
-	
 	<bean id="controller" class="org.opennms.minion.dominion.controller.internal.DominionControllerImpl" init-method="init">
-		<property name="jmsService" ref="jmsService" />
+		<property name="brokerURI" value="tcp://127.0.0.1:61616" />
 	</bean>
 
-	<service id="controllerService" ref="controller" interface="org.opennms.minion.api.MinionController" />
+	<service id="controllerService" ref="controller" interface="org.opennms.minion.api.DominionController" />
 </blueprint>

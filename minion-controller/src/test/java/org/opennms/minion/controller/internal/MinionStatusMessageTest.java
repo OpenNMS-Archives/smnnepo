@@ -19,8 +19,7 @@ public class MinionStatusMessageTest {
     public void testObjectToXml() throws Exception {
         final Date d = new Date(0);
 
-        final MinionStatusMessageImpl message = new MinionStatusMessageImpl();
-        message.setId("12345");
+        final MinionStatusMessageImpl message = new MinionStatusMessageImpl("12345", 1);
         message.setLocation("Here");
         message.setStatus("A-OK!");
         message.setDate(d);
@@ -31,7 +30,9 @@ public class MinionStatusMessageTest {
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
         marshaller.marshal(message, writer);
         final String xml = writer.toString();
-        assertTrue(xml.contains("<minion-status id=\"12345\""));
+        assertTrue(xml.contains("<minion-status "));
+        assertTrue(xml.contains("id=\"12345\""));
+        assertTrue(xml.contains("version=\"1\""));
         assertTrue(xml.contains("<location>Here</location>"));
         assertTrue(xml.contains("<status>A-OK!</status>"));
         assertTrue(xml.contains("<date>1970-01-01T00:00:00.000+0000</date>"));
@@ -42,7 +43,7 @@ public class MinionStatusMessageTest {
     @Test
     public void testXmlToObject() throws Exception {
         final String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" + 
-                "<minion-status id=\"12345\">\n" + 
+                "<minion-status id=\"12345\" version=\"1\">\n" + 
                 "    <location>Here</location>\n" + 
                 "    <status>A-OK!</status>\n" + 
                 "    <date>1970-01-01T00:00:00.000+0000</date>\n" + 
