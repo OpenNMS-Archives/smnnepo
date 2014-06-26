@@ -21,29 +21,26 @@
 		</cm:default-properties>
 	</cm:property-placeholder>
 
-	<bean id="minionJaxb" class="org.opennms.minion.impl.DataFormatUtils" factory-method="getDataFormat" />
-
-	<reference id="adminService" interface="org.apache.karaf.admin.AdminService" />
-	<reference id="configAdmin"  interface="org.osgi.service.cm.ConfigurationAdmin" />
-	
-	<bean id="controller" class="org.opennms.minion.controller.internal.MinionControllerImpl" activation="lazy" destroy-method="stop">
-		<argument value="direct:sendMinionMessage" />
-
-		<property name="configurationAdmin" ref="configAdmin" />
-		<property name="adminService" ref="adminService" />
-	</bean>
-
 	<bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
 		<property name="brokerURL" value="${broker}" />
 	</bean>
 
-	<camelContext id="activemqMessageSenderCamelContext" xmlns="http://camel.apache.org/schema/blueprint">
-		<route id="fireStartMinionController">
-			<from uri="timer://runOnce?repeatCount=1&amp;delay=5000" />
-			<log loggingLevel="INFO" message="Initializing MinionController" />
-			<bean ref="controller" method="start" />
-		</route>
-	    	    
+	<reference id="adminService"  interface="org.apache.karaf.admin.AdminService" />
+	<reference id="configAdmin"   interface="org.osgi.service.cm.ConfigurationAdmin" />
+
+	<bean id="minionJaxb" class="org.opennms.minion.impl.DataFormatUtils" factory-method="getDataFormat" />
+
+	<bean id="shutdownStrategy" class="org.opennms.minion.controller.internal.MinionControllerShutdownStrategy" />
+
+	<bean id="controller" class="org.opennms.minion.controller.internal.MinionControllerImpl" activation="eager" destroy-method="stop" depends-on="activemqMessageSenderCamelContext">
+		<argument value="direct:sendMinionMessage" />
+
+		<property name="configurationAdmin" ref="configAdmin" />
+		<property name="adminService" ref="adminService" />
+		<property name="shutdownStrategy" ref="shutdownStrategy" />
+	</bean>
+
+	<camelContext id="activemqMessageSenderCamelContext" xmlns="http://camel.apache.org/schema/blueprint" depends-on="activemq">
 		<!-- Send Minion messages over ActiveMQ -->
 		<route id="sendMinionMessage">
 			<from uri="direct:sendMinionMessage" />
@@ -51,6 +48,12 @@
 			<convertBodyTo type="org.opennms.minion.api.MinionStatusMessage" />
 			<marshal ref="minionJaxb" />
 			<to uri="activemq:initialization?disableReplyTo=true" />
+		</route>
+
+		<route id="fireStartMinionController">
+			<from uri="timer://runOnce?repeatCount=1&amp;delay=5000" />
+			<log loggingLevel="INFO" message="Initializing MinionController" />
+			<bean ref="controller" method="start" />
 		</route>
 	</camelContext>
 

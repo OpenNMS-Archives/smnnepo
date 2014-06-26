@@ -7,5 +7,6 @@ public interface MinionController {
     public void stop() throws MinionException;
     public String getId() throws MinionException;
     public String getLocation() throws MinionException;
-    public MinionStatusMessage getStatus() throws MinionException;
+    public void sendStartMessage() throws MinionException;
+    public void sendStopMessage() throws MinionException;
 }

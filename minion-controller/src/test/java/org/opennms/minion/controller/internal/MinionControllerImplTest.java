@@ -49,7 +49,7 @@ public class MinionControllerImplTest {
     @Before
     public void setUp() throws Exception {
         m_configurationAdmin = mock(ConfigurationAdmin.class);
-        
+
         final Hashtable<String,Object> properties = new Hashtable<String,Object>();
         properties.put("location", "Test");
         properties.put("broker", "vm://test?create=true");
@@ -73,7 +73,7 @@ public class MinionControllerImplTest {
         m_controller.setAdminService(m_adminService);
         m_controller.setConfigurationAdmin(m_configurationAdmin);
         m_controller.setMessageSender(m_sender);
-        
+
         m_controller.start();
     }
 
@@ -86,7 +86,7 @@ public class MinionControllerImplTest {
 
     @Test
     public void testGetStatus() throws Exception {
-        final MinionStatusMessage status = m_controller.getStatus();
+        final MinionStatusMessage status = m_controller.createStatusMessage(null);
         assertNotNull(status);
         assertNotNull(status.getId());
         assertNotNull(status.getLocation());

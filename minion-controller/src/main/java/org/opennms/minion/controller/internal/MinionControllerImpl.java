@@ -22,18 +22,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @InOnly
-public class MinionControllerImpl implements MinionController {
+public class MinionControllerImpl implements MinionController, ShutdownListener {
     private static final Logger LOG = LoggerFactory.getLogger(MinionControllerImpl.class);
     private AdminService m_adminService;
     private ConfigurationAdmin m_configurationAdmin;
+    private MinionControllerShutdownStrategy m_shutdownStrategy;
     private final String m_endpointUri;
+
+    private String m_id;
+    private String m_location;
 
     @Produce(property="endpointUri")
     protected MinionMessageSender m_messageSender;
-
-    void setMessageSender(final MinionMessageSender sender) {
-        m_messageSender = sender;
-    }
 
     public MinionControllerImpl(final String endpointUri) {
         m_endpointUri = endpointUri;
@@ -48,71 +48,80 @@ public class MinionControllerImpl implements MinionController {
     public void start() throws MinionException {
         LOG.debug("Initializing controller.");
         assert m_configurationAdmin != null : "ConfigurationAdmin is missing!";
+        assert m_adminService != null : "AdminService is missing!";
+        assert m_shutdownStrategy != null : "ShutdownStrategy is missing!";
 
-        final String id = getId();
-        if (id == null) {
-            setId(UUID.randomUUID().toString());
+        m_shutdownStrategy.addShutdownListener(this);
+
+        m_id = loadProperty("id");
+        if (m_id == null) {
+            m_id = UUID.randomUUID().toString();
+            saveProperty("id", m_id);
         }
 
-        final String location = getLocation();
+        m_location = loadProperty("location");
+        final String location = m_location;
         if (location == null) {
             throw new MinionException("Location is not set!  Please make sure you set location='Location Name' in the " + PID + " configuration.");
         }
 
-        final MinionStatusMessage status = getStatus();
-        m_messageSender.sendMessage(status);
+        sendStartMessage();
 
-        LOG.debug("MinionController initialized. ID is {}.", getId());
+        LOG.debug("MinionController initialized. ID is {}.", m_id);
     }
 
     @Override
     public void stop() throws MinionException {
         LOG.debug("MinionController shutting down.");
-        final MinionStatusMessageImpl message = (MinionStatusMessageImpl) getStatus();
-        message.setStatus(Instance.STOPPED);
-        m_messageSender.sendMessage(message);
+        m_shutdownStrategy.removeShutdownListener(this);
+    }
+
+    @Override
+    public void sendStartMessage() throws MinionException {
+        m_messageSender.sendMessage(createStatusMessage(null));
+    }
+
+    @Override
+    public void sendStopMessage() throws MinionException {
+        m_messageSender.sendMessage(createStatusMessage(Instance.STOPPED));
     }
 
     @Override
     public String getId() throws MinionException {
-        final String property = loadProperty("id");
-        return (property == null || property.isEmpty())? null : property;
-    }
-
-    protected void setId(final String id) throws MinionException {
-        saveProperty("id", id);
-    }
-
-    public String getLocation() throws MinionException {
-        return loadProperty("location");
-    }
-
-    protected void setLocation(final String location) throws MinionException {
-        saveProperty("location", location);
+        return m_id;
     }
 
     @Override
-    public MinionStatusMessage getStatus() throws MinionException {
-        final MinionStatusMessageImpl minionStatus = new MinionStatusMessageImpl(getId(), MinionMessage.CURRENT_VERSION);
+    public String getLocation() throws MinionException {
+        return m_location;
+    }
 
-        Instance rootInstance = null;
-        for (final Instance instance : m_adminService.getInstances()) {
-            if (instance.isRoot()) {
-                rootInstance = instance;
+    public MinionStatusMessage createStatusMessage(final String withStatus) throws MinionException {
+        final MinionStatusMessageImpl minionStatus = new MinionStatusMessageImpl(m_id, MinionMessage.CURRENT_VERSION);
+
+        String status = withStatus;
+        if (withStatus == null) {
+            Instance rootInstance = null;
+            for (final Instance instance : m_adminService.getInstances()) {
+                if (instance.isRoot()) {
+                    rootInstance = instance;
+                    break;
+                }
+            }
+
+            if (rootInstance == null) {
+                throw new MinionException("Unable to find root Karaf instance!");
+            }
+
+            try {
+                status = rootInstance.getState();
+            } catch (final Exception e) {
+                throw new MinionException("Failed to get state from the root instance.", e);
             }
         }
 
-        if (rootInstance == null) {
-            throw new MinionException("Unable to find root Karaf instance!");
-        }
-
-        minionStatus.setLocation(getLocation());
-        try {
-            minionStatus.setStatus(rootInstance.getState());
-        } catch (final Exception e) {
-            LOG.debug("Unable to get Karaf state.", e);
-            throw new MinionException(e);
-        }
+        minionStatus.setLocation(m_location);
+        minionStatus.setStatus(status);
         minionStatus.setDate(new Date());
         return minionStatus;
     }
@@ -165,4 +174,19 @@ public class MinionControllerImpl implements MinionController {
     public void setConfigurationAdmin(final ConfigurationAdmin configurationAdmin) {
         m_configurationAdmin = configurationAdmin;
     }
+
+    public void setShutdownStrategy(final MinionControllerShutdownStrategy strategy) {
+        m_shutdownStrategy = strategy;
+    }
+
+    void setMessageSender(final MinionMessageSender sender) {
+        m_messageSender = sender;
+    }
+
+    @Override
+    public void onShutdown() throws MinionException {
+        LOG.debug("Minion Controller is stopping.  Sending stopped message to the Dominion Controller.");
+        sendStopMessage();
+    }
+
 }
