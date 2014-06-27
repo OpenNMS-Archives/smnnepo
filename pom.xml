@@ -28,8 +28,10 @@
     <module>sample-test</module>
     <module>sample-storage-rrd</module>
     <module>sample-storage-newts</module>
-    <module>minion-controller-api</module>
-    <module>minion-controller-core</module>
+    <module>minion-api</module>
+    <module>minion-impl</module>
+    <module>minion-controller</module>
+    <module>dominion-controller</module>
     <module>sampler-config</module>
     <module>sampler-config-snmp</module>
     <module>sampler-snmp</module>
@@ -142,7 +144,8 @@
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
-        <version>1.0.10</version>
+        <version>1.0.13</version>
+        <scope>test</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>

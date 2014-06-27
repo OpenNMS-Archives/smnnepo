@@ -14,9 +14,6 @@
     <!-- CXF features -->
     <!--<repository>mvn:org.apache.cxf.karaf/apache-cxf/2.7.7/xml/features</repository>-->
 
-    <!-- Karaf Enterprise features (needed for "JMS" feature) -->
-    <repository>mvn:org.apache.karaf.assemblies.features/enterprise/${karafVersion}/xml/features</repository>
-
     <!-- Sampler features -->
 
     <!-- API feature -->
@@ -28,16 +25,26 @@
       <bundle>mvn:org.opennms.netmgt.sample/sample-api/${project.version}</bundle>
     </feature>
 
-    <!-- Controller -->
+    <!-- Minion -->
     <feature name="minion-controller" description="Minion :: Controller" version="${project.version}">
       <feature>karaf-framework</feature>
-      <feature version="${karafVersion}">jms</feature>
-      <!--
-      <bundle>mvn:org.apache.karaf.jms:org.apache.karaf.jms.core</bundle>
-      <bundle>mvn:org.apache.karaf.admin:org.apache.karaf.admin.core</bundle>
-      -->
-      <bundle>mvn:org.opennms.minion/minion-controller-api/${project.version}</bundle>
-      <bundle>mvn:org.opennms.minion/minion-controller-core/${project.version}</bundle>
+      <feature>camel-core</feature>
+      <feature>camel-blueprint</feature>
+      <feature>camel-jaxb</feature>
+      <feature>activemq-camel</feature>
+      <bundle>mvn:org.opennms.minion/minion-api/${project.version}</bundle>
+      <bundle>mvn:org.opennms.minion/minion-impl/${project.version}</bundle>
+      <bundle>mvn:org.opennms.minion/minion-controller/${project.version}</bundle>
+    </feature>
+    <feature name="dominion-controller" description="Dominion :: Controller" version="${project.version}">
+      <feature>karaf-framework</feature>
+      <feature>camel-core</feature>
+      <feature>camel-blueprint</feature>
+      <feature>camel-jaxb</feature>
+      <feature>activemq-camel</feature>
+      <bundle>mvn:org.opennms.minion/minion-api/${project.version}</bundle>
+      <bundle>mvn:org.opennms.minion/minion-impl/${project.version}</bundle>
+      <bundle>mvn:org.opennms.minion/dominion-controller/${project.version}</bundle>
     </feature>
 
     <!-- Config features -->
