@@ -9,7 +9,7 @@ config:update
 
 # Configure the Dominion controller to find the right ActiveMQ broker
 config:edit org.opennms.minion.dominion.controller
-config:propset brokerUri "vm://opennms?create=false"
+config:propset brokerUri "vm://localhost?create=false"
 config:update
 
 # Add the required features URLs
