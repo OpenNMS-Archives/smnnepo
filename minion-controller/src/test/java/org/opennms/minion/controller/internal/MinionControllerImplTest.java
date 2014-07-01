@@ -73,6 +73,7 @@ public class MinionControllerImplTest {
         m_controller.setAdminService(m_adminService);
         m_controller.setConfigurationAdmin(m_configurationAdmin);
         m_controller.setMessageSender(m_sender);
+        m_controller.setShutdownStrategy(mock(MinionControllerShutdownStrategy.class));
 
         m_controller.start();
     }
