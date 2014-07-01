@@ -122,7 +122,21 @@
       <artifactId>sampler-routes</artifactId>
       <version>${project.version}</version>
       <type>xml</type>
-      <classifier>file-storage</classifier>
+      <classifier>blueprint-file-storage</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.opennms.netmgt.sample</groupId>
+      <artifactId>sampler-routes</artifactId>
+      <version>${project.version}</version>
+      <type>xml</type>
+      <classifier>blueprint-activemq-dispatch</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.opennms.netmgt.sample</groupId>
+      <artifactId>sampler-routes</artifactId>
+      <version>${project.version}</version>
+      <type>xml</type>
+      <classifier>blueprint-activemq-receiver</classifier>
     </dependency>
     <dependency>
       <groupId>org.opennms.netmgt.sample</groupId>

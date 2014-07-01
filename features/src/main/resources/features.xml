@@ -2,13 +2,13 @@
     <!-- OpenNMS features -->
     <repository>mvn:org.opennms.karaf/opennms/${project.version}/xml/features</repository>
 
-    <!-- camel features -->
+    <!-- Apache Camel features -->
     <repository>mvn:org.apache.camel.karaf/apache-camel/2.12.3/xml/features</repository>
     
-    <!--  activemq features -->
+    <!-- Apache ActiveMQ features -->
     <repository>mvn:org.apache.activemq/activemq-karaf/5.9.0/xml/features</repository>
 
-    <!--  newts features -->
+    <!-- Newts features -->
     <repository>mvn:org.opennms.newts/karaf/1.0.0-SNAPSHOT/xml/features</repository>
 
     <!-- CXF features -->
@@ -116,21 +116,22 @@
 
     <!-- File sample storage -->
     <feature name="sample-storage-file" description="Sample Collection and Storage :: File Storage" version="${project.version}">
-      <configfile override="true" finalname="/etc/blueprint-file-storage.xml">mvn:org.opennms.netmgt.sample/sampler-routes/${project.version}/xml/file-storage</configfile>
+      <configfile override="true" finalname="/etc/blueprint-file-storage.xml">mvn:org.opennms.netmgt.sample/sampler-routes/${project.version}/xml/blueprint-file-storage</configfile>
       <feature>sample-api</feature>
       <bundle>blueprint:file:etc/blueprint-file-storage.xml</bundle>
     </feature>
 
     <!-- XML sample storage -->
     <feature name="sample-storage-xml" description="Sample Collection and Storage :: XML Storage" version="${project.version}">
-      <configfile override="true" finalname="/etc/blueprint-xml-storage.xml">mvn:org.opennms.netmgt.sample/sampler-routes/${project.version}/xml/xml-storage</configfile>
+      <configfile override="true" finalname="/etc/blueprint-xml-storage.xml">mvn:org.opennms.netmgt.sample/sampler-routes/${project.version}/xml/blueprint-xml-storage</configfile>
       <feature>sample-api</feature>
       <bundle>blueprint:file:etc/blueprint-xml-storage.xml</bundle>
     </feature>
 
     <!-- ActiveMQ sample dispatcher -->
     <feature name="sample-dispatch-activemq" description="Sample Collection and Storage :: ActiveMQ Dispatcher" version="${project.version}">
-      <configfile override="true" finalname="/etc/blueprint-activemq-dispatch.xml">mvn:org.opennms.netmgt.sample/sampler-routes/${project.version}/xml/activemq-dispatch</configfile>
+      <configfile override="true" finalname="/etc/blueprint-activemq-dispatch.xml">mvn:org.opennms.netmgt.sample/sampler-routes/${project.version}/xml/blueprint-activemq-dispatch</configfile>
+      <configfile override="true" finalname="/etc/activemq-dispatch.xml">mvn:org.opennms.netmgt.sample/sampler-routes/${project.version}/xml/activemq-dispatch</configfile>
       <feature version="[1.9.0,2.0)">commons-codec</feature>
       <feature>sample-api</feature>
       <feature>camel-jaxb</feature>
@@ -140,7 +141,8 @@
 
     <!-- ActiveMQ sample receiver -->
     <feature name="sample-receiver-activemq" description="Sample Collection and Storage :: ActiveMQ Receiver" version="${project.version}">
-      <configfile override="true" finalname="/etc/blueprint-activemq-receiver.xml">mvn:org.opennms.netmgt.sample/sampler-routes/${project.version}/xml/activemq-receiver</configfile>
+      <configfile override="true" finalname="/etc/blueprint-activemq-receiver.xml">mvn:org.opennms.netmgt.sample/sampler-routes/${project.version}/xml/blueprint-activemq-receiver</configfile>
+      <configfile override="true" finalname="/etc/activemq-receiver.xml">mvn:org.opennms.netmgt.sample/sampler-routes/${project.version}/xml/activemq-receiver</configfile>
       <feature version="[1.9.0,2.0)">commons-codec</feature>
       <feature>sample-api</feature>
       <feature>camel-jaxb</feature>
