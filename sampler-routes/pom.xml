@@ -66,32 +66,22 @@
                 <artifact>
                   <file>blueprint-file-storage.xml</file>
                   <type>xml</type>
-                  <classifier>blueprint-file-storage</classifier>
+                  <classifier>file-storage</classifier>
                 </artifact>
                 <artifact>
                   <file>blueprint-xml-storage.xml</file>
                   <type>xml</type>
-                  <classifier>blueprint-xml-storage</classifier>
+                  <classifier>xml-storage</classifier>
                 </artifact>
                 <artifact>
                   <file>blueprint-activemq-dispatch.xml</file>
                   <type>xml</type>
-                  <classifier>blueprint-activemq-dispatch</classifier>
+                  <classifier>activemq-dispatch</classifier>
                 </artifact>
                 <artifact>
                   <file>blueprint-activemq-receiver.xml</file>
                   <type>xml</type>
-                  <classifier>blueprint-activemq-receiver</classifier>
-                </artifact>
-                <artifact>
-                  <file>activemq-receiver.xml</file>
-                  <type>xml</type>
                   <classifier>activemq-receiver</classifier>
-                </artifact>
-                <artifact>
-                  <file>activemq-dispatch.xml</file>
-                  <type>xml</type>
-                  <classifier>activemq-dispatch</classifier>
                 </artifact>
               </artifacts>
             </configuration>
