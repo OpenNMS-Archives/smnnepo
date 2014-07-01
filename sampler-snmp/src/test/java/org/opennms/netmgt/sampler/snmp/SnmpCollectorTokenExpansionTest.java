@@ -224,7 +224,7 @@ public class SnmpCollectorTokenExpansionTest extends CamelBlueprintTestSupport i
 			Agent agent = new Agent(
 				new InetSocketAddress(
 					(InetAddress)m_testContext.getAttribute(JUnitSnmpAgentExecutionListener.IPADDRESS_KEY),
-					1161
+                                        (Integer)m_testContext.getAttribute(JUnitSnmpAgentExecutionListener.PORT_KEY)
 				),
 				"SNMP",
 				String.valueOf(i)
