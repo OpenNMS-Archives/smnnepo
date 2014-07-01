@@ -64,7 +64,7 @@ config:edit org.opennms.minion.controller
 config:propset location "$LOCATION"
 #config:propset broker "$BROKER"
 # Talk to the local ActiveMQ via the VM transport connector
-config:propset broker "vm://$VMTRANSPORTNAME"
+config:propset broker "vm://$VMTRANSPORTNAME?create=false"
 config:update
 
 # Add the required features URLs
@@ -72,4 +72,4 @@ features:addurl mvn:org.apache.activemq/activemq-karaf/5.9.0/xml/features
 features:addurl mvn:org.opennms.netmgt.sample/karaf/1.13.4-PJSM-SNAPSHOT/xml
 
 # Install all required Sampler features
-features:install -v activemq minion-controller sampler-with-activemq-export
+features:install -v commons-codec activemq minion-controller sampler-with-activemq-export
