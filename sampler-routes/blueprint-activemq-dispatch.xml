@@ -15,7 +15,7 @@
 ">
 
   <!-- Configuration properties -->
-  <cm:property-placeholder id="properties" persistent-id="org.opennms.netmgt.sampler.persister.activemq" update-strategy="none">
+  <cm:property-placeholder id="properties" persistent-id="org.opennms.netmgt.sampler.persister" update-strategy="none">
     <cm:default-properties>
       <cm:property name="brokerName" value="persisterBroker"/>
 

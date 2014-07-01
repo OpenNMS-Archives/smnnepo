@@ -126,12 +126,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.opennms.core.snmp</groupId>
-      <artifactId>org.opennms.core.snmp.implementations.snmp4j</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-camel</artifactId>
       <version>5.9.0</version>
