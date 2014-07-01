@@ -1,15 +1,37 @@
+BROKERNAME=opennms
+
+# Configure the local ActiveMQ broker
+config:edit org.apache.activemq.server-default
+# Needs to be globally unique
+config:propset broker-name "$BROKERNAME"
+config:propset config ${karaf.base}/etc/activemq-receiver.xml
+config:propset vmBrokerName "$BROKERNAME"
+config:update
+
+# Configure the ActiveMQ web UI
+# Don't use this for now because it conflicts with the OpenNMS MX4J HTTP interface
+#config:edit org.apache.activemq.webconsole
+#config:propset webconsole.jms.url "vm://$VMTRANSPORTNAME"
+#config:propset webconsole.jmx.url service:jmx:rmi:///jndi/rmi://localhost:1099/karaf-root
+#config:propset webconsole.jmx.user karaf
+#config:propset webconsole.jmx.password karaf
+#config:propset webconsole.jms.user system
+#config:propset webconsole.jms.password manager
+#config:update
+
+# Add the SMNnepO WAR as a PAX Maven repository URL
 config:edit org.ops4j.pax.url.mvn
 config:propappend org.ops4j.pax.url.mvn.repositories ", http://localhost:8980/smnnepo@snapshots@id=opennms-repo"
 config:update
 
-features:addurl mvn:org.opennms.netmgt.sample/karaf/1.13.4-PJSM-SNAPSHOT/xml
+# Configure the local RRD storage directory
 config:edit org.opennms.netmgt.sampler.storage.rrd
 config:propset rrdStorageDirectory ${opennms.home}/share/rrd/snmp
 config:update
 
 # Configure the Dominion controller to find the right ActiveMQ broker
 config:edit org.opennms.minion.dominion.controller
-config:propset brokerUri "vm://opennms?create=false"
+config:propset brokerUri "vm://$BROKERNAME?create=false"
 config:update
 
 # Add the required features URLs
@@ -17,4 +39,4 @@ features:addurl mvn:org.apache.activemq/activemq-karaf/5.9.0/xml/features
 features:addurl mvn:org.opennms.netmgt.sample/karaf/1.13.4-PJSM-SNAPSHOT/xml
 
 # Install all required features
-features:install -v sample-receiver-activemq dominion-controller
+features:install -v activemq sample-receiver-activemq dominion-controller
