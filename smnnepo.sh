@@ -41,6 +41,10 @@ if [ -z "$OPENNMS" ] || [ -z "$LOCATION" ]; then
 	exit 0
 fi
 
+if [ -z "$KARAF_OPTS" ]; then
+	KARAF_OPTS=""; export KARAF_OPTS
+fi
+
 "$SMNNEPO_HOME"/bin/start >/dev/null
 RETVAL="$?"
 if [ $RETVAL -eq 0 ]; then
