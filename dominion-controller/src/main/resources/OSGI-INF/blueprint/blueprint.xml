@@ -17,7 +17,7 @@
 
 	<cm:property-placeholder persistent-id="org.opennms.minion.dominion.controller" update-strategy="reload">
 		<cm:default-properties>
-			<cm:property name="brokerUri" value="vm://localhost" />
+			<cm:property name="brokerUri" value="vm://opennms" />
 		</cm:default-properties>
 	</cm:property-placeholder>
 
