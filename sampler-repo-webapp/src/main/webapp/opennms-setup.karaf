@@ -31,7 +31,7 @@ config:update
 
 # Configure the Dominion controller to find the right ActiveMQ broker
 config:edit org.opennms.minion.dominion.controller
-config:propset brokerUri "vm://$BROKERNAME?create=false"
+config:propset brokerUri "vm://$BROKERNAME?create=false&waitForStart=30000"
 config:update
 
 # Add the required features URLs
@@ -39,4 +39,5 @@ features:addurl mvn:org.apache.activemq/activemq-karaf/5.9.0/xml/features
 features:addurl mvn:org.opennms.netmgt.sample/karaf/1.13.4-PJSM-SNAPSHOT/xml
 
 # Install all required features
-features:install -v activemq sample-receiver-activemq dominion-controller
+features:install -v activemq 
+features:install -v sample-receiver-activemq dominion-controller
