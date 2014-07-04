@@ -100,7 +100,7 @@
             http://activemq.apache.org/networks-of-brokers.html
         -->
         <networkConnectors>
-            <networkConnector name="remote" uri="static:(${brokerUri})?maximumConnections=1000&amp;wireformat.maxFrameSize=104857600" duplex="true" networkTTL="3"/>
+            <networkConnector name="remote" uri="static:(${brokerUri})" duplex="true" networkTTL="3"/>
         </networkConnectors>
 
           <!--
@@ -130,8 +130,8 @@
             http://activemq.apache.org/configuring-transports.html
         -->
         <transportConnectors>
-            <!-- Listen for VM connections for the "sampler" broker -->
-            <transportConnector name="vm" uri="vm://${vmBrokerName}"/>
+            <!-- Listen for local TCP connections from Minion modules -->
+            <transportConnector name="local" uri="tcp://0.0.0.0:61616?maximumConnections=1000&amp;wireformat.maxFrameSize=104857600"/>
         </transportConnectors>
 
         <!-- destroy the spring context on shutdown to stop jetty -->

@@ -9,14 +9,14 @@ if { $5 } {
 	BROKER=(($3 replaceAll "https?://" "tcp://") replaceAll "(//[^:]*):\d+.*$" "\$1:61616");
 	LOCATION=$4;
 }
-BROKERNAME=($LOCATION replaceAll "[^A-z0-9]" "_")
-VMTRANSPORTNAME=$BROKERNAME
+BROKERNAME=($LOCATION replaceAll "[^A-z0-9]" "-")
+#VMTRANSPORTNAME=$BROKERNAME
 
-echo "OpenNMS Root: $ONMS"
-echo "OpenNMS Broker URI: $BROKER"
+echo "OpenNMS REST Root:   $ONMS"
+echo "OpenNMS Broker URI:  $BROKER"
 echo "Monitoring Location: $LOCATION"
-echo "Broker Name: $BROKERNAME"
-echo "VM Transport Connector: $VMTRANSPORTNAME"
+echo "Broker Name:         $BROKERNAME"
+#echo "Local Broker URI:   $VMTRANSPORTNAME"
 
 # Configure the local ActiveMQ dispatcher broker
 config:edit org.apache.activemq.server-default
@@ -25,7 +25,7 @@ config:propset broker-name "$BROKERNAME"
 config:propset activemq.data ${karaf.base}/data/activemq
 config:propset config ${karaf.base}/etc/activemq-dispatch.xml
 config:propset brokerUri "$BROKER"
-config:propset vmBrokerName "$VMTRANSPORTNAME"
+#config:propset vmBrokerName "$VMTRANSPORTNAME"
 config:update
 
 # Configure the ActiveMQ web UI
@@ -56,7 +56,8 @@ config:update
 config:edit org.opennms.netmgt.sampler.persister.activemq
 #config:propset brokerUri "vm:(broker:(network:static:$BROKER)?brokerName=$BROKERNAME&persistent=false&useJmx=false)"
 # Talk to the local ActiveMQ via the VM transport connector
-config:propset brokerUri "vm://$VMTRANSPORTNAME?create=false&waitForStart=30000"
+#config:propset brokerUri "vm://$VMTRANSPORTNAME?create=false&waitForStart=30000"
+config:propset brokerUri "tcp://127.0.0.1:61616"
 config:update
 
 #Configure the Minion location and broker URI
@@ -64,7 +65,8 @@ config:edit org.opennms.minion.controller
 config:propset location "$LOCATION"
 #config:propset broker "$BROKER"
 # Talk to the local ActiveMQ via the VM transport connector
-config:propset broker "vm://$VMTRANSPORTNAME?create=false&waitForStart=30000"
+#config:propset broker "vm://$VMTRANSPORTNAME?create=false&waitForStart=30000"
+config:propset brokerUri "tcp://127.0.0.1:61616"
 config:update
 
 # Add the required features URLs
@@ -72,9 +74,19 @@ features:addurl mvn:org.apache.activemq/activemq-karaf/5.9.0/xml/features
 features:addurl mvn:org.opennms.netmgt.sample/karaf/1.13.4-PJSM-SNAPSHOT/xml
 
 # Install all required Sampler features
-#
+
 # Install commons-codec first so that it installs the latest version which satisfies
 # the version requirements for all other features.
-#
-features:install -v commons-codec activemq
+features:install -v commons-codec 
+
+# Install the ActiveMQ config file
+features:install -v sample-dispatch-activemq-config
+
+# Install and launch the ActiveMQ broker
+features:install -v activemq
+
+# Put a scary sleep command in so that we have time for ActiveMQ to initialize
+sleep 3000
+
+# Install the Minion and Sampler features
 features:install -v minion-controller sampler-with-activemq-export
