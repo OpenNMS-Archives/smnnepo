@@ -12,6 +12,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
 import org.apache.activemq.camel.component.ActiveMQComponent;
+import org.apache.camel.CamelContext;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.ShutdownRunningTask;
@@ -44,7 +45,7 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
     private String m_id;
     private String m_location;
 
-    private DefaultCamelContext m_camelContext;
+    private CamelContext m_camelContext;
     private MinionMessageSender m_messageSender;
     private MinionMessageReceiver m_messageReceiver;
     private ProducerTemplate m_producer;
@@ -72,7 +73,7 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
             throw new MinionException("Location is not set!  Please make sure you set location='Location Name' in the " + PID + " configuration.");
         }
 
-        createCamelContext();
+        assertCamelContextExists();
         sendStartMessage();
 
         LOG.debug("MinionController initialized. ID is {}.", m_id);
@@ -170,7 +171,11 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
         }
     }
 
-    protected void createCamelContext() throws MinionException {
+    protected void assertCamelContextExists() throws MinionException {
+        if (m_camelContext != null) {
+            return;
+        }
+
         final ActiveMQComponent activemq = new ActiveMQComponent();
         activemq.setBrokerURL(m_brokerUri);
 
@@ -184,11 +189,11 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
             throw new MinionException(errorMessage, e);
         }
 
-        m_camelContext = new DefaultCamelContext();
-        m_camelContext.setName("minion-controller");
+        final DefaultCamelContext camelContext = new DefaultCamelContext();
+        camelContext.setName("minion-controller");
         try {
-            m_camelContext.addComponent("activemq", activemq);
-            m_camelContext.addRoutes(new RouteBuilder() {
+            camelContext.addComponent("activemq", activemq);
+            camelContext.addRoutes(new RouteBuilder() {
                 @Override
                 public void configure() throws Exception {
                     from("direct:sendMessage")
@@ -207,13 +212,14 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
                         .bean(m_messageReceiver, "onMessage");
                 }
             });
-            m_camelContext.start();
+            camelContext.start();
             
             int waitfor = 30; // seconds
-            while (!m_camelContext.isStarted() && waitfor-- > 0) {
+            while (!camelContext.isStarted() && waitfor-- > 0) {
                 LOG.debug("Waiting for camel context to start...");
                 Thread.sleep(1000);
             }
+            m_camelContext = camelContext;
         } catch (final Exception e) {
             throw new MinionException("Failed to configure routes for minion-controller context!", e);
         }
@@ -306,6 +312,10 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
         m_messageReceiver = receiver;
     }
     
+    public void setCamelContext(final CamelContext context) {
+        m_camelContext = context;
+    }
+
     public void setBrokerUri(final String brokerUri) {
         m_brokerUri = brokerUri;
     }
