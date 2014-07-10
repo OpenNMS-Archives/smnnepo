@@ -22,6 +22,7 @@ public class DominionControllerImplTest {
         final DominionControllerImpl controller = new DominionControllerImpl();
         controller.setBrokerUri("foo");
         controller.setListenQueueName("initialization");
+        controller.setStatusMessageWriter(mock(StatusMessageWriter.class));
         controller.start();
     }
 
