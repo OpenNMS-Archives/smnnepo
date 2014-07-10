@@ -29,6 +29,7 @@ import org.opennms.minion.api.MinionMessage;
 import org.opennms.minion.api.MinionMessageReceiver;
 import org.opennms.minion.api.MinionMessageSender;
 import org.opennms.minion.api.MinionStatusMessage;
+import org.opennms.minion.impl.MinionInitializationMessageImpl;
 import org.opennms.minion.impl.MinionStatusMessageImpl;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -46,9 +47,9 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
     private String m_location;
 
     private CamelContext m_camelContext;
+    private ProducerTemplate m_producer;
     private MinionMessageSender m_messageSender;
     private MinionMessageReceiver m_messageReceiver;
-    private ProducerTemplate m_producer;
 
     public MinionControllerImpl() {
     }
@@ -181,7 +182,7 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
 
         final DataFormat df;
         try {
-            final JAXBContext context = JAXBContext.newInstance(MinionStatusMessageImpl.class);
+            final JAXBContext context = JAXBContext.newInstance(MinionStatusMessageImpl.class, MinionInitializationMessageImpl.class);
             df = new JaxbDataFormat(context);
         } catch (final JAXBException e) {
             final String errorMessage = "Failed to create JAXB context for the minion controller!";

@@ -21,31 +21,16 @@
 		</cm:default-properties>
 	</cm:property-placeholder>
 
-	<bean id="minionJaxb" class="org.opennms.minion.impl.DataFormatUtils" factory-method="getDataFormat" />
-
 	<reference id="minionDao" interface="org.opennms.netmgt.dao.api.MinionDao" />
 	
 	<bean id="statusMessageWriter" class="org.opennms.minion.dominion.controller.internal.OnmsMinionStatusMessageWriter">
 		<property name="minionDao" ref="minionDao" />
 	</bean>
 
-	<bean id="controller" class="org.opennms.minion.dominion.controller.internal.DominionControllerImpl">
-		<property name="endpointUri" value="direct:processMessage" />
+	<bean id="controller" class="org.opennms.minion.dominion.controller.internal.DominionControllerImpl" init-method="start" destroy-method="stop">
+		<property name="brokerUri" value="${brokerUri}" />
+		<property name="listenQueueName" value="initialization" />
 		<property name="statusMessageWriter" ref="statusMessageWriter" />
-	</bean>
-
-	<camelContext id="activemqMessageReceiverCamelContext" xmlns="http://camel.apache.org/schema/blueprint">
-		<!-- Receive Minion messages over ActiveMQ -->
-		<route id="receiveMinionMessage">
-			<from uri="activemq:initialization" />
-			<log loggingLevel="INFO" message="dominion-controller: receiveMinionMessage: ${body}" />
-			<unmarshal ref="minionJaxb" />
-			<to uri="direct:processMessage" />
-		</route>
-	</camelContext>
-
-	<bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
-		<property name="brokerURL" value="${brokerUri}" />
 	</bean>
 
 </blueprint>
