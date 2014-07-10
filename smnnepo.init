@@ -44,11 +44,28 @@ case "$1" in
 			RETVAL="$?"
 			if [ $RETVAL -eq 0 ]; then
 				echo "OK"
-				exit 0
 			else
 				echo "FAILED"
 				exit 1
 			fi
+
+			# Stop all subinstances
+			# Filter out all of the [, ], and / characters
+			"$SMNNEPO_HOME"/bin/admin list | grep '^\[' | sed 's#[][/]# #g' | while read LINE; do
+				INSTANCE=`echo "$LINE" | awk '{print $6}'`
+				if [ "$INSTANCE" != "root" ]; then
+					echo -n "Stopping subinstance $INSTANCE: "
+					"$SMNNEPO_HOME"/bin/admin stop $INSTANCE >/dev/null 2>&1
+					RETVAL="$?"
+					if [ $RETVAL -eq 0 ]; then
+						echo "OK"
+					else
+						echo "FAILED"
+						exit 1
+					fi
+				fi
+			done
+			exit 0
 		else
 			echo "FAILED: $DESC is not running."
 			exit 1

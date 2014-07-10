@@ -1,22 +1,83 @@
-USER=$1
-PASSWD=$2
-ONMS=($3 replaceAll "/*$" "")
-if { $5 } {
-	BROKER=$4;
-	LOCATION=$5;
+INSTANCE=$1
+USER=$2
+PASSWD=$3
+ONMS=($4 replaceAll "/*$" "")
+if { $6 } {
+	BROKER=$5;
+	LOCATION=$6;
 } {
 	# If there is no explicit broker argument, assume that it is the same address as the REST root
-	BROKER=(($3 replaceAll "https?://" "tcp://") replaceAll "(//[^:]*):\d+.*$" "\$1:61616");
-	LOCATION=$4;
+	BROKER=(($4 replaceAll "https?://" "tcp://") replaceAll "(//[^:]*):\d+.*$" "\$1:61616");
+	LOCATION=$5;
 }
 BROKERNAME=($LOCATION replaceAll "[^A-z0-9]" "-")
-#VMTRANSPORTNAME=$BROKERNAME
 
+echo "Instance:            $INSTANCE"
 echo "OpenNMS REST Root:   $ONMS"
 echo "OpenNMS Broker URI:  $BROKER"
 echo "Monitoring Location: $LOCATION"
 echo "Broker Name:         $BROKERNAME"
-#echo "Local Broker URI:   $VMTRANSPORTNAME"
+
+
+##########################################
+# Install the root instance              #
+##########################################
+
+if { "root" equals "$INSTANCE" } {
+
+# Add the SMNnepO WAR as a PAX Maven repository URL
+config:edit org.ops4j.pax.url.mvn
+config:propset org.ops4j.pax.url.mvn.repositories $ONMS/smnnepo@snapshots@id=opennms-repo
+config:update
+
+# Add the required features URLs
+features:addurl mvn:org.apache.activemq/activemq-karaf/5.9.0/xml/features
+features:addurl mvn:org.opennms.netmgt.sample/karaf/1.13.4-PJSM-SNAPSHOT/xml
+
+# Add system properties for all of the Minion parameters
+#system-property minion.location "$LOCATION"
+#system-property minion.rest "$ONMS"
+#system-property minion.broker "$BROKER"
+#system-property minion.brokerName "$BROKERNAME"
+
+# Since the root instance runs on port 8201 (as configured in the RPM spec) then increment
+# all of the other SSH ports from there. Similarly, increment the RMI registry/server ports.
+
+FINDINSTANCE = (admin:list | grep activemq | tac)
+if { ($FINDINSTANCE isEmpty) } {
+admin:clone root activemq
+admin:change-ssh-port activemq 8202
+admin:change-rmi-registry-port activemq 1300
+admin:change-rmi-server-port activemq 45445
+}
+admin:start activemq
+
+FINDINSTANCE = (admin:list | grep minion | tac)
+if { ($FINDINSTANCE isEmpty) } {
+admin:clone root minion
+admin:change-ssh-port minion 8203
+admin:change-rmi-registry-port minion 1301
+admin:change-rmi-server-port minion 45446
+}
+admin:start minion
+
+FINDINSTANCE = (admin:list | grep sampler | tac)
+if { ($FINDINSTANCE isEmpty) } {
+admin:clone root sampler
+admin:change-ssh-port sampler 8204
+admin:change-rmi-registry-port sampler 1302
+admin:change-rmi-server-port sampler 45447
+}
+admin:start sampler
+
+}
+
+
+##########################################
+# Install the ActiveMQ instance          #
+##########################################
+
+if { "activemq" equals "$INSTANCE" } {
 
 # Configure the local ActiveMQ dispatcher broker
 config:edit org.apache.activemq.server-default
@@ -25,7 +86,6 @@ config:propset broker-name "$BROKERNAME"
 config:propset activemq.data ${karaf.base}/data/activemq
 config:propset config ${karaf.base}/etc/activemq-dispatch.xml
 config:propset brokerUri "$BROKER"
-#config:propset vmBrokerName "$VMTRANSPORTNAME"
 config:update
 
 # Configure the ActiveMQ web UI
@@ -39,11 +99,36 @@ config:update
 #config:propset webconsole.jms.password manager
 #config:update
 
-# Add the SMNnepO WAR as a PAX Maven repository URL
-config:edit org.ops4j.pax.url.mvn
-config:propset org.ops4j.pax.url.mvn.repositories $ONMS/smnnepo@snapshots@id=opennms-repo
+# Install the ActiveMQ config file and feature
+features:install -v sample-dispatch-activemq-config activemq
+
+}
+
+
+##########################################
+# Install the Minion instance            #
+##########################################
+
+if { "minion" equals "$INSTANCE" } {
+
+# Configure the Minion location and broker URI
+config:edit org.opennms.minion.controller
+config:propset location "$LOCATION"
+config:propset brokerUri "tcp://127.0.0.1:61616"
 config:update
-	
+
+# Install the Minion and Sampler features
+features:install -v minion-controller 
+
+}
+
+
+##########################################
+# Configure the Sampler instance         #
+##########################################
+
+if { "sampler" equals "$INSTANCE" } {
+
 # Configure the REST parameters for the config bundle
 config:edit org.opennms.netmgt.sampler.config
 config:propset rest.root $ONMS/opennms/rest
@@ -54,39 +139,10 @@ config:update
 
 # Configure the ActiveMQ broker URI
 config:edit org.opennms.netmgt.sampler.persister.activemq
-#config:propset brokerUri "vm:(broker:(network:static:$BROKER)?brokerName=$BROKERNAME&persistent=false&useJmx=false)"
-# Talk to the local ActiveMQ via the VM transport connector
-#config:propset brokerUri "vm://$VMTRANSPORTNAME?create=false&waitForStart=30000"
 config:propset brokerUri "tcp://127.0.0.1:61616"
 config:update
 
-#Configure the Minion location and broker URI
-config:edit org.opennms.minion.controller
-config:propset location "$LOCATION"
-#config:propset broker "$BROKER"
-# Talk to the local ActiveMQ via the VM transport connector
-#config:propset broker "vm://$VMTRANSPORTNAME?create=false&waitForStart=30000"
-config:propset brokerUri "tcp://127.0.0.1:61616"
-config:update
+# Install the Sampler features
+features:install -v sampler-with-activemq-export
 
-# Add the required features URLs
-features:addurl mvn:org.apache.activemq/activemq-karaf/5.9.0/xml/features
-features:addurl mvn:org.opennms.netmgt.sample/karaf/1.13.4-PJSM-SNAPSHOT/xml
-
-# Install all required Sampler features
-
-# Install commons-codec first so that it installs the latest version which satisfies
-# the version requirements for all other features.
-features:install -v commons-codec 
-
-# Install the ActiveMQ config file
-features:install -v sample-dispatch-activemq-config
-
-# Install and launch the ActiveMQ broker
-features:install -v activemq
-
-# Put a scary sleep command in so that we have time for ActiveMQ to initialize
-sleep 3000
-
-# Install the Minion and Sampler features
-features:install -v minion-controller sampler-with-activemq-export
+}
