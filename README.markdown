@@ -106,7 +106,7 @@ Configuring a Minion Client
    version 2.3.4 or higher.
 2. Run Karaf (<code>bin/karaf</code>)
 3. Run the configuration script:
-   <code>source http://opennms-host:8980/smnnepo/opennms-setup.karaf [username] [password] [opennms-root] [location-name]</code>
+   <code>source http://opennms-host:8980/smnnepo/smnnepo-setup.karaf [username] [password] [opennms-root] [location-name]</code>
 
 	* username: The OpenNMS username allowed to make ReST calls
 	* password: The password for the ReST user
