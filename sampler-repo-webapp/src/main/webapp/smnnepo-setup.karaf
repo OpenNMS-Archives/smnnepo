@@ -34,12 +34,6 @@ config:update
 features:addurl mvn:org.apache.activemq/activemq-karaf/5.9.0/xml/features
 features:addurl mvn:org.opennms.netmgt.sample/karaf/1.13.4-PJSM-SNAPSHOT/xml
 
-# Add system properties for all of the Minion parameters
-#system-property minion.location "$LOCATION"
-#system-property minion.rest "$ONMS"
-#system-property minion.broker "$BROKER"
-#system-property minion.brokerName "$BROKERNAME"
-
 # Since the root instance runs on port 8201 (as configured in the RPM spec) then increment
 # all of the other SSH ports from there. Similarly, increment the RMI registry/server ports.
 

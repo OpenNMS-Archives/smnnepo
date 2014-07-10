@@ -113,7 +113,7 @@
       <url>http://maven.opennms.org/content/groups/opennms.org-release</url>
     </pluginRepository>
     <pluginRepository>
-      <snapshots><enabled>true</enabled><updatePolicy>interval:10</updatePolicy></snapshots>
+      <snapshots><enabled>true</enabled></snapshots>
       <releases><enabled>false</enabled></releases>
       <id>opennms-snapshots</id>
       <name>OpenNMS Snapshot Maven Repository</name>
@@ -130,8 +130,7 @@
       <url>http://maven.opennms.org/content/groups/opennms.org-release</url>
     </repository>
     <repository>
-      <snapshots>
-        <enabled>true</enabled></snapshots>
+      <snapshots><enabled>true</enabled></snapshots>
       <releases><enabled>false</enabled></releases>
       <id>opennms-snapshots</id>
       <name>OpenNMS Snapshot Maven Repository</name>

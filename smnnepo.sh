@@ -37,7 +37,7 @@ fi
 
 echo -n "Starting SMNnepO: "
 if [ -z "$OPENNMS" ] || [ -z "$LOCATION" ]; then
-	echo "no configuration"
+	echo "No configuration"
 	exit 0
 fi
 
@@ -45,14 +45,13 @@ if [ -z "$KARAF_OPTS" ]; then
 	KARAF_OPTS=""; export KARAF_OPTS
 fi
 
-"$SMNNEPO_HOME"/bin/start >/dev/null
+"$SMNNEPO_HOME"/bin/start >/tmp/smnnepo.log 2>&1
 RETVAL="$?"
 if [ $RETVAL -eq 0 ]; then
 	echo "OK"
 
 	OPENNMS=`echo "$OPENNMS" | sed -e 's,/$,,'`
 	SCRIPTDIR=$OPENNMS/smnnepo
-	#SCRIPTDIR=/root/git/smnnepo/sampler-repo-webapp/src/main/webapp
 
 	# Make sure that the port here matches the default port from the smnnepo.spec
 	if [ -z "$BROKER" ]; then
@@ -72,16 +71,15 @@ if [ $RETVAL -eq 0 ]; then
 		exit $RETVAL
 	fi
 
-	# List all of the instances and for each instance, call the smnnepo-setup.karaf script
-	#INSTANCES=`"$SMNNEPO_HOME"/bin/admin list | grep '^\[' | sed 's#^\[\s*\([0-9]*\)\]\s*\[\s*\([0-9]*\)/\([0-9]*\)\s*\]\s*\[\s*\([[:alnum:]]*\)\s*\]\s*\[\([0-9]*\)\s*\]\s*\(.*\)$#\1 \2 \3 \4 \5 \6#'`
+	# Sleep to allow the subinstances to start up so we don't run into "command not found" errors
+	sleep 10
 
-	# Filter out all of the [, ], and / characters
+	# List all of the instances and for each instance, call the smnnepo-setup.karaf script
+	# Filter out all of the [, ], and / characters from the admin:list output
 	"$SMNNEPO_HOME"/bin/admin list | grep '^\[' | sed 's#[][/]# #g' | while read LINE; do
-		echo "$LINE" >/tmp/smnnepo.log 2>&1
+
 		PORT=`echo "$LINE" | awk '{print $1}'`
 		INSTANCE=`echo "$LINE" | awk '{print $6}'`
-
-		sleep 10
 
 		# Configure all instances except root
 		if [ "$INSTANCE" != "root" ]; then
@@ -106,6 +104,6 @@ if [ $RETVAL -eq 0 ]; then
 	exit 0
 
 else
-	echo "FAILED"
+	echo "FAILED. See /tmp/smnnepo.log for details."
 	exit $RETVAL
 fi
