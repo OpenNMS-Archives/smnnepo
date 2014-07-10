@@ -27,6 +27,7 @@ public abstract class AbstractMinionMessage implements MinionMessage {
         if (version == null) {
             throw new MinionException("Message version must be defined!");
         }
+        m_version = version;
     }
 
     @Override
