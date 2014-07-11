@@ -3,7 +3,7 @@
     <repository>mvn:org.opennms.karaf/opennms/${project.version}/xml/features</repository>
 
     <!-- Apache Camel features -->
-    <repository>mvn:org.apache.camel.karaf/apache-camel/2.12.3/xml/features</repository>
+    <repository>mvn:org.apache.camel.karaf/apache-camel/2.13.2/xml/features</repository>
     
     <!-- Apache ActiveMQ features -->
     <repository>mvn:org.apache.activemq/activemq-karaf/5.9.0/xml/features</repository>
