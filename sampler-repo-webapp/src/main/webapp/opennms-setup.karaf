@@ -5,7 +5,6 @@ config:edit org.apache.activemq.server-default
 # Needs to be globally unique
 config:propset broker-name "$BROKERNAME"
 config:propset config ${karaf.base}/etc/activemq-receiver.xml
-config:propset vmBrokerName "$BROKERNAME"
 config:update
 
 # Configure the ActiveMQ web UI
@@ -31,7 +30,7 @@ config:update
 
 # Configure the Dominion controller to find the right ActiveMQ broker
 config:edit org.opennms.minion.dominion.controller
-config:propset brokerUri "vm://$BROKERNAME?create=false&waitForStart=30000"
+config:propset brokerUri "tcp://127.0.0.1:61616"
 config:update
 
 # Add the required features URLs

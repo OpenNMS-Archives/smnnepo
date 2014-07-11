@@ -124,8 +124,6 @@
         <transportConnectors>
             <!-- DOS protection, limit concurrent connections to 1000 and frame size to 100MB -->
             <transportConnector name="openwire" uri="tcp://0.0.0.0:61616?useJmx=false&amp;maximumConnections=1000&amp;wireformat.maxFrameSize=104857600"/>
-            <!-- Listen for VM connections for the "localhost" broker -->
-            <transportConnector name="vm" uri="vm://${vmBrokerName}"/>
         </transportConnectors>
 
         <!-- destroy the spring context on shutdown to stop jetty -->
