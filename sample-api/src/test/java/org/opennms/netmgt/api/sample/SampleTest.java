@@ -2,6 +2,7 @@ package org.opennms.netmgt.api.sample;
 
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeThat;
@@ -299,6 +300,7 @@ public class SampleTest
 				collector.getMetric("freeMemory"),
 
 		};
+		assertNotNull(resource);
 		
 		start = start.atStepBoundaryStart(1000, TimeUnit.MILLISECONDS);
 		end = end.atStepBoundaryStart(1000, TimeUnit.MILLISECONDS);
