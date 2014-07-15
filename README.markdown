@@ -22,6 +22,14 @@ Terms
   controller.</dd>
 </dl>
 
+Requirements
+============
+
+The Dominion controller (the OpenNMS side) has the same requirements of OpenNMS, since
+it runs inside OpenNMS's embedded karaf.
+
+The minion should run anywhere Java 7 (or higher) is available.
+
 Installing from RPMs
 ====================
 
@@ -116,3 +124,11 @@ Configuring a Minion Client
 	  "<code>http://www.example.com:8980/</code>" as the OpenNMS root.
 	* location-name: The name of the location the Minion is running at.  This should match
 	  a location in the <code>monitoring-locations.xml</code> file on your OpenNMS server.
+
+Validating Your Minion
+======================
+
+All minions need validation.  ;)
+
+If everything connected correctly, you should be able to browse to the OpenNMS minion
+console at <code>http://opennms-host:8980/opennms/minion/index.jsp</code>.
