@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
+import org.apache.camel.CamelContext;
 import org.apache.karaf.admin.AdminService;
 import org.apache.karaf.admin.Instance;
 import org.junit.Before;
@@ -69,11 +70,13 @@ public class MinionControllerImplTest {
 
         m_sender = new MockMessageSender();
 
-        m_controller = new MinionControllerImpl("foo");
+        m_controller = new MinionControllerImpl();
         m_controller.setAdminService(m_adminService);
         m_controller.setConfigurationAdmin(m_configurationAdmin);
         m_controller.setMessageSender(m_sender);
-        m_controller.setShutdownStrategy(mock(MinionControllerShutdownStrategy.class));
+        m_controller.setCamelContext(mock(CamelContext.class));
+        m_controller.setBrokerUri("vm://localhost");
+        m_controller.setSendQueueName("initialization");
 
         m_controller.start();
     }

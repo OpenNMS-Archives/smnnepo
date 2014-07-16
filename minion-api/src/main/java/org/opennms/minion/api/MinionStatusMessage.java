@@ -8,5 +8,4 @@ public interface MinionStatusMessage extends MinionMessage {
     public String getLocation();
     public String getStatus();
     public Date getDate();
-    public Map<String,String> getProperties();
 }

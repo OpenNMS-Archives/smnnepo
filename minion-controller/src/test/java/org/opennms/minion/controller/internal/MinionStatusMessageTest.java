@@ -30,6 +30,7 @@ public class MinionStatusMessageTest {
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
         marshaller.marshal(message, writer);
         final String xml = writer.toString();
+        System.err.println(xml);
         assertTrue(xml.contains("<minion-status "));
         assertTrue(xml.contains("id=\"12345\""));
         assertTrue(xml.contains("version=\"1\""));
@@ -55,7 +56,8 @@ public class MinionStatusMessageTest {
         final Unmarshaller unmarshaller = JAXBContext.newInstance(MinionStatusMessageImpl.class).createUnmarshaller();
         final StringReader reader = new StringReader(xml);
         final MinionStatusMessageImpl message = (MinionStatusMessageImpl)unmarshaller.unmarshal(reader);
-        
+
+        assertEquals(1, message.getVersion());
         assertEquals("12345", message.getId());
         assertEquals("Here", message.getLocation());
         assertEquals("A-OK!", message.getStatus());
