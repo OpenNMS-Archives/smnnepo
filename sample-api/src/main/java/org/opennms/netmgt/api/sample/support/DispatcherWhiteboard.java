@@ -99,6 +99,9 @@ public class DispatcherWhiteboard {
                 for (Object service : m_tracker.getServices()) {
                     m_method.invoke(service, message);
                 }
+            } else {
+                // in case there is no dispatcher registered, let the user know.
+                LOG.warn("No dispatcher for message found. ServiceClass: {}, ServiceMethod: {}", m_serviceClass, m_methodName);
             }
         } catch (Throwable e) {
             // If anything goes wrong, log an error message
