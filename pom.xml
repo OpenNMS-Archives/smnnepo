@@ -31,6 +31,8 @@
     <module>minion-api</module>
     <module>minion-impl</module>
     <module>minion-controller</module>
+    <module>dominion-status-writer/dao</module>
+    <module>dominion-status-writer/logging</module>
     <module>dominion-controller</module>
     <module>sampler-config</module>
     <module>sampler-config-snmp</module>

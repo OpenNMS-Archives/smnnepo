@@ -1,10 +1,11 @@
-package org.opennms.minion.dominion.controller.internal;
+package org.opennms.minion.dominion.statuswriter.dao;
 
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
 import org.opennms.minion.api.MinionException;
+import org.opennms.minion.api.StatusMessageWriter;
 import org.opennms.netmgt.dao.api.MinionDao;
 import org.opennms.netmgt.model.minion.OnmsMinion;
 

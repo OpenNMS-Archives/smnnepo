@@ -36,4 +36,4 @@ config:propset broker "$BROKER"
 config:update
 
 features:addurl mvn:org.opennms.netmgt.sample/karaf/1.13.4-PJSM-SNAPSHOT/xml
-features:install -v commons-codec sampler-with-activemq-export minion-controller
+features:install -v commons-codec sampler-with-activemq-export minion-base minion-controller

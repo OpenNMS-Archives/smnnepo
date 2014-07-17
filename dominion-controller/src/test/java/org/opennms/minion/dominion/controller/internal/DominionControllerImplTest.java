@@ -13,6 +13,7 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.opennms.minion.api.MinionException;
 import org.opennms.minion.api.MinionStatusMessage;
+import org.opennms.minion.api.StatusMessageWriter;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DominionControllerImplTest {

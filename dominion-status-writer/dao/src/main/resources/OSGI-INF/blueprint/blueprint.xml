@@ -15,19 +15,16 @@
 		http://aries.apache.org/schemas/blueprint-ext/blueprint-ext-1.1.xsd
 ">
 
-	<cm:property-placeholder persistent-id="org.opennms.minion.dominion.controller" update-strategy="reload">
-		<cm:default-properties>
-			<cm:property name="brokerUri" value="vm://opennms" />
-		</cm:default-properties>
-	</cm:property-placeholder>
-
 	<reference id="minionDao" interface="org.opennms.netmgt.dao.api.MinionDao" />
-	<reference id="statusMessageWriter" interface="org.opennms.minion.api.StatusMessageWriter" />
-	
-	<bean id="controller" class="org.opennms.minion.dominion.controller.internal.DominionControllerImpl" init-method="start" destroy-method="stop">
-		<property name="brokerUri" value="${brokerUri}" />
-		<property name="listenQueueName" value="initialization" />
-		<property name="statusMessageWriter" ref="statusMessageWriter" />
+
+	<bean id="daoStatusMessageWriter" class="org.opennms.minion.dominion.statuswriter.dao.OnmsMinionStatusMessageWriter">
+		<property name="minionDao" ref="minionDao" />
 	</bean>
+
+	<service ref="daoStatusMessageWriter" interface="org.opennms.minion.api.StatusMessageWriter">
+		<service-properties>
+			<entry key="service.ranking" value="100" />
+		</service-properties>
+	</service>
 
 </blueprint>
