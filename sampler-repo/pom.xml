@@ -45,6 +45,10 @@
                 add the feature to this list.
               -->
               <features>
+                <!-- ActiveMQ broker implementation -->
+                <feature>activemq</feature>
+
+                <!-- Sampler features -->
                 <feature>sample-receiver-activemq</feature>
                 <feature>sample-storage-file</feature>
                 <feature>sample-storage-rrd</feature>
@@ -58,7 +62,14 @@
                 <feature>sampler-with-activemq-export</feature>
                 <feature>sampler-with-file-storage</feature>
                 <feature>sampler-with-rrd-storage</feature>
-              </features>
+
+                <!-- Newts storage -->
+                <feature>newts-cassandra</feature>
+
+                <!-- Minion management features -->
+                <feature>minion-controller</feature>
+                <feature>dominion-controller</feature>
+                </features>
               <repository>target/maven-repo</repository>
             </configuration>
           </execution>
@@ -121,7 +132,21 @@
       <artifactId>sampler-routes</artifactId>
       <version>${project.version}</version>
       <type>xml</type>
-      <classifier>file-storage</classifier>
+      <classifier>blueprint-file-storage</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.opennms.netmgt.sample</groupId>
+      <artifactId>sampler-routes</artifactId>
+      <version>${project.version}</version>
+      <type>xml</type>
+      <classifier>blueprint-activemq-dispatch</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.opennms.netmgt.sample</groupId>
+      <artifactId>sampler-routes</artifactId>
+      <version>${project.version}</version>
+      <type>xml</type>
+      <classifier>blueprint-activemq-receiver</classifier>
     </dependency>
     <dependency>
       <groupId>org.opennms.netmgt.sample</groupId>

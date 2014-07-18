@@ -3,8 +3,13 @@ package org.opennms.netmgt.api.sample;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @SuppressWarnings("serial")
 class JvmCollector {
+
+	private static final Logger LOG = LoggerFactory.getLogger(JvmCollector.class);
 
 	abstract static class JvmMetric extends Metric {
 
@@ -86,7 +91,9 @@ class JvmCollector {
 	public Resource getResource(String name) {
 		if (name.equals(m_resource.getIdentifier())) {
 			return m_resource;
+		} else {
+			LOG.warn("Resource not found: {}", name);
+			return null;
 		}
-		return null;
 	}
 }

@@ -17,7 +17,7 @@
 
 	<cm:property-placeholder persistent-id="org.opennms.minion.controller" update-strategy="reload">
 		<cm:default-properties>
-			<cm:property name="broker" value="vm://localhost" />
+			<cm:property name="brokerUri" value="vm://localhost" />
 		</cm:default-properties>
 	</cm:property-placeholder>
 
@@ -28,7 +28,7 @@
 		<property name="configurationAdmin" ref="configAdmin" />
 		<property name="adminService" ref="adminService" />
 
-		<property name="brokerUri" value="${broker}" />
+		<property name="brokerUri" value="${brokerUri}" />
 		<property name="sendQueueName" value="initialization" />
 	</bean>
 </blueprint>

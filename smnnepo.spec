@@ -103,8 +103,17 @@ mv "apache-karaf-%{karaf_version}" "$RPM_BUILD_ROOT%{instprefix}"
 touch "$RPM_BUILD_ROOT%{instprefix}/etc/org.opennms.minion.controller.cfg"
 
 # Replace SSH address and port so that we don't conflict with OpenNMS
-sed -i "s#sshPort=8101#sshPort=8102#" "$RPM_BUILD_ROOT%{instprefix}/etc/org.apache.karaf.shell.cfg"
-sed -i "s#sshHost=0.0.0.0#sshHost=127.0.0.1#" "$RPM_BUILD_ROOT%{instprefix}/etc/org.apache.karaf.shell.cfg"
+sed -i "s#sshPort\s*=\s*8101\$#sshPort=8201#" "$RPM_BUILD_ROOT%{instprefix}/etc/org.apache.karaf.shell.cfg"
+sed -i "s#sshHost\s*=\s*0.0.0.0\$#sshHost=127.0.0.1#" "$RPM_BUILD_ROOT%{instprefix}/etc/org.apache.karaf.shell.cfg"
+
+# Replace the RMI ports so that we don't conflict with OpenNMS
+sed -i "s#^rmiRegistryPort\s*=.*\$#rmiRegistryPort=1299#" "$RPM_BUILD_ROOT%{instprefix}/etc/org.apache.karaf.management.cfg"
+sed -i "s#^rmiRegistryHost\s*=.*\$#rmiRegistryHost=127.0.0.1#" "$RPM_BUILD_ROOT%{instprefix}/etc/org.apache.karaf.management.cfg"
+sed -i "s#^rmiServerPort\s*=.*\$#rmiServerPort=45444#" "$RPM_BUILD_ROOT%{instprefix}/etc/org.apache.karaf.management.cfg"
+sed -i "s#^rmiServerHost\s*=.*\$#rmiServerHost=127.0.0.1#" "$RPM_BUILD_ROOT%{instprefix}/etc/org.apache.karaf.management.cfg"
+
+# Enable the karaf.delay.console option
+sed -i "s#^karaf.delay.console\s*=\s*false\$#karaf.delay.console=true#" "$RPM_BUILD_ROOT%{instprefix}/etc/config.properties"
 
 install -d -m 755 "$RPM_BUILD_ROOT%{webappdir}"/smnnepo
 unzip -d "$RPM_BUILD_ROOT%{webappdir}"/smnnepo "sampler-repo-webapp/target"/*.war
