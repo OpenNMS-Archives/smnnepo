@@ -39,4 +39,4 @@ features:addurl mvn:org.opennms.netmgt.sample/karaf/1.13.4-PJSM-SNAPSHOT/xml
 
 # Install all required features
 features:install -v activemq
-features:install -v sample-receiver-activemq dominion-controller
+features:install -v sample-receiver-activemq minion-base dominion-controller-statuswriter-dao dominion-controller

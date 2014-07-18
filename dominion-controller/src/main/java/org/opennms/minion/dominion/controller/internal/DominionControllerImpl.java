@@ -24,6 +24,7 @@ import org.opennms.minion.api.MinionMessage;
 import org.opennms.minion.api.MinionMessageReceiver;
 import org.opennms.minion.api.MinionMessageSender;
 import org.opennms.minion.api.MinionStatusMessage;
+import org.opennms.minion.api.StatusMessageWriter;
 import org.opennms.minion.impl.MinionInitializationMessageImpl;
 import org.opennms.minion.impl.MinionStatusMessageImpl;
 import org.slf4j.Logger;

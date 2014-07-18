@@ -3,4 +3,10 @@ jdk:
   - oraclejdk7
   - openjdk7
   - oraclejdk8
-
+install:
+  - ./compile.pl -B -V -q clean install
+script:
+  - ./compile.pl -B -V -q -t test
+cache:
+  directories:
+    - $HOME/.m2

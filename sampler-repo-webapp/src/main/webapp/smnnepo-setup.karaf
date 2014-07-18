@@ -112,7 +112,7 @@ config:propset brokerUri "tcp://127.0.0.1:61716"
 config:update
 
 # Install the Minion and Sampler features
-features:install -v minion-controller 
+features:install -v minion-base minion-controller 
 
 }
 
