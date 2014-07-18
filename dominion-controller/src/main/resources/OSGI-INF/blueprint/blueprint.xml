@@ -21,7 +21,6 @@
 		</cm:default-properties>
 	</cm:property-placeholder>
 
-	<reference id="minionDao" interface="org.opennms.netmgt.dao.api.MinionDao" />
 	<reference id="statusMessageWriter" interface="org.opennms.minion.api.StatusMessageWriter" />
 	
 	<bean id="controller" class="org.opennms.minion.dominion.controller.internal.DominionControllerImpl" init-method="start" destroy-method="stop">
