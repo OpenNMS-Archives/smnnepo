@@ -1,6 +1,7 @@
-Minion is a next-generation design for data collection (and, in the future,
-other scheduled tasks like polling).  It is highly distributable, and extremely
-configurable, using Camel and ActiveMQ in the default implementation.
+Minion is a next-generation design for distributed OpenNMS components. Initially, it will
+support SNMP and JMX data collection and in the future other scheduled tasks like polling.
+It is highly distributable and extremely configurable using Apache Karaf, Apache Camel and 
+Apache ActiveMQ in the default implementation.
 
 Minion can be used by simply adding a feature URL to a Karaf installation and performing
 some simple configuration.  Karaf scripts that perform this setup are provided for both
@@ -26,9 +27,10 @@ Requirements {#requirements}
 ============
 
 The Dominion controller (the OpenNMS side) has the same requirements of OpenNMS, since
-it runs inside OpenNMS's embedded karaf.
+it runs inside OpenNMS's embedded Karaf.
 
-The minion should run anywhere Java 7 (or higher) is available.
+The Minion should run anywhere Java 7 is available. Current Minion code is not compatible
+with Java 8.
 
 Installing from RPMs
 ====================
@@ -63,8 +65,11 @@ Starting the Minion Server in OpenNMS
 2. Run the configuration script: <code>source http://localhost:8980/smnnepo/opennms-setup.karaf</code>
 
 This will update your local feature repository, and then install the
-"<code>sample-receiver-activemq</code>" feature, to allow for listening
+<code>sample-receiver-activemq</code> feature, to allow for listening
 on an internal ActiveMQ server.
+
+To enable RRD collection, you will also need to configure and install the
+<code>sample-storage-rrd</code> feature.
 
 Starting the SMNnepO Client
 ---------------------------
@@ -140,15 +145,15 @@ Ensure that the pc running the <code>Minion Client</code> meets the [requirement
 Validating Your Minion
 ======================
 
-All minions need validation.  ;)
+All Minions need validation.  ;)
 
-If everything connected correctly, you should be able to browse to the OpenNMS minion
+If everything connected correctly, you should be able to browse to the OpenNMS Minion
 console at <code>http://opennms-host:8980/opennms/minion/index.jsp</code>.
 
 Each Minion correctly connected to the Dominion Controller should be listed with 
-the configured location and status <code>running</code>.
+the configured location and status <code>Running</code>.
 
-In addition each minion should send samples to the Dominion Server.
+In addition each Minion should send samples to the Dominion Server.
 
 Troubleshooting
 ===============
@@ -159,11 +164,11 @@ Ensure the Minion is setup correctly
 ------------------------------------
 
  1. Log in the Karaf Console
- 2. set logging to debug: <code>log:set DEBUG</code>
- 3. watch logs with <code>log:tail</code>
+ 2. Set logging to debug: <code>log:set DEBUG</code>
+ 3. Watch logs with <code>log:tail</code>
 
 Ensure that there are no errors in the log file. 
-The errors 
+The errors:
 
     Memory Usage for the Broker (1024 mb) is more than the maximum available for the JVM: 455 mb - resetting to 70% of maximum available: 318 mb
     Temporary Store limit is 51200 mb, whilst the temporary data directory: /root/apache-karaf-2.3.5/activemq-data/rackspace/tmp_storage only has 13394 mb of usable space - resetting to maximum available 13394 mb.
@@ -181,7 +186,7 @@ The number of samples should be greater than 0. If not, watch for these urls:
     blueprint-sampler-config-snmp.xml: Parsing SNMP XML: http://opennms-root:8980/opennms/rest/config/snmp
     blueprint-sampler-config.xml: parseJaxbXml: http://onms-root:8980/opennms/rest/config/location-name/collection
  
-Manually invoke the urls and see the result in your browser. The result should be a valid non empty XML result.
+Manually invoke the URLs and see the result in your browser. The result should be a valid non-empty XML result.
  
 In addition the result of the <code>SNMP.xml</code> must contain a <code>sysObjectId</code>, e.g.
  
@@ -190,7 +195,7 @@ In addition the result of the <code>SNMP.xml</code> must contain a <code>sysObje
          <value>.1.3.6.1.x.x.x.x.x.x</value>
      </entry>
  
-If everything is setup correctly, you should see the <code>Received SampleSet with 184 sample(s)</code> message every 5 minutes in the karaf log.
+If everything is set up correctly, you should see the <code>Received SampleSet with 184 sample(s)</code> message every 5 minutes in the karaf log.
  
 
 Ensure the Dominion is setup correctly
@@ -198,17 +203,17 @@ Ensure the Dominion is setup correctly
 
 If you do not get resource graphs for your remote node, follow these instructions.
 
- 1. Ensure your minion shows up as <code>running</code> at <code>http://opennms-host:8980/opennms/minion/index.jsp</code> 
- 2. stop opennms
- 3. delete <code>$OPENNMS_HOME/share/rrd/snmp/*</code> 
- 4. edit <code>$OPENNMS_HOME/etc/service-configuration.xml</code> and comment out service <code>Collectd</code>
- 5. ensure sample-rrd-storage is installed
+ 1. Ensure your Minion shows up as <code>running</code> at <code>http://opennms-host:8980/opennms/minion/index.jsp</code> 
+ 2. Stop OpenNMS
+ 3. Delete <code>$OPENNMS_HOME/share/rrd/snmp/*</code> 
+ 4. Edit <code>$OPENNMS_HOME/etc/service-configuration.xml</code> and comment out service <code>Collectd</code>
+ 5. Ensure that the <code>sample-rrd-storage</code> feature is installed
  
- For this you have to login to the dominion karaf
+For this you have to login to the Dominion karaf
  
     $ ssh -p 8101 admin@localhost 
     
-List all installed features
+List all installed features:
 
     $ features:list | grep -i sample
    
@@ -234,10 +239,8 @@ You should get a list similar to this:
     [uninstalled] [1.13.4] sampler-with-activemq-export            opennms-sampler-1.13.4     Sample Collection and Storage :: Integration :: Sampler with ActiveMQ export
     
 Ensure that <code>sample-receiver-activemq</code> and <code>sample-storage-rrd</code> is installed.
-If not do it manually
+If it is not, install it manually:
 
     $ feature:install sample-storage-rrd
     
 After this you should see rrd files at <code>$OPENNMS_HOME/share/rrd/snmp</code>.
-
-     
