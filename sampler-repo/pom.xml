@@ -40,6 +40,10 @@
               <descriptors> 
                 <descriptor>mvn:org.opennms.netmgt.sample/karaf/${project.version}/xml</descriptor>
               </descriptors>
+              <!--
+                To ensure that all JAR files for a feature are included in the repository tar.gz file,
+                add the feature to this list.
+              -->
               <features>
                 <!-- ActiveMQ broker implementation -->
                 <feature>activemq</feature>
@@ -49,6 +53,12 @@
                 <feature>sample-storage-file</feature>
                 <feature>sample-storage-rrd</feature>
                 <feature>sample-storage-newts</feature>
+                <feature>newts-cassandra</feature>
+                <feature>minion-base</feature>
+                <feature>dominion-controller-statuswriter-dao</feature>
+                <feature>dominion-controller-statuswriter-logging</feature>
+                <feature>minion-controller</feature>
+                <feature>dominion-controller</feature>
                 <feature>sampler-with-activemq-export</feature>
                 <feature>sampler-with-file-storage</feature>
                 <feature>sampler-with-rrd-storage</feature>
