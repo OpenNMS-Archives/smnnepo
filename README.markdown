@@ -205,8 +205,8 @@ If you do not get resource graphs for your remote node, follow these instruction
 
  1. Ensure your Minion shows up as <code>running</code> at <code>http://opennms-host:8980/opennms/minion/index.jsp</code> 
  2. Stop OpenNMS
- 3. Delete <code>$OPENNMS_HOME/share/rrd/snmp/*</code> 
- 4. Edit <code>$OPENNMS_HOME/etc/service-configuration.xml</code> and comment out service <code>Collectd</code>
+ 3. Delete <code>$OPENNMS\_HOME/share/rrd/snmp/\*</code> 
+ 4. Edit <code>$OPENNMS\_HOME/etc/service-configuration.xml</code> and comment out service <code>Collectd</code>
  5. Ensure that the <code>sample-rrd-storage</code> feature is installed
  
 For this you have to login to the Dominion karaf
@@ -243,4 +243,15 @@ If it is not, install it manually:
 
     $ feature:install sample-storage-rrd
     
-After this you should see rrd files at <code>$OPENNMS_HOME/share/rrd/snmp</code>.
+After this you should see rrd files at <code>$OPENNMS\_HOME/share/rrd/snmp</code>.
+
+ADVANCED: Running in Fabric8
+============================
+
+	profile-create --parents default dominion
+	profile-edit --repositories mvn:org.opennms.netmgt.sample/karaf/1.13.4-PJSM-SNAPSHOT/xml dominion
+	profile-edit --features minion-base --features dominion-controller-statuswriter-logging --features dominion-controller dominion
+	profile-edit -p org.opennms.minion.dominion.controller/brokerUri="discovery:(fabric:dominion)" dominion
+	container-create-child root dominion
+	mq-create --assign-container dominion --group dominion dominion
+	container-add-profile dominion dominion
