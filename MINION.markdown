@@ -17,8 +17,8 @@ LOCATION="RDU"
 ```
 
 
-* **Risk:** Initial setup requires creation or editing of this file on all Minion devices which could entail a lot of overhead on large Minion installations.
-* **Risk:** Credentials will likely be shared among all Minion devices unless user administration of individual Minion accounts is feasible on the OpenNMS side (jetty, activemq).
+* **Issue:** Initial setup requires creation or editing of this file on all Minion devices which could entail a lot of overhead on large Minion installations.
+* **Issue:** Credentials will likely be shared among all Minion devices unless user administration of individual Minion accounts is feasible on the OpenNMS side (jetty, activemq).
 
 
 * **Future:** Dynamically generate credentials for each Minion during a handshake/pairing setup process?
@@ -37,8 +37,8 @@ The sampler-repo project is used to construct the feature Maven repository direc
 The sampler-repo contents are wrapped in a webapp that can be served from the OpenNMS jetty server to provide a centralized distribution point for all connected Minion devices. This is the default configuration for Minion deployments.
 
 
-* **Risk:** Jetty cannot handle amount of connections required when Minion devices download JAR files leading to DDoS of normal OpenNMS webapp
-* **Risk:** Network traffic required to install features on Minion devices could be too high (50MB per instance * 4000 instances = 200GB of network traffic per deployment)
+* **Issue:** It is possible that Jetty cannot handle amount of connections required when Minion devices download JAR files leading to DDoS of normal OpenNMS webapp.
+* **Issue:** Network traffic required to install features on Minion devices could be too high (50MB per instance * 4000 instances = 200GB of network traffic per deployment).
 
 
 * **Future:** Ability to run repo-webapp as a Karaf WAR feature so that clusters could share one copy?
@@ -50,13 +50,13 @@ The sampler-repo contents are wrapped in a webapp that can be served from the Op
 ## Configuration
 
 The sampler-repo-webapp on OpenNMS provides Karaf scripts that can be used to install the Minion services on a remote machine. These scripts are invoked by the */etc/init.d/smnnepo* init file and the contents of the */etc/sysconfig/smnnepo* file are used as arguments to the script.
-~~~
+```
 ./bin/client -r 30 -a 8201 "source" "\"$SCRIPTDIR/smnnepo-setup.karaf\"" root "\"$USERNAME\"" "\"$PASSWORD\"" "\"$OPENNMS\"" "\"$LOCATION\"" >/tmp/smnnepo.log 2>&1
-~~~
+```
 The */etc/init.d/smnnepo* script sets up the root Karaf instance and if subinstances are created, the script is invoked again for each subinstance.
-~~~
+```
 ./bin/client -r 10 -a $PORT "source" "\"$SCRIPTDIR/smnnepo-setup.karaf\"" $INSTANCE "\"$USERNAME\"" "\"$PASSWORD\"" "\"$OPENNMS\"" "\"$LOCATION\"" >/tmp/smnnepo.log 2>&1
-~~~
+```
 
 # Runtime Operation
 
@@ -65,23 +65,22 @@ The Minion process is started by using the *smnnepo* init.d service script. The 
 * Start Karaf.
 * Execute a hard-coded *.karaf* script that is hosted in the *sampler-repo-webapp* WAR that sets up the Minion Karaf instances in the desired manner.
 * The *activemq* instance starts an ActiveMQ broker that listens for localhost TCP connections on port 61716 and connects to the remote OpenNMS ActiveMQ service. The local ActiveMQ URI is:
-    ~~~
-    tcp://127.0.0.1:61716/
-    ~~~
+```
+tcp://127.0.0.1:61716/
+```
     and the OpenNMS ActiveMQ URI is:
-    ~~~
-    tcp://[opennms_address]:61616/
-    ~~~
+```
+tcp://[opennms_address]:61616/
+```
 * The *minion* instance installs the Minion Controller project that communicates status back to the Dominion service on the OpenNMS server.
 * The *sampler* instance runs the SNMP collector code to perform remote collections.
 
 
-* **Risk:** If connectivity to the OpenNMS machine is unavailable, it is impossible to install the required features. We currently have no way to retry or reconnect to OpenNMS in the event of a failure to install the features. This could be added to the Minion init script.
-* **Risk:** We have no checks to ensure that the features were installed or functioning properly. These checks should be added to the init script and should be communicated back to OpenNMS by using the Minion Controller service (if ActiveMQ connectivity can be established).
+* **Issue:** If connectivity to the OpenNMS machine is unavailable, it is impossible to install the required features. We currently have no way to retry or reconnect to OpenNMS in the event of a failure to install the features. This could be added to the Minion init script.
+* **Issue:** http://issues.opennms.org/browse/PJSM-199: We have no checks to ensure that the features were installed or functioning properly. These checks should be added to the init script and should be communicated back to OpenNMS by using the Minion Controller service (if ActiveMQ connectivity can be established).
 
 
-* **Future:** Change the script based setup onto something more dynamic so that Karaf features can be configured and provisioned on the OpenNMS Dominion side. Should we do this with REST or ActiveMQ?
-* **Future:** Should the Karaf scripts be dynamic content served by the OpenNMS system? ie. a REST call that takes parameters like http://127.0.0.1:8980/rest/minion/bootstrap?location=myLocation
+* **Future:** http://issues.opennms.org/browse/PJSM-177: Change the script based setup onto something more dynamic so that Karaf features can be configured and provisioned on the OpenNMS Dominion side. Should we do this with REST or ActiveMQ? Should the Karaf scripts be dynamic content served by the OpenNMS system? ie. a REST call that takes parameters like http://127.0.0.1:8980/rest/minion/bootstrap?location=myLocation
 
 
 
@@ -89,4 +88,4 @@ The Minion process is started by using the *smnnepo* init.d service script. The 
 
 Sampler features may require access to the REST API on OpenNMS for configuration and inventory information.
 
-* **Risk:** There is no way to guarantee API compatibility besides unit testing.
+* **Issue:** There is no way to guarantee API compatibility besides unit testing.
