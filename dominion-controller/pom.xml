@@ -52,6 +52,12 @@
       <artifactId>activemq-osgi</artifactId>
     </dependency>
     <dependency>
+      <groupId>io.fabric8.mq</groupId>
+      <artifactId>camel-amq</artifactId>
+      <version>1.1.0-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-jaxb</artifactId>
     </dependency>

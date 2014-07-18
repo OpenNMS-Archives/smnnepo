@@ -248,10 +248,26 @@ After this you should see rrd files at <code>$OPENNMS\_HOME/share/rrd/snmp</code
 ADVANCED: Running in Fabric8
 ============================
 
+Root
+----
+
+	mq-create default
+
+Dominion Side
+-------------
+
+	container-create-child --jvm-opts "-Xmx1g -XX:MaxPermSize=1g" --jmx-user admin --jmx-password admin root dominion
 	profile-create --parents default dominion
-	profile-edit --repositories mvn:org.opennms.netmgt.sample/karaf/1.13.4-PJSM-SNAPSHOT/xml dominion
-	profile-edit --features minion-base --features dominion-controller-statuswriter-logging --features dominion-controller dominion
-	profile-edit -p org.opennms.minion.dominion.controller/brokerUri="discovery:(fabric:dominion)" dominion
-	container-create-child root dominion
-	mq-create --assign-container dominion --group dominion dominion
-	container-add-profile dominion dominion
+	profile-edit --repositories mvn:org.opennms.netmgt.sample/karaf/1.13.4-PJSM-SNAPSHOT/xml/minion dominion
+	profile-edit --features camel-amq --features minion-base --features dominion-controller-statuswriter-logging --features dominion-controller dominion
+	container-add-profile mq-broker-default.default dominion dominion
+
+Minion Side
+-----------
+
+	container-create-child --jvm-opts "-Xmx1g -XX:MaxPermSize=1g" --jmx-user admin --jmx-password admin root minion
+	profile-create --parents default minion
+	profile-edit --repositories mvn:org.opennms.netmgt.sample/karaf/1.13.4-PJSM-SNAPSHOT/xml/minion minion
+	profile-edit --features camel-amq --features minion-base --features minion-controller minion
+	profile-edit -p org.opennms.minion.controller/location="Red Hat" minion
+	container-add-profile mq-broker-default.default minion minion

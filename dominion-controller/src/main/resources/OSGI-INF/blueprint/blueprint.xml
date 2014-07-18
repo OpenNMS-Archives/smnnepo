@@ -22,11 +22,14 @@
 	</cm:property-placeholder>
 
 	<reference id="statusMessageWriter" interface="org.opennms.minion.api.StatusMessageWriter" />
-	
-	<bean id="controller" class="org.opennms.minion.dominion.controller.internal.DominionControllerImpl" init-method="start" destroy-method="stop">
+
+	<bean id="controller" class="org.opennms.minion.dominion.controller.internal.DominionControllerImpl" init-method="start" destroy-method="stop" depends-on="dominionCamelContext">
 		<property name="brokerUri" value="${brokerUri}" />
 		<property name="listenQueueName" value="initialization" />
 		<property name="statusMessageWriter" ref="statusMessageWriter" />
+		<property name="camelContext" ref="dominionCamelContext" />
 	</bean>
+
+	<camelContext id="dominionCamelContext" xmlns="http://camel.apache.org/schema/blueprint" />
 
 </blueprint>

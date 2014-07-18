@@ -1,17 +1,14 @@
 package org.opennms.minion.controller.internal;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.UUID;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
-import org.apache.activemq.camel.component.ActiveMQComponent;
 import org.apache.camel.CamelContext;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.ProducerTemplate;
@@ -20,7 +17,6 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.converter.jaxb.JaxbDataFormat;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.spi.DataFormat;
-import org.apache.camel.spi.ShutdownStrategy;
 import org.apache.karaf.admin.AdminService;
 import org.apache.karaf.admin.Instance;
 import org.opennms.minion.api.MinionController;
@@ -50,6 +46,7 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
     private ProducerTemplate m_producer;
     private MinionMessageSender m_messageSender;
     private MinionMessageReceiver m_messageReceiver;
+    private boolean m_camelContextInitialized;
 
     public MinionControllerImpl() {
     }
@@ -74,7 +71,7 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
             throw new MinionException("Location is not set!  Please make sure you set location='Location Name' in the " + PID + " configuration.");
         }
 
-        assertCamelContextExists();
+        assertCamelContextInitialized();
         sendStartMessage();
 
         LOG.debug("MinionController initialized. ID is {}.", m_id);
@@ -92,6 +89,7 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
             Thread.currentThread().interrupt();
         }
 
+        /*
         final List<MinionException> rethrow = new ArrayList<MinionException>();
 
         if (m_producer != null) {
@@ -123,6 +121,7 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
             
             throw rethrow.get(0);
         }
+        */
     }
 
     @Override
@@ -172,13 +171,13 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
         }
     }
 
-    protected void assertCamelContextExists() throws MinionException {
-        if (m_camelContext != null) {
+    protected void assertCamelContextInitialized() throws MinionException {
+        if (!m_camelContextInitialized) {
             return;
         }
 
-        final ActiveMQComponent activemq = new ActiveMQComponent();
-        activemq.setBrokerURL(m_brokerUri);
+        //final ActiveMQComponent activemq = new ActiveMQComponent();
+        //activemq.setBrokerURL(m_brokerUri);
 
         final DataFormat df;
         try {
@@ -190,11 +189,9 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
             throw new MinionException(errorMessage, e);
         }
 
-        final DefaultCamelContext camelContext = new DefaultCamelContext();
-        camelContext.setName("minion-controller");
         try {
-            camelContext.addComponent("activemq", activemq);
-            camelContext.addRoutes(new RouteBuilder() {
+            //m_camelContext.addComponent("activemq", activemq);
+            m_camelContext.addRoutes(new RouteBuilder() {
                 @Override
                 public void configure() throws Exception {
                     from("direct:sendMessage")
@@ -202,10 +199,10 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
                         .shutdownRunningTask(ShutdownRunningTask.CompleteAllTasks)
                         .log(LoggingLevel.DEBUG, "minion-controller: sendMinionMessage: ${body.toString()}")
                         .marshal(df)
-                        .to("activemq:" + m_sendQueueName + "?disableReplyTo=true");
+                        .to("amq:queue:" + m_sendQueueName + "?disableReplyTo=true");
                     
                     assertMessageReceiverExists();
-                    from("activemq:control-" + m_id)
+                    from("amq:queue:control-" + m_id)
                         .routeId("receiveMinionMessage")
                         .shutdownRunningTask(ShutdownRunningTask.CompleteAllTasks)
                         .log(LoggingLevel.DEBUG, "minion-controller: receiveMinionMessage: ${body}")
@@ -213,14 +210,17 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
                         .bean(m_messageReceiver, "onMessage");
                 }
             });
-            camelContext.start();
-            
-            int waitfor = 30; // seconds
-            while (!camelContext.isStarted() && waitfor-- > 0) {
-                LOG.debug("Waiting for camel context to start...");
-                Thread.sleep(1000);
+            //m_camelContext.start();
+
+            if (m_camelContext instanceof DefaultCamelContext) {
+                final DefaultCamelContext defaultCamelContext = (DefaultCamelContext)m_camelContext;
+                int waitfor = 30; // seconds
+                while (!defaultCamelContext.isStarted() && waitfor-- > 0) {
+                    LOG.debug("Waiting for camel context to start...");
+                    Thread.sleep(1000);
+                }
             }
-            m_camelContext = camelContext;
+            m_camelContextInitialized = true;
         } catch (final Exception e) {
             throw new MinionException("Failed to configure routes for minion-controller context!", e);
         }

@@ -1,0 +1,42 @@
+<features xmlns="http://karaf.apache.org/xmlns/features/v1.0.0" name="opennms-sampler-${project.version}">    
+    <!-- OpenNMS features -->
+    <!--<repository>mvn:org.opennms.karaf/opennms/${project.version}/xml/features</repository>-->
+
+    <feature name="commons-codec" description="Apache :: commons-codec" version="${commonsCodecVersion}">
+      <bundle>mvn:commons-codec/commons-codec/${commonsCodecVersion}</bundle>
+    </feature>
+
+    <!-- Minion -->
+    <feature name="minion-base" description="Minion :: Base" version="${project.version}">
+      <feature version="[1.9.0,2.0)">commons-codec</feature>
+      <feature>camel-core</feature>
+      <feature>camel-blueprint</feature>
+      <feature>camel-jaxb</feature>
+      <feature>activemq-camel</feature>
+      <bundle>mvn:org.opennms.minion/minion-api/${project.version}</bundle>
+      <bundle>mvn:org.opennms.minion/minion-impl/${project.version}</bundle>
+    </feature>
+
+    <feature name="minion-controller" description="Minion :: Controller" version="${project.version}">
+      <feature>karaf-framework</feature>
+      <feature>minion-base</feature>
+      <bundle>mvn:org.opennms.minion/minion-controller/${project.version}</bundle>
+    </feature>
+
+    <feature name="dominion-controller-statuswriter-dao" description="Dominion :: Controller :: StatusWriter :: DAO" version="${project.version}">
+      <feature>minion-base</feature>
+      <bundle>mvn:org.opennms.minion.dominion.statuswriter/statuswriter-dao/${project.version}</bundle>
+    </feature>
+
+    <feature name="dominion-controller-statuswriter-logging" description="Dominion :: Controller :: StatusWriter :: Logging" version="${project.version}">
+      <feature>minion-base</feature>
+      <bundle>mvn:org.opennms.minion.dominion.statuswriter/statuswriter-logging/${project.version}</bundle>
+    </feature>
+
+    <!-- Note that the dominion controller bundle won't start unless you load at least one dominion-controller-statuswriter-* feature! -->
+    <feature name="dominion-controller" description="Dominion :: Controller" version="${project.version}">
+      <feature>minion-base</feature>
+      <bundle>mvn:org.opennms.minion/dominion-controller/${project.version}</bundle>
+    </feature>
+
+</features>

@@ -24,11 +24,14 @@
 	<reference id="adminService"  interface="org.apache.karaf.admin.AdminService" />
 	<reference id="configAdmin"   interface="org.osgi.service.cm.ConfigurationAdmin" />
 
-	<bean id="controller" class="org.opennms.minion.controller.internal.MinionControllerImpl" init-method="start" destroy-method="stop">
+	<bean id="controller" class="org.opennms.minion.controller.internal.MinionControllerImpl" init-method="start" destroy-method="stop" depends-on="minionCamelContext">
 		<property name="configurationAdmin" ref="configAdmin" />
 		<property name="adminService" ref="adminService" />
 
 		<property name="brokerUri" value="${broker}" />
 		<property name="sendQueueName" value="initialization" />
+		<property name="camelContext" ref="minionCamelContext" />
 	</bean>
+
+	<camelContext id="minionCamelContext" xmlns="http://camel.apache.org/schema/blueprint" />
 </blueprint>
