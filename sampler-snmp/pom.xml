@@ -87,6 +87,13 @@
       <groupId>org.opennms</groupId>
       <artifactId>opennms-config-jaxb</artifactId>
     </dependency>
+    <!-- TODO mvr move to own module -->
+    <!-- TODO mvr make osgi-able -->
+    <dependency>
+      <groupId>org.opennms</groupId>
+      <artifactId>opennms-services</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>org.opennms.core.snmp</groupId>
       <artifactId>org.opennms.core.snmp.api</artifactId>
