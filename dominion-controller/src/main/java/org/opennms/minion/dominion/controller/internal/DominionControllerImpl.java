@@ -37,7 +37,7 @@ public class DominionControllerImpl implements MinionMessageReceiver {
     private MinionMessageReceiver m_messageReceiver;
     private MinionMessageSender m_messageSender;
 
-    private boolean m_camelContextInitialized = false;
+    boolean m_camelContextInitialized = false;
 
     public void start() throws MinionException {
         LOG.info("DominionController starting.");
