@@ -50,7 +50,8 @@
 
     <camelVersion>2.13.2</camelVersion>
     <springVersion>3.2.4.RELEASE</springVersion>
-    <fabric8Version>[1.1.0.CR5,1.2.0)</fabric8Version>
+    <fabric8Version>1.1.0.CR5</fabric8Version>
+    <!--<fabric8Version>[1.0.99,1.2.0)</fabric8Version>-->
   </properties>
 
   <build>
@@ -129,6 +130,13 @@
 
   <repositories>
     <repository>
+      <snapshots><enabled>true</enabled></snapshots>
+      <releases><enabled>false</enabled></releases>
+      <id>jboss-snapshots</id>
+      <name>JBoss Snapshot Repository</name>
+      <url>http://repository.jboss.org/nexus/content/groups/m2-proxy</url>
+    </repository>
+    <repository>
       <snapshots><enabled>false</enabled></snapshots>
       <releases><enabled>true</enabled></releases>
       <id>opennms-repo</id>
@@ -141,13 +149,6 @@
       <id>opennms-snapshots</id>
       <name>OpenNMS Snapshot Maven Repository</name>
       <url>http://maven.opennms.org/content/groups/opennms.org-snapshot</url>
-    </repository>
-    <repository>
-      <snapshots><enabled>true</enabled></snapshots>
-      <releases><enabled>false</enabled></releases>
-      <id>jboss-snapshots</id>
-      <name>JBoss Snapshot Repository</name>
-      <url>http://repository.jboss.org/nexus/content/groups/m2-proxy</url>
     </repository>
   </repositories>
 
