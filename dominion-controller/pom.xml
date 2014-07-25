@@ -54,7 +54,7 @@
     <dependency>
       <groupId>io.fabric8.mq</groupId>
       <artifactId>camel-amq</artifactId>
-      <version>1.1.0.CR5</version>
+      <version>${fabric8Version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>

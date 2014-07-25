@@ -50,6 +50,7 @@
 
     <camelVersion>2.13.2</camelVersion>
     <springVersion>3.2.4.RELEASE</springVersion>
+    <fabric8Version>[1.1.0.CR5,1.2.0)</fabric8Version>
   </properties>
 
   <build>
