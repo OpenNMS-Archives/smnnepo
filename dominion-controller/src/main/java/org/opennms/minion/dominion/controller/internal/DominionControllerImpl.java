@@ -37,9 +37,10 @@ public class DominionControllerImpl implements MinionMessageReceiver {
     private MinionMessageReceiver m_messageReceiver;
     private MinionMessageSender m_messageSender;
 
-    private boolean m_camelContextInitialized;
+    private boolean m_camelContextInitialized = false;
 
     public void start() throws MinionException {
+        LOG.info("DominionController starting.");
         assert m_brokerUri           != null : "You must specify the broker URI!";
         assert m_listenQueueName     != null : "You must specify the queue to listen on for initialization messages!";
         assert m_statusMessageWriter != null : "You must pass a StatusMessageWriter to the dominion controller!";
@@ -48,41 +49,7 @@ public class DominionControllerImpl implements MinionMessageReceiver {
     }
 
     public void stop() throws MinionException {
-        LOG.debug("DominionController shutting down.");
-
-        /*
-        final List<MinionException> rethrow = new ArrayList<MinionException>();
-
-        if (m_producer != null) {
-            try {
-                m_producer.stop();
-                m_producer = null;
-            } catch (final Exception e) {
-                rethrow.add(new MinionException("Failed to shut down producer " + m_producer, e));
-            }
-        } 
-
-        if (m_camelContext != null) {
-            try {
-                final ShutdownStrategy s = m_camelContext.getShutdownStrategy();
-                s.shutdown(m_camelContext, m_camelContext.getRouteStartupOrder());
-                m_camelContext.stop();
-                m_camelContext = null;
-            } catch (final Exception e) {
-                rethrow.add(new MinionException("Failed to shut down the Camel contxt cleanly.", e));
-            }
-        }
-
-        // if we have any exceptions, log them all and throw the first
-        if (rethrow.size() > 0) {
-            for (int i=0; i < rethrow.size(); i++) {
-                final MinionException e = rethrow.get(i);
-                LOG.error("stop() failed; error #{}: {}", i, e.getMessage(), e);
-            }
-
-            throw rethrow.get(0);
-        }
-        */
+        LOG.info("DominionController shutting down.");
     }
 
     @Override
@@ -101,7 +68,7 @@ public class DominionControllerImpl implements MinionMessageReceiver {
 
     protected void sendInitializationMessage(final MinionInitializationMessage message) throws MinionException {
         assertMessageSenderExists();
-        LOG.debug("Sending initialization message: {}", message);
+        LOG.info("Sending initialization message: {}", message);
         m_messageSender.sendMessage(message);
     }
 
@@ -124,9 +91,6 @@ public class DominionControllerImpl implements MinionMessageReceiver {
             return;
         }
 
-        //final ActiveMQComponent activemq = new ActiveMQComponent();
-        //activemq.setBrokerURL(m_brokerUri);
-
         final DataFormat df;
         try {
             final JAXBContext context = JAXBContext.newInstance(MinionStatusMessageImpl.class, MinionInitializationMessageImpl.class);
@@ -140,7 +104,15 @@ public class DominionControllerImpl implements MinionMessageReceiver {
         final Processor queueProcessor = new MinionQueueNameProcessor();
 
         try {
-            //m_camelContext.addComponent("activemq", activemq);
+            if (m_camelContext instanceof DefaultCamelContext) {
+                final DefaultCamelContext defaultCamelContext = (DefaultCamelContext)m_camelContext;
+                int waitfor = 30; // seconds
+                while (!defaultCamelContext.isStarted() && waitfor-- > 0) {
+                    LOG.debug("Waiting for camel context to start...");
+                    Thread.sleep(1000);
+                }
+            }
+
             m_camelContext.addRoutes(new RouteBuilder() {
                 @Override
                 public void configure() throws Exception {
@@ -162,17 +134,9 @@ public class DominionControllerImpl implements MinionMessageReceiver {
                     .bean(m_messageReceiver, "onMessage");
                 }
             });
-            // m_camelContext.start();
 
-            if (m_camelContext instanceof DefaultCamelContext) {
-                final DefaultCamelContext defaultCamelContext = (DefaultCamelContext)m_camelContext;
-                int waitfor = 30; // seconds
-                while (!defaultCamelContext.isStarted() && waitfor-- > 0) {
-                    LOG.debug("Waiting for camel context to start...");
-                    Thread.sleep(1000);
-                }
-            }
             m_camelContextInitialized = true;
+            LOG.info("Finished initializing Camel context.");
         } catch (final Exception e) {
             throw new MinionException("Failed to configure routes for minion-controller context!", e);
         }

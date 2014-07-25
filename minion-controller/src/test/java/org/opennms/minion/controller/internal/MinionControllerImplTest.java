@@ -5,14 +5,14 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
 import org.apache.camel.CamelContext;
-import org.apache.karaf.admin.AdminService;
-import org.apache.karaf.admin.Instance;
 import org.junit.Before;
 import org.junit.Test;
 import org.opennms.minion.api.MinionController;
@@ -43,7 +43,7 @@ public class MinionControllerImplTest {
     }
 
     private ConfigurationAdmin m_configurationAdmin = null;
-    private AdminService m_adminService = null;
+    private FabricService m_fabricService = null;
     private MinionControllerImpl m_controller = null;
     private MockMessageSender m_sender;
 
@@ -59,19 +59,18 @@ public class MinionControllerImplTest {
         when(config.getProperties()).thenReturn(properties);
         when(m_configurationAdmin.getConfiguration(MinionController.PID)).thenReturn(config);
 
-        final Instance rootInstance = mock(Instance.class);
-        when(rootInstance.isRoot()).thenReturn(true);
-        when(rootInstance.getName()).thenReturn("root");
-        when(rootInstance.getState()).thenReturn(Instance.STARTED);
+        final Container rootContainer = mock(Container.class);
+        when(rootContainer.isRoot()).thenReturn(true);
+        when(rootContainer.getProvisionStatus()).thenReturn(Container.PROVISION_SUCCESS);
 
-        m_adminService = mock(AdminService.class);
-        final Instance[] instances = new Instance[] {rootInstance};
-        when(m_adminService.getInstances()).thenReturn(instances);
+        m_fabricService = mock(FabricService.class);
+        final Container[] containers = new Container[] { rootContainer };
+        when(m_fabricService.getContainers()).thenReturn(containers);
 
         m_sender = new MockMessageSender();
 
         m_controller = new MinionControllerImpl();
-        m_controller.setAdminService(m_adminService);
+        m_controller.setFabricService(m_fabricService);
         m_controller.setConfigurationAdmin(m_configurationAdmin);
         m_controller.setMessageSender(m_sender);
         m_controller.setCamelContext(mock(CamelContext.class));
@@ -94,7 +93,7 @@ public class MinionControllerImplTest {
         assertNotNull(status);
         assertNotNull(status.getId());
         assertNotNull(status.getLocation());
-        assertEquals(Instance.STARTED, status.getStatus());
+        assertEquals(Container.PROVISION_SUCCESS, status.getStatus());
         assertNotNull(status.getDate());
     }
 }

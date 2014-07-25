@@ -260,7 +260,7 @@ Dominion Side
 	profile-create --parents default dominion
 	profile-edit --repositories mvn:org.opennms.netmgt.sample/karaf/1.13.4-PJSM-SNAPSHOT/xml/minion dominion
 	profile-edit --features camel-amq --features minion-base --features dominion-controller-statuswriter-logging --features dominion-controller dominion
-	container-add-profile mq-broker-default.default dominion dominion
+	container-add-profile dominion mq-broker-default.default dominion
 
 Minion Side
 -----------
@@ -268,6 +268,6 @@ Minion Side
 	container-create-child --jvm-opts "-Xmx1g -XX:MaxPermSize=1g" --jmx-user admin --jmx-password admin root minion
 	profile-create --parents default minion
 	profile-edit --repositories mvn:org.opennms.netmgt.sample/karaf/1.13.4-PJSM-SNAPSHOT/xml/minion minion
-	profile-edit --features camel-amq --features minion-base --features minion-controller minion
+	profile-edit --features fabric-configadmin --features camel-amq --features minion-base --features minion-controller minion
 	profile-edit -p org.opennms.minion.controller/location="Red Hat" minion
-	container-add-profile mq-broker-default.default minion minion
+	container-add-profile minion mq-broker-default.default minion

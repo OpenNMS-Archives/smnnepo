@@ -1,5 +1,8 @@
 package org.opennms.minion.controller.internal;
 
+import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.Dictionary;
@@ -17,8 +20,6 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.converter.jaxb.JaxbDataFormat;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.spi.DataFormat;
-import org.apache.karaf.admin.AdminService;
-import org.apache.karaf.admin.Instance;
 import org.opennms.minion.api.MinionController;
 import org.opennms.minion.api.MinionException;
 import org.opennms.minion.api.MinionMessage;
@@ -34,8 +35,8 @@ import org.slf4j.LoggerFactory;
 
 public class MinionControllerImpl implements MinionController, MinionMessageReceiver {
     private static final Logger LOG = LoggerFactory.getLogger(MinionControllerImpl.class);
-    private AdminService m_adminService;
     private ConfigurationAdmin m_configurationAdmin;
+    private FabricService m_fabricService;
 
     private String m_brokerUri;
     private String m_sendQueueName;
@@ -46,16 +47,15 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
     private ProducerTemplate m_producer;
     private MinionMessageSender m_messageSender;
     private MinionMessageReceiver m_messageReceiver;
-    private boolean m_camelContextInitialized;
+    private boolean m_camelContextInitialized = false;
 
     public MinionControllerImpl() {
     }
 
     @Override
     public void start() throws MinionException {
-        LOG.debug("Initializing controller.");
+        LOG.info("Initializing MinionController.");
         assert m_configurationAdmin != null : "ConfigurationAdmin is missing!";
-        assert m_adminService       != null : "AdminService is missing!";
         assert m_brokerUri          != null : "Broker URI is missing!";
         assert m_sendQueueName      != null : "Sending queue name is missing!";
 
@@ -74,12 +74,12 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
         assertCamelContextInitialized();
         sendStartMessage();
 
-        LOG.debug("MinionController initialized. ID is {}.", m_id);
+        LOG.info("MinionController initialized. ID is {}.", m_id);
     }
 
     @Override
     public void stop() throws MinionException {
-        LOG.debug("MinionController shutting down.");
+        LOG.info("MinionController shutting down.");
         sendStopMessage();
 
         // wait long enough for the message to get into activemq before bringing down the camel context
@@ -88,40 +88,6 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
         } catch (final InterruptedException ie) {
             Thread.currentThread().interrupt();
         }
-
-        /*
-        final List<MinionException> rethrow = new ArrayList<MinionException>();
-
-        if (m_producer != null) {
-            try {
-                m_producer.stop();
-                m_producer = null;
-            } catch (final Exception e) {
-                rethrow.add(new MinionException("Failed to shut down producer " + m_producer, e));
-            }
-        } 
-        
-        if (m_camelContext != null) {
-            try {
-                final ShutdownStrategy s = m_camelContext.getShutdownStrategy();
-                s.shutdown(m_camelContext, m_camelContext.getRouteStartupOrder());
-                m_camelContext.stop();
-                m_camelContext = null;
-            } catch (final Exception e) {
-                rethrow.add(new MinionException("Failed to shut down the Camel contxt cleanly.", e));
-            }
-        }
-
-        // if we have any exceptions, log them all and throw the first
-        if (rethrow.size() > 0) {
-            for (int i=0; i < rethrow.size(); i++) {
-                final MinionException e = rethrow.get(i);
-                LOG.error("stop() failed; error #{}: {}", i, e.getMessage(), e);
-            }
-            
-            throw rethrow.get(0);
-        }
-        */
     }
 
     @Override
@@ -133,7 +99,7 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
     @Override
     public void sendStopMessage() throws MinionException {
         assertMessageSenderExists();
-        m_messageSender.sendMessage(createStatusMessage(Instance.STOPPED));
+        m_messageSender.sendMessage(createStatusMessage(Container.PROVISION_STOPPED));
     }
 
     protected void assertMessageSenderExists() throws MinionException {
@@ -144,7 +110,7 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
             m_messageSender = new MinionMessageSender() {
                 @Override
                 public void sendMessage(final MinionMessage message) throws MinionException {
-                    m_producer.asyncRequestBody("direct:sendMessage", message);
+                    m_producer.asyncRequestBody("seda:sendMessage", message);
                 }
             };
         }
@@ -172,12 +138,10 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
     }
 
     protected void assertCamelContextInitialized() throws MinionException {
-        if (!m_camelContextInitialized) {
+        if (m_camelContextInitialized) {
+            LOG.trace("Camel context already initialized!");
             return;
         }
-
-        //final ActiveMQComponent activemq = new ActiveMQComponent();
-        //activemq.setBrokerURL(m_brokerUri);
 
         final DataFormat df;
         try {
@@ -190,28 +154,6 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
         }
 
         try {
-            //m_camelContext.addComponent("activemq", activemq);
-            m_camelContext.addRoutes(new RouteBuilder() {
-                @Override
-                public void configure() throws Exception {
-                    from("direct:sendMessage")
-                        .routeId("sendMinionMessage")
-                        .shutdownRunningTask(ShutdownRunningTask.CompleteAllTasks)
-                        .log(LoggingLevel.DEBUG, "minion-controller: sendMinionMessage: ${body.toString()}")
-                        .marshal(df)
-                        .to("amq:queue:" + m_sendQueueName + "?disableReplyTo=true");
-                    
-                    assertMessageReceiverExists();
-                    from("amq:queue:control-" + m_id)
-                        .routeId("receiveMinionMessage")
-                        .shutdownRunningTask(ShutdownRunningTask.CompleteAllTasks)
-                        .log(LoggingLevel.DEBUG, "minion-controller: receiveMinionMessage: ${body}")
-                        .unmarshal(df)
-                        .bean(m_messageReceiver, "onMessage");
-                }
-            });
-            //m_camelContext.start();
-
             if (m_camelContext instanceof DefaultCamelContext) {
                 final DefaultCamelContext defaultCamelContext = (DefaultCamelContext)m_camelContext;
                 int waitfor = 30; // seconds
@@ -220,6 +162,28 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
                     Thread.sleep(1000);
                 }
             }
+
+            m_camelContext.addRoutes(new RouteBuilder() {
+                @Override
+                public void configure() throws Exception {
+                    from("seda:sendMessage")
+                    .routeId("sendMinionMessage")
+                    .shutdownRunningTask(ShutdownRunningTask.CompleteAllTasks)
+                    .log(LoggingLevel.DEBUG, "minion-controller: sendMinionMessage: ${body.toString()}")
+                    .marshal(df)
+                    .to("amq:queue:" + m_sendQueueName + "?disableReplyTo=true");
+
+                    assertMessageReceiverExists();
+                    from("amq:queue:control-" + m_id)
+                    .routeId("receiveMinionMessage")
+                    .shutdownRunningTask(ShutdownRunningTask.CompleteAllTasks)
+                    .log(LoggingLevel.DEBUG, "minion-controller: receiveMinionMessage: ${body}")
+                    .unmarshal(df)
+                    .bean(m_messageReceiver, "onMessage");
+                }
+            });
+
+            LOG.info("Finished initializing Camel context.");
             m_camelContextInitialized = true;
         } catch (final Exception e) {
             throw new MinionException("Failed to configure routes for minion-controller context!", e);
@@ -231,22 +195,22 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
 
         String status = withStatus;
         if (withStatus == null) {
-            Instance rootInstance = null;
-            for (final Instance instance : m_adminService.getInstances()) {
-                if (instance.isRoot()) {
-                    rootInstance = instance;
+            Container rootContainer = null;
+            for (final Container container : m_fabricService.getContainers()) {
+                if (container.isRoot()) {
+                    rootContainer = container;
                     break;
                 }
             }
 
-            if (rootInstance == null) {
-                throw new MinionException("Unable to find root Karaf instance!");
+            if (rootContainer == null) {
+                throw new MinionException("Unable to find root container!");
             }
 
             try {
-                status = rootInstance.getState();
+                status = rootContainer.getProvisionStatus();
             } catch (final Exception e) {
-                throw new MinionException("Failed to get state from the root instance.", e);
+                throw new MinionException("Failed to get state from the root container.", e);
             }
         }
 
@@ -297,12 +261,12 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
         }
     }
 
-    public void setAdminService(final AdminService adminService) {
-        m_adminService = adminService;
-    }
-
     public void setConfigurationAdmin(final ConfigurationAdmin configurationAdmin) {
         m_configurationAdmin = configurationAdmin;
+    }
+
+    public void setFabricService(final FabricService fabricService) {
+        m_fabricService = fabricService;
     }
 
     public void setMessageSender(final MinionMessageSender sender) {
@@ -312,7 +276,7 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
     public void setMessageReceiver(final MinionMessageReceiver receiver) {
         m_messageReceiver = receiver;
     }
-    
+
     public void setCamelContext(final CamelContext context) {
         m_camelContext = context;
     }
@@ -320,7 +284,7 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
     public void setBrokerUri(final String brokerUri) {
         m_brokerUri = brokerUri;
     }
-    
+
     public void setSendQueueName(final String queue) {
         m_sendQueueName = queue;
     }

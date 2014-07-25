@@ -1,7 +1,4 @@
 <features xmlns="http://karaf.apache.org/xmlns/features/v1.0.0" name="opennms-sampler-${project.version}">    
-    <!-- OpenNMS features -->
-    <!--<repository>mvn:org.opennms.karaf/opennms/${project.version}/xml/features</repository>-->
-
     <feature name="commons-codec" description="Apache :: commons-codec" version="${commonsCodecVersion}">
       <bundle>mvn:commons-codec/commons-codec/${commonsCodecVersion}</bundle>
     </feature>
@@ -18,7 +15,6 @@
     </feature>
 
     <feature name="minion-controller" description="Minion :: Controller" version="${project.version}">
-      <feature>karaf-framework</feature>
       <feature>minion-base</feature>
       <bundle>mvn:org.opennms.minion/minion-controller/${project.version}</bundle>
     </feature>
