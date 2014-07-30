@@ -15,7 +15,7 @@ Contains API and utility code that is reused or implemented in other modules.
     * **loadSnmpAgents/loadJmxAgents**: Does nothing. Could be used to add special protocol-specific processors.
     * **loadCollectionPackages**: Combines the package configuration with the agent list to create a complete configuration (org.opennms.netmgt.api.sample.PackageAgentList) for each agent.
     * **seda:scheduleAgents**: This endpoint is serviced by the *schedulingDispatcher* bean. This bean is an OSGi whiteboard which consumes from the *seda:scheduleAgents* endpoint and invokes the *schedule* method on all OSGi services that are registered with the *org.opennms.netmgt.api.sample.support.SchedulerService* interface.
-    ~~~
+    ~~~xml
     <bean id="schedulingDispatcher" class="org.opennms.netmgt.api.sample.support.DispatcherWhiteboard">
         <argument value="seda:scheduleAgents"/>
         <property name="context" ref="blueprintBundleContext"/>
@@ -30,7 +30,7 @@ Contains API and utility code that is reused or implemented in other modules.
 
 ## sampler-config-snmp
 This project uses Camel to load SNMP-specific configuration data via REST from the OpenNMS server and then provides that configuration data as OSGi services for use by the *sampler-snmp* project.
-~~~
+~~~xml
 <service ref="snmpConfigFactory" interface="org.opennms.netmgt.api.sample.support.SingletonBeanFactory">
   <service-properties>
     <entry key="beanClass" value="org.opennms.netmgt.config.snmp.SnmpConfig" />
@@ -60,7 +60,7 @@ This context registers a bean named *snmpSampler* as an *org.opennms.netmgt.api.
     * **collectAgent**: Enhances the Agent message with SNMP-specific information (OIDs to collect, SNMP credentials) and then collects it using the *snmpCollector* bean.
     * **sampleSet**: Sends the completed SampleSet to all registered *org.opennms.netmgt.api.sample.SampleSetDispatcher* services.
     * **seda:saveToRepository**: This endpoint is serviced by the *sampleSetDispatcher* bean. This whiteboard consumes from the *seda:saveToRepository* endpoint and invokes the *save* method on all OSGi services that are registered with the *org.opennms.netmgt.api.sample.SampleSetDispatcher* interface.
-    ~~~
+    ~~~xml
     <bean id="sampleSetDispatcher" class="org.opennms.netmgt.api.sample.support.DispatcherWhiteboard">
         <argument value="seda:saveToRepository"/>
         <property name="context" ref="blueprintBundleContext"/>
