@@ -124,8 +124,7 @@
         <to uri="direct:loadCollectdConfiguration"/>
       </multicast>
       <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Configuration Files Loaded" />
-      <!-- Launch the scheduler -->
-      <to uri="direct:schedulerStart"/>
+      <to uri="direct:loadCollectionPackages"/>
     </route>
 
 	<!-- TODO: Create a reload timer that will check for changes to the config -->
@@ -141,11 +140,6 @@
       </filter>
     </route>
 
-    <route id="schedulerStart">
-      <from uri="direct:schedulerStart"/>
-      <to uri="direct:loadCollectionPackages"/>
-    </route>
-    
     <!-- Get all of the collection packages that are associated with the current config -->
     <route id="loadCollectionPackages">
       <from uri="direct:loadCollectionPackages"/>
@@ -183,21 +177,6 @@
         </split>
       </split>
     </route>
-
-    <!-- 
-    <route id="loadSnmpAgents">
-      <from uri="seda:loadSnmpAgents"/>
-      <log loggingLevel="INFO" message="Loading package ${body.name} with ${body.services.size} service(s)" />
-      <log loggingLevel="INFO" message="Running seda:loadSnmpAgents" />
-      <to uri="seda:loadPackageAgents"/>
-    </route>
-
-    <route id="loadJmxAgents">
-      <from uri="seda:loadJmxAgents"/>
-      <log loggingLevel="INFO" message="Running seda:loadJmxAgents" />
-      <to uri="seda:loadPackageAgents"/>
-    </route>
-    -->
 
     <route id="loadPackageAgents">
       <from uri="seda:loadPackageAgents"/>
