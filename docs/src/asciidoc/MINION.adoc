@@ -1,0 +1,112 @@
+
+// Global settings
+:ascii-ids:
+:encoding: UTF-8
+:lang: en
+:icons: font
+:toc: left
+:toclevels: 8
+:numbered:
+
+== OpenNMS Minion
+_OpenNMS Minion_ is an instance of the _Karaf OSGi_ service that can run distributed _OpenNMS_ components that are packaged as _Karaf_ features.
+_Minion_ devices are configured with a minimum amount of information necessary to connect to the _OpenNMS_ machine and identify themselves to it.
+The operation of each _Minion_ is controlled from the _Dominion_ service running on a central _OpenNMS_ installation.
+
+== Prerequisites
+
+=== User Management
+User management of each _Minion_ instance is performed by editing the '/etc/sysconfig/smnnepo' file to provide credentials for accessing the public interfaces of the _OpenNMS_ system.
+
+[source]
+----
+USERNAME="admin"
+PASSWORD="admin"
+OPENNMS="http://127.0.0.1:8980"
+BROKER="tcp://127.0.0.1:61616"
+LOCATION="RDU"
+----
+
+ * **Issue:** Initial setup requires creation or editing of this file on all Minion devices which could entail a lot of overhead on large _Minion_ installations.
+ * **Issue:** Credentials will likely be shared among all _Minion_ devices unless user administration of individual _Minion_ accounts is feasible on the _OpenNMS_ side (_Jetty_, _ActiveMQ_).
+
+ * **Future:** Dynamically generate credentials for each _Minion_ during a handshake/pairing setup process?
+ * **Future:** Distribute certificates to _Minion_ devices for +clientAuth+ _SSL_?
+
+=== Feature Repository
+_Minion_ devices download executable code in the form of _OSGi_ bundle _JAR_ files from a _Maven_ repository.
+This _Maven_ repository can either be the local _Maven_ repository used by a developer, a filesystem source, or a webapp running on the _OpenNMS_ system.
+The repository should contain the feature definition _XMLs_ for all desired _Minion_ features, the _OSGi_ bundles that implement the features, and all of the transitive dependencies of the features.
+
+==== sampler-repo
+The +sampler-repo+ project is used to construct the feature _Maven_ repository directory structure.
+If you wish to add _Karaf_ features to this repository, you need to edit the configuration for the +features-maven-plugin+ in the _POM_ for the +sampler-repo+ project.
+
+==== sampler-repo-webapp
+The +sampler-repo+ contents are wrapped in a webapp that can be served from the _OpenNMS_ _Jetty server_ to provide a centralized distribution point for all connected _Minion_ devices.
+This is the default configuration for _Minion_ deployments.
+
+ * **Issue:** It is possible that _Jetty_ cannot handle amount of connections required when _Minion_ devices download _JAR_ files leading to _DDoS_ of normal _OpenNMS_ webapp.
+ * **Issue:** Network traffic required to install features on _Minion_ devices could be too high (50MB per instance * 4000 instances = 200GB of network traffic per deployment).
+
+ * **Future:** Ability to run +repo-webapp+ as a _Karaf WAR_ feature so that clusters could share one copy?
+
+==== Alternatives to sampler-repo-webapp
+ * **Future:** _RPM_ installation of feature repository on _Minion_ devices to reduce/eliminate network traffic required to install _Minion_ features
+
+=== Configuration
+The +sampler-repo-webapp+ on _OpenNMS_ provides _Karaf_ scripts that can be used to install the _Minion_ services on a remote machine.
+These scripts are invoked by the '/etc/init.d/smnnepo' init file and the contents of the '/etc/sysconfig/smnnepo' file are used as arguments to the script.
+
+[source]
+----
+./bin/client -r 30 -a 8201 "source" "\"$SCRIPTDIR/smnnepo-setup.karaf\"" root "\"$USERNAME\"" "\"$PASSWORD\"" "\"$OPENNMS\"" "\"$LOCATION\"" >/tmp/smnnepo.log 2>&1
+----
+
+The '/etc/init.d/smnnepo' script sets up the root _Karaf_ instance and if subinstances are created, the script is invoked again for each subinstance.
+
+[source]
+----
+./bin/client -r 10 -a $PORT "source" "\"$SCRIPTDIR/smnnepo-setup.karaf\"" $INSTANCE "\"$USERNAME\"" "\"$PASSWORD\"" "\"$OPENNMS\"" "\"$LOCATION\"" >/tmp/smnnepo.log 2>&1
+----
+
+== Runtime Operation
+
+The _Minion_ process is started by using the +smnnepo+ _init.d_ service script.
+The startup procedure is the following:
+
+ * Start _Karaf_.
+ * Execute a hard-coded +.karaf+ script that is hosted in the +sampler-repo-webapp+ _WAR_ that sets up the _Minion Karaf_ instances in the desired manner.
+ * The +activemq+ instance starts an _ActiveMQ_ broker that listens for localhost _TCP_ connections on port 61716 and connects to the remote _OpenNMS ActiveMQ_ service.
+   The local _ActiveMQ URI_ is:
+
+[source]
+----
+tcp://127.0.0.1:61716/
+----
+
+and the OpenNMS ActiveMQ URI is:
+
+[source]
+----
+tcp://[opennms_address]:61616/
+----
+
+ * The +minion+ instance installs the _Minion Controller_ project that communicates status back to the _Dominion_ service on the _OpenNMS_ server.
+ * The +sampler+ instance runs the _SNMP collector_ code to perform remote collections.
+
+ * **Issue:** If connectivity to the _OpenNMS_ machine is unavailable, it is impossible to install the required features.
+   We currently have no way to retry or reconnect to _OpenNMS_ in the event of a failure to install the features.
+   This could be added to the _Minion_ init script.
+ * **Issue:** http://issues.opennms.org/browse/PJSM-199: We have no checks to ensure that the features were installed or functioning properly.
+   These checks should be added to the init script and should be communicated back to _OpenNMS_ by using the _Minion Controller_ service (if _ActiveMQ_ connectivity can be established).
+
+ * **Future:** http://issues.opennms.org/browse/PJSM-177: Change the script based setup onto something more dynamic so that _Karaf_ features can be configured and provisioned on the _OpenNMS Dominion_ side.
+   Should we do this with _REST_ or _ActiveMQ_?
+   Should the _Karaf_ scripts be dynamic content served by the _OpenNMS_ system?
+   ie. a _REST_ call that takes parameters like http://127.0.0.1:8980/rest/minion/bootstrap?location=myLocation
+
+=== REST Service
+_Sampler_ features may require access to the _REST API_ on _OpenNMS_ for configuration and inventory information.
+
+ * **Issue:** There is no way to guarantee _API_ compatibility besides unit testing.
