@@ -1,19 +1,25 @@
-== Sampler Architecture
+// Global settings
+:ascii-ids:
+:encoding: UTF-8
+:lang: en
+:icons: font
+:toc: left
+:toclevels: 8
+:numbered:
 
+== Sampler Architecture
 This document should help you understand the message flow through the Sampler projects.
 The captions in **bold** denote Camel route IDs.
-In general, within each project messages are passed using a link:http://camel.apache.org/camelcontext.html[Camel context] definition that is defined in the `OSGI-INF/blueprint*.xml` files.
+In general, within each project messages are passed using a link:http://camel.apache.org/camelcontext.html[Camel context] definition that is defined in the 'OSGI-INF/blueprint*.xml' files.
 
 .Image Legend
-image:images/legend.png[Image Legend]
+image:legend.png[Image Legend]
 
 To get started you should have a look at these pages:
 
   * link:http://camel.apache.org/enterprise-integration-patterns.html[Enterprise Integration Patterns]
   * link:http://camel.apache.org/book-getting-started.html[Rough Camel Overview]
   * link:http://camel.apache.org/how-do-the-direct-event-seda-and-vm-endpoints-compare.html[Camel Endpoint Comparison (Direct, Seda, VM)]
-
-
 
 == Dispatcher Whiteboard ==
 Between projects or Camel Contexts messages are forwarded by a link:../sample-api/src/main/java/org/opennms/netmgt/api/sample/support/DispatcherWhiteboard.java[DispatcherWhiteboard].
@@ -49,7 +55,7 @@ Does not define any routes at the moment.
 
 The routes defined in the link:../sampler-config/src/main/resources/OSGI-INF/blueprint/blueprint-sampler-config.xml[blueprint-sampler-config.xml] are described in the following figure.
 
-image:images/sampler-config.png[Defined routes]
+image:sampler-config.png[Defined routes]
 
  * **triggerStartSamplerConfig**: Fires once to endpoint `direct:start` to start up all messaging (startup hook)
  * **triggerReloadConfig**: Fires a config reload every 30 seconds.
@@ -80,7 +86,7 @@ This project uses Camel to load SNMP-specific configuration data via REST from t
 
 The routes defined in the link:../sampler-config-snmp/src/main/resources/OSGI-INF/blueprint/blueprint-sampler-config-snmp.xml[blueprint-sampler-config-snmp.xml] are described in the following figure.
 
-image:images/sampler-config-snmp.png[Defined routes]
+image:sampler-config-snmp.png[Defined routes]
 
 * **fireStartSamplerConfigSnmp**: Fires once with a delay of 30 seconds to endpoint `direct:start` to load all configs.
 * **triggerReloadConfiguration**: Triggers a configuration reload every 30 seconds.
