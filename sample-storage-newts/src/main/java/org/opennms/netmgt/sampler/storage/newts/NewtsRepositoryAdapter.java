@@ -24,19 +24,19 @@ public class NewtsRepositoryAdapter {
 			m_samples.add(s);
 		}
 		public void gauge(long millis, String resource, String name, double value) {
-			add(new Sample(Timestamp.fromEpochMillis(millis), resource, name, MetricType.GAUGE, new Gauge(value)));
+			add(new Sample(Timestamp.fromEpochMillis(millis), new Resource(resource), name, MetricType.GAUGE, new Gauge(value)));
 		}
 		
 		public void derive(long millis, String resource, String name, UnsignedLong value) {
-			add(new Sample(Timestamp.fromEpochMillis(millis), resource, name, MetricType.DERIVE, new Derive(value)));
+			add(new Sample(Timestamp.fromEpochMillis(millis), new Resource(resource), name, MetricType.DERIVE, new Derive(value)));
 		}
 		
 		public void absolute(long millis, String resource, String name, UnsignedLong value) {
-			add(new Sample(Timestamp.fromEpochMillis(millis), resource, name, MetricType.GAUGE, new Absolute(value)));
+			add(new Sample(Timestamp.fromEpochMillis(millis), new Resource(resource), name, MetricType.GAUGE, new Absolute(value)));
 		}
 		
 		public void counter(long millis, String resource, String name, UnsignedLong value) {
-			add(new Sample(Timestamp.fromEpochMillis(millis), resource, name, MetricType.COUNTER, new Counter(value)));
+			add(new Sample(Timestamp.fromEpochMillis(millis), new Resource(resource), name, MetricType.COUNTER, new Counter(value)));
 		}
 		
 		public void save() {
