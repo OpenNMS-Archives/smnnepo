@@ -13,7 +13,7 @@ The captions in **bold** denote Camel route IDs.
 In general, within each project messages are passed using a link:http://camel.apache.org/camelcontext.html[Camel context] definition that is defined in the 'OSGI-INF/blueprint*.xml' files.
 
 .Image Legend
-image:legend.png[Image Legend]
+image::images/legend.png[Image Legend]
 
 To get started you should have a look at these pages:
 
