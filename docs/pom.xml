@@ -68,18 +68,16 @@
               <sourceHighlighter>prettify</sourceHighlighter>
               <backend>html5</backend>
               <doctype>book</doctype>
+              <headerFooter>true</headerFooter>
+              <sourceDirectory>${asciidoc.source.directory}</sourceDirectory>
+              <outputDirectory>${asciidoc.output.directory}</outputDirectory>
+              <imagesDir>images</imagesDir>
+              <attributes>
+                <opennms-version>${project.version}</opennms-version>
+              </attributes>
             </configuration>
           </execution>
         </executions>
-        <configuration>
-          <headerFooter>true</headerFooter>
-          <sourceDirectory>${asciidoc.source.directory}</sourceDirectory>
-          <outputDirectory>${asciidoc.output.directory}</outputDirectory>
-          <imagesDir>images</imagesDir>
-          <attributes>
-            <opennms-version>${project.version}</opennms-version>
-          </attributes>
-        </configuration>
       </plugin>
     </plugins>
   </build>
