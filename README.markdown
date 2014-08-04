@@ -249,7 +249,7 @@ ADVANCED: Running in Fabric8
 ============================
 
 	profile-create --parents default dominion
-	profile-edit --repositories mvn:org.opennms.netmgt.sample/karaf/1.13.4-PJSM-SNAPSHOT/xml dominion
+	profile-edit --repositories mvn:org.opennms.netmgt.sample/karaf/1.13.5-PJSM-SNAPSHOT/xml dominion
 	profile-edit --features minion-base --features dominion-controller-statuswriter-logging --features dominion-controller dominion
 	profile-edit -p org.opennms.minion.dominion.controller/brokerUri="discovery:(fabric:dominion)" dominion
 	container-create-child root dominion
