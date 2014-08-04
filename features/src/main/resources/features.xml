@@ -12,7 +12,7 @@
     <repository>mvn:org.opennms.newts/karaf/1.0.0-SNAPSHOT/xml/features</repository>
 
     <!-- minion features -->
-    <repository>mvn:org.opennms.netmgt.sample/karaf/1.13.4-PJSM-SNAPSHOT/xml/minion</repository>
+    <repository>mvn:org.opennms.netmgt.sample/karaf/1.13.5-PJSM-SNAPSHOT/xml/minion</repository>
 
     <!-- CXF features -->
     <!--<repository>mvn:org.apache.cxf.karaf/apache-cxf/2.7.7/xml/features</repository>-->

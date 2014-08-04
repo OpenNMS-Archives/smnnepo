@@ -219,24 +219,24 @@ List all installed features:
    
 You should get a list similar to this:
 
-    [installed  ] [1.13.4] sample-api                              opennms-sampler-1.13.4     Sample Collection and Storage :: API
-    [uninstalled] [1.13.4] minion-controller                       opennms-sampler-1.13.4     Minion :: Controller
-    [installed  ] [1.13.4] dominion-controller                     opennms-sampler-1.13.4     Dominion :: Controller
-    [uninstalled] [1.13.4] sampler-config                          opennms-sampler-1.13.4     Sample Collection and Storage :: Configuration
-    [uninstalled] [1.13.4] sampler-config-snmp                     opennms-sampler-1.13.4     Sample Collection and Storage :: SNMP Configuration
-    [uninstalled] [1.13.4] sampler-scheduler                       opennms-sampler-1.13.4     Sample Collection and Storage :: Scheduler
-    [uninstalled] [1.13.4] sampler-snmp                            opennms-sampler-1.13.4     Sample Collection and Storage :: SNMP Collector
-    [uninstalled] [1.13.4] sample-graphs                           opennms-sampler-1.13.4     Sample Collection and Storage :: Graphing
-    [installed  ] [1.13.4] sample-storage-rrd                      opennms-sampler-1.13.4     Sample Collection and Storage :: RRD
-    [uninstalled] [1.13.4] sample-storage-newts                    opennms-sampler-1.13.4     Sample Collection and Storage :: Newts
-    [uninstalled] [1.13.4] sample-storage-file                     opennms-sampler-1.13.4     Sample Collection and Storage :: File Storage
-    [uninstalled] [1.13.4] sample-storage-xml                      opennms-sampler-1.13.4     Sample Collection and Storage :: XML Storage
-    [uninstalled] [1.13.4] sample-dispatch-activemq                opennms-sampler-1.13.4     Sample Collection and Storage :: ActiveMQ Dispatcher
-    [installed  ] [1.13.4] sample-receiver-activemq                opennms-sampler-1.13.4     Sample Collection and Storage :: ActiveMQ Receiver
-    [uninstalled] [1.13.4] sampler-with-file-storage               opennms-sampler-1.13.4     Sample Collection and Storage :: Integration :: Sampler with file storage
-    [uninstalled] [1.13.4] sampler-with-xml-storage                opennms-sampler-1.13.4     Sample Collection and Storage :: Integration :: Sampler with XML storage
-    [uninstalled] [1.13.4] sampler-with-rrd-storage                opennms-sampler-1.13.4     Sample Collection and Storage :: Integration :: Sampler with RRD storage
-    [uninstalled] [1.13.4] sampler-with-activemq-export            opennms-sampler-1.13.4     Sample Collection and Storage :: Integration :: Sampler with ActiveMQ export
+    [installed  ] [1.13.5] sample-api                              opennms-sampler-1.13.5     Sample Collection and Storage :: API
+    [uninstalled] [1.13.5] minion-controller                       opennms-sampler-1.13.5     Minion :: Controller
+    [installed  ] [1.13.5] dominion-controller                     opennms-sampler-1.13.5     Dominion :: Controller
+    [uninstalled] [1.13.5] sampler-config                          opennms-sampler-1.13.5     Sample Collection and Storage :: Configuration
+    [uninstalled] [1.13.5] sampler-config-snmp                     opennms-sampler-1.13.5     Sample Collection and Storage :: SNMP Configuration
+    [uninstalled] [1.13.5] sampler-scheduler                       opennms-sampler-1.13.5     Sample Collection and Storage :: Scheduler
+    [uninstalled] [1.13.5] sampler-snmp                            opennms-sampler-1.13.5     Sample Collection and Storage :: SNMP Collector
+    [uninstalled] [1.13.5] sample-graphs                           opennms-sampler-1.13.5     Sample Collection and Storage :: Graphing
+    [installed  ] [1.13.5] sample-storage-rrd                      opennms-sampler-1.13.5     Sample Collection and Storage :: RRD
+    [uninstalled] [1.13.5] sample-storage-newts                    opennms-sampler-1.13.5     Sample Collection and Storage :: Newts
+    [uninstalled] [1.13.5] sample-storage-file                     opennms-sampler-1.13.5     Sample Collection and Storage :: File Storage
+    [uninstalled] [1.13.5] sample-storage-xml                      opennms-sampler-1.13.5     Sample Collection and Storage :: XML Storage
+    [uninstalled] [1.13.5] sample-dispatch-activemq                opennms-sampler-1.13.5     Sample Collection and Storage :: ActiveMQ Dispatcher
+    [installed  ] [1.13.5] sample-receiver-activemq                opennms-sampler-1.13.5     Sample Collection and Storage :: ActiveMQ Receiver
+    [uninstalled] [1.13.5] sampler-with-file-storage               opennms-sampler-1.13.5     Sample Collection and Storage :: Integration :: Sampler with file storage
+    [uninstalled] [1.13.5] sampler-with-xml-storage                opennms-sampler-1.13.5     Sample Collection and Storage :: Integration :: Sampler with XML storage
+    [uninstalled] [1.13.5] sampler-with-rrd-storage                opennms-sampler-1.13.5     Sample Collection and Storage :: Integration :: Sampler with RRD storage
+    [uninstalled] [1.13.5] sampler-with-activemq-export            opennms-sampler-1.13.5     Sample Collection and Storage :: Integration :: Sampler with ActiveMQ export
     
 Ensure that <code>sample-receiver-activemq</code> and <code>sample-storage-rrd</code> is installed.
 If it is not, install it manually:
@@ -258,7 +258,7 @@ Dominion Side
 
 	container-create-child --jvm-opts "-Xmx1g -XX:MaxPermSize=1g" --jmx-user admin --jmx-password admin root dominion
 	profile-create --parents default dominion
-	profile-edit --repositories mvn:org.opennms.netmgt.sample/karaf/1.13.4-PJSM-SNAPSHOT/xml/minion dominion
+	profile-edit --repositories mvn:org.opennms.netmgt.sample/karaf/1.13.5-PJSM-SNAPSHOT/xml/minion dominion
 	profile-edit --features camel-amq --features minion-base --features dominion-controller-statuswriter-logging --features dominion-controller dominion
 	container-add-profile dominion mq-broker-default.default dominion
 
@@ -267,7 +267,7 @@ Minion Side
 
 	container-create-child --jvm-opts "-Xmx1g -XX:MaxPermSize=1g" --jmx-user admin --jmx-password admin root minion
 	profile-create --parents default minion
-	profile-edit --repositories mvn:org.opennms.netmgt.sample/karaf/1.13.4-PJSM-SNAPSHOT/xml/minion minion
+	profile-edit --repositories mvn:org.opennms.netmgt.sample/karaf/1.13.5-PJSM-SNAPSHOT/xml/minion minion
 	profile-edit --features fabric-configadmin --features camel-amq --features minion-base --features minion-controller minion
 	profile-edit -p org.opennms.minion.controller/location="Red Hat" minion
 	container-add-profile minion mq-broker-default.default minion
