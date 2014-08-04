@@ -7,6 +7,7 @@
 :toc: left
 :toclevels: 8
 :numbered:
+:imagesdir: images
 
 == OpenNMS Minion
 _OpenNMS Minion_ is an instance of the _Karaf OSGi_ service that can run distributed _OpenNMS_ components that are packaged as _Karaf_ features.
