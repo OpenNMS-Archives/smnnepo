@@ -15,7 +15,7 @@
   <properties>
     <asciidoc.source.directory>${basedir}/src/asciidoc</asciidoc.source.directory>
     <asciidoc.output.directory>${basedir}/target/generated-docs</asciidoc.output.directory>
-    <asciidoc.images.directory>images</asciidoc.images.directory>
+    <asciidoc.images.directory></asciidoc.images.directory>
   </properties>
 
   <modelVersion>4.0.0</modelVersion>
