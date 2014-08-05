@@ -8,7 +8,8 @@
 :numbered:
 :imagesdir: images
 
-== Sampler Architecture
+= Sampler Architecture
+
 This document should help you understand the message flow through the Sampler projects.
 The captions in **bold** denote Camel route IDs.
 In general, within each project messages are passed using a link:http://camel.apache.org/camelcontext.html[Camel context] definition that is defined in the 'OSGI-INF/blueprint*.xml' files.
@@ -124,7 +125,7 @@ These services are defined in class link:https://github.com/OpenNMS/opennms/blob
 
 === TODO describe the JMX resource
 
-
+[[dispatcher-whiteboard]]
 == Dispatcher Whiteboard ==
 
 Between projects or Camel Contexts messages are forwarded by a link:../sample-api/src/main/java/org/opennms/netmgt/api/sample/support/DispatcherWhiteboard.java[DispatcherWhiteboard].
@@ -166,9 +167,39 @@ image::sampler-config.png[Defined routes]
  * **triggerStartSamplerConfig**: Fires once to endpoint `direct:start` to start up all messaging (startup hook)
  * **triggerReloadConfig**: Fires a config reload every 30 seconds.
  * **startLoadConfigurations**: Loads all configuration objects by fetching REST content from the OpenNMS server
- * **loadCollectionPackages**: Splits the collectd configuration into packages and then into the individual services within the package. Splits the individual service messages based on protocol, eg. `SNMP` or `JMX` (this is unnecessary since there is no special processing per service yet).
- * **loadPackageAgents**: Combines the package configuration with the agent list to create a complete configuration (org.opennms.netmgt.api.sample.PackageAgentList) for each agent.
- * **seda:scheduleAgents**: This endpoint is serviced by the *schedulingDispatcher* bean. This bean is an OSGi whiteboard which consumes from the *seda:scheduleAgents* endpoint and invokes the *schedule* method on all OSGi services that are registered with the *org.opennms.netmgt.api.sample.support.SchedulerService* interface.
+ * **loadCollectionPackages**: Extracts the packages from the collectd configuration.
+ It then splits each package into `one-service-per-package` packages, so each package only contains one service defintion.
+ This `one-service-per-package` message is forwarded to the `loadPackageAgents` endpoint.
+ The following example would be converted to two packages [example1, SNMP] and [example1, OpenNMS-JVM].
+
+    <package name="example1">
+        <filter>IPADDR != '0.0.0.0'</filter>
+        <include-range begin="1.1.1.1" end="254.254.254.254"/>
+        <include-range begin="::1" end="ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"/>
+        <!-- SNMP -->
+        <service name="SNMP" interval="300000" user-defined="false" status="on">
+            <parameter key="collection" value="default"/>
+            <parameter key="thresholding-enabled" value="true"/>
+        </service>
+        <!-- JMX -->
+        <service name="OpenNMS-JVM" interval="300000" user-defined="false" status="on">
+            <parameter key="port" value="18980"/>
+            <parameter key="retry" value="2"/>
+            <parameter key="timeout" value="3000"/>
+            <parameter key="protocol" value="rmi"/>
+            <parameter key="urlPath" value="/jmxrmi"/>
+            <parameter key="rrd-base-name" value="java"/>
+            <parameter key="ds-name" value="opennms-jvm"/>
+            <parameter key="friendly-name" value="opennms-jvm"/>
+            <parameter key="collection" value="jsr160"/>
+            <parameter key="thresholding-enabled" value="true"/>
+        </service>
+    </package>
+
+ * **loadPackageAgents**: Processes the `one-service-per-package` message and loads the agent list for this service. The result is transformed to a `org.opennms.netmgt.api.sample.PackageAgentList` and forwarded to endpoint `seda:scheduleAgents`.
+ * **seda:scheduleAgents**:
+  This endpoint is serviced by the `schedulingDispatcher` bean (<<dispatcher-whiteboard, see DispatcherWhiteboard>>).
+  This bean is an OSGi whiteboard which consumes from the *seda:scheduleAgents* endpoint and invokes the *schedule* method on all OSGi services that are registered with the *org.opennms.netmgt.api.sample.support.SchedulerService* interface.
 
 [source, xml]
 ----
@@ -183,9 +214,28 @@ image::sampler-config.png[Defined routes]
 
 == sampler-scheduler
 
-* *scheduler*: Bean that implements the SchedulerService interface. This bean takes incoming PackageAgentList messages, adds them to a scheduler, and when the task is scheduled to execute it enqueues them to all services registered under the *org.opennms.netmgt.api.sample.AgentDispatcher* interface.
+* *scheduler*:
+ Bean that implements the `SchedulerService` interface.
+ This bean takes incoming `PackageAgentList` messages, and adds each Agent to a scheduler.
+ When the task is scheduled to execute it enqueues them to all registered `org.opennms.netmgt.api.sample.AgentDispatcher` objects.
 
-Does not define any routes at the moment.
+[NOTE]
+Each `AgentDispatcher` must be registered with a service property matching the `service-name` from the `service`-defintion in collectd configuration.
+Otherwise dispatching will not work!
+
+[NOTE]
+Defines routes indirectly due to the `AgentDispatcher`.
+Each dispatcher sends the agent message to the defined `endpoint` (e.g. DefaultAgentDispatcher in sampler-snmp)
+
+[source, xml]
+.Example from sampler-snmp `blueprint.xml`
+----
+<service ref="snmpSampler" interface="org.opennms.netmgt.api.sample.AgentDispatcher">
+    <service-properties>
+        <entry key="org.opennms.netmgt.sampler.scheduler.serviceName" value="SNMP"/>
+    </service-properties>
+</service>
+----
 
 == sampler-config-snmp
 This project uses Camel to load SNMP-specific configuration data via REST from the OpenNMS server and then provides that configuration data as OSGi services for use by the *sampler-snmp* project.
@@ -228,12 +278,12 @@ image::sampler-config-snmp.png[Defined routes]
 ----
 
 == sampler-snmp
-This context registers a bean named *snmpSampler* as an *org.opennms.netmgt.api.sample.AgentDispatcher* which forwards the message into the *seda:collectAgent* endpoint in the **collectAgent** route.
+This context registers a bean named `snmpSampler` as an `org.opennms.netmgt.api.sample.AgentDispatcher` which forwards the message into the `seda:collectAgent` endpoint in the `collectAgent` route.
 
 * blueprint.xml
 ** **collectAgent**: Enhances the Agent message with SNMP-specific information (OIDs to collect, SNMP credentials) and then collects it using the *snmpCollector* bean.
-** **sampleSet**: Sends the completed SampleSet to all registered *org.opennms.netmgt.api.sample.SampleSetDispatcher* services.
-** **seda:saveToRepository**: This endpoint is serviced by the *sampleSetDispatcher* bean. This whiteboard consumes from the *seda:saveToRepository* endpoint and invokes the *save* method on all OSGi services that are registered with the *org.opennms.netmgt.api.sample.SampleSetDispatcher* interface.
+** **sampleSet**: Sends the completed `SampleSet` to all registered *org.opennms.netmgt.api.sample.SampleSetDispatcher* services.
+** **seda:saveToRepository**: This endpoint is serviced by the `sampleSetDispatcher` bean. This whiteboard consumes from the `seda:saveToRepository` endpoint and invokes the *save* method on all OSGi services that are registered with the `org.opennms.netmgt.api.sample.SampleSetDispatcher` interface.
 
 [source, xml]
 ----

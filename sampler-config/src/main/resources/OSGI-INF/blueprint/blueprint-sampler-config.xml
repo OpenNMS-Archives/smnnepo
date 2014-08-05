@@ -154,25 +154,9 @@
         <!-- Split the package into a package-per-service -->
         <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Parsing package ${body.name} with ${body.services.size} service(s)" />
         <process ref="packageServiceSplitter"/>
+        <!-- split each package-per-service send a message for each entry -->
         <split>
           <simple>${body}</simple>
-          <!-- 
-          <!- - Route different service types to different routes - ->
-          <choice>
-            <when>
-              <simple>${body.services[0].name} == 'SNMP'</simple>
-              <to uri="seda:loadSnmpAgents"/>
-            </when>
-            <when>
-              <simple>${body.services[0].name} == 'JMX'</simple>
-              <to uri="seda:loadJmxAgents"/>
-            </when>
-            <otherwise>
-              <!- - Throw exception? - ->
-              <!- - throwException(new UnsupportedOperationException("Cannot process service ${body}")) - ->
-            </otherwise>
-          </choice>
-          -->
           <to uri="seda:loadPackageAgents"/>
         </split>
       </split>
@@ -180,7 +164,7 @@
 
     <route id="loadPackageAgents">
       <from uri="seda:loadPackageAgents"/>
-      <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Loading package agents" />
+      <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Loading package agents for package ${body.name}" />
       <enrich uri="direct:getServiceAgents" strategyRef="packageAgentAggregator"/>
       <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Got package agents" />
       <filter>
