@@ -53,7 +53,7 @@
       <artifactId>org.apache.karaf.admin.core</artifactId>
       <version>${karafVersion}</version>
       <scope>provided</scope>
-    </dependency>
+     </dependency>
     <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-osgi</artifactId>
