@@ -30,13 +30,15 @@ These services are defined in class link:https://github.com/OpenNMS/opennms/blob
 
 === /config/{location}/collection
 
+[asciidoc]
 |===
 | *Method*          | GET
-| *Description*     | Loads the `collectd` configuration (link:http://www.opennms.org/wiki/Data_Collection_Configuration_How-To#collectd-configuration.xml[collectd-configuration.xml]) for the given `{location}`.
+| *Description*     | Loads the link:http://www.opennms.org/wiki/Data_Collection_Configuration_How-To#collectd-configuration.xml[collectd-configuration.xml] for the given `{location}`.
 
-                      The `{location}` must exist in the (link:http://www.opennms.org/wiki/Remote_Polling#monitoring-locations.xml[monitor-locations.xml]).
+                      The `{location}` must exist in the link:http://www.opennms.org/wiki/Remote_Polling#monitoring-locations.xml[monitor-locations.xml].
 
-| *Produces*        | "application/xml", "application/json", "application/atom+xml"
+                      If you want the sampler to collect data, a valid `collection-package-name` must also be defined in the link:http://www.opennms.org/wiki/Remote_Polling#monitoring-locations.xml[monitor-locations.xml].
+| *Produces*        | application/xml, application/json, application/atom+xml
 | *Status*          | 200
 | *Request*         |
 | *Response*        | Returns a `org.opennms.netmgt.config.collectd.CollectdConfiguration` object for the defined `collection-package-name` defined in the `monitor-locations.xml`.
@@ -51,16 +53,14 @@ These services are defined in class link:https://github.com/OpenNMS/opennms/blob
 
 |===
 | *Method*          | GET
-| *Description*     | Loads all nodes/agents for collecting according to `{serviceName}` and `{filterName}`.
-                      Each agent contains the service (equivalent to `{serviceName}`, `ipAddress`, `port` and additional `parameters` according to the configured `{serviceName}`.
-
-                      Therefore the Sampler knows which parameters to use for the collection (e.g. ip address, port, ...)
+| *Description*     | Loads all nodes/agents according to `{serviceName}` and `{filterName}`.
+                      Each agent contains the service (equivalent to `{serviceName}`), `ipAddress`, `port` and additional `parameters` according to the configured `{serviceName}`.
 
                       `serviceName` defines the service, e.g. `JMX`, `SNMP`, etc.
 
                       `filterName` defines additional filter criteria. At the moment it is equivalent to the package name defined in the `collectd-configuration.xml`, e.g. `example1`.
 
-| *Produces*        | "application/xml", "application/json", "application/atom+xml"
+| *Produces*        | application/xml, application/json, application/atom+xml
 | *Status*          | 200
 | *Request*         |
 | *Response*        |  Returns a link:https://github.com/OpenNMS/opennms/blob/master/opennms-config-model/src/main/java/org/opennms/netmgt/config/agents/AgentResponseCollection.java[org.opennms.netmgt.config.agents.AgentResponseCollection],
@@ -74,7 +74,7 @@ These services are defined in class link:https://github.com/OpenNMS/opennms/blob
 |===
 | *Method*          | GET
 | *Description*     | The same as described <<rest-agents, here>> but not accepting all media types.
-| *Produces*        | "application/xml",  "application/atom+xml"
+| *Produces*        | application/xml,  application/atom+xml
 |===
 
 
@@ -83,7 +83,7 @@ These services are defined in class link:https://github.com/OpenNMS/opennms/blob
 |===
 | *Method*          | GET
 | *Description*     | The same as described <<rest-agents, here>> but not accepting all media types.
-| *Produces*        | "application/json"
+| *Produces*        | application/json
 |===
 
 
@@ -92,7 +92,7 @@ These services are defined in class link:https://github.com/OpenNMS/opennms/blob
 | *Method*          | GET
 | *Description*     | Loads the link:http://www.opennms.org/wiki/Data_Collection_Configuration_How-To#datacollection-config.xml[datacollection-config.xml].
 
-| *Produces*        | "application/xml", "application/json", "application/atom+xml"
+| *Produces*        | application/xml, application/json, application/atom+xml
 | *Status*          | 200
 | *Request*         |
 | *Response*        | The result is the `datacollection-config.xml` but is converted into an `IDataCollectionConfig` object.
@@ -106,7 +106,7 @@ These services are defined in class link:https://github.com/OpenNMS/opennms/blob
 | *Method*          | GET
 | *Description*     | Loads the link:http://www.opennms.org/wiki/Data_Collection_Configuration_How-To#snmp-config.xml[snmp-config.xml].
 
-| *Produces*        | "application/xml", "application/json", "application/atom+xml"
+| *Produces*        | application/xml, application/json, application/atom+xml
 | *Status*          | 200
 | *Request*         |
 | *Response*        | The result is the `snmp-config.xml` (`SnmpConfig` object).
