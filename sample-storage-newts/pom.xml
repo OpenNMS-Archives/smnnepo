@@ -43,8 +43,6 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <!-- override the base one since we need this version for newts -->
-      <version>15.0</version>
     </dependency>
     <dependency>
       <groupId>org.opennms.newts</groupId>
