@@ -5,5 +5,5 @@ import java.util.List;
 public interface MinionInitializationMessage extends MinionMessage {
     public String getMinionId();
     public List<String> getFeatureRepositories();
-    public List<String> getFeatures();
+    public List<Container> getContainers();
 }

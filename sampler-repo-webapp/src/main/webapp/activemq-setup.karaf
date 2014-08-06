@@ -1,0 +1,30 @@
+BROKER=$1;
+LOCATION=$2;
+BROKERNAME=($LOCATION replaceAll "[^A-z0-9]" "-")
+
+echo "Broker URL:          $BROKER"
+echo "Broker Name:         $BROKERNAME"
+echo "Monitoring Location: $LOCATION"
+
+# Configure the local ActiveMQ dispatcher broker
+config:edit org.apache.activemq.server-default
+# Needs to be globally unique
+config:propset broker-name "$BROKERNAME"
+config:propset activemq.data ${karaf.base}/data/activemq
+config:propset config ${karaf.base}/etc/activemq-dispatch.xml
+config:propset brokerUri "$BROKER"
+config:update
+
+# Configure the ActiveMQ web UI
+# Don't use this for now because it conflicts with the OpenNMS MX4J HTTP interface
+#config:edit org.apache.activemq.webconsole
+#config:propset webconsole.jms.url "vm://$VMTRANSPORTNAME"
+#config:propset webconsole.jmx.url service:jmx:rmi:///jndi/rmi://localhost:1300/karaf-root
+#config:propset webconsole.jmx.user karaf
+#config:propset webconsole.jmx.password karaf
+#config:propset webconsole.jms.user system
+#config:propset webconsole.jms.password manager
+#config:update
+
+# Install the ActiveMQ config file and feature
+features:install -v sample-dispatch-activemq-config activemq

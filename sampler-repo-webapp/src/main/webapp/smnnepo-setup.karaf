@@ -37,14 +37,14 @@ features:addurl mvn:org.opennms.netmgt.sample/karaf/1.13.5-PJSM-SNAPSHOT/xml
 # Since the root instance runs on port 8201 (as configured in the RPM spec) then increment
 # all of the other SSH ports from there. Similarly, increment the RMI registry/server ports.
 
-FINDINSTANCE = (admin:list | grep activemq | tac)
-if { ($FINDINSTANCE isEmpty) } {
-admin:clone root activemq
-admin:change-ssh-port activemq 8202
-admin:change-rmi-registry-port activemq 1300
-admin:change-rmi-server-port activemq 45445
-}
-admin:start activemq
+#FINDINSTANCE = (admin:list | grep activemq | tac)
+#if { ($FINDINSTANCE isEmpty) } {
+#admin:clone root activemq
+#admin:change-ssh-port activemq 8202
+#admin:change-rmi-registry-port activemq 1300
+#admin:change-rmi-server-port activemq 45445
+#}
+#admin:start activemq
 
 FINDINSTANCE = (admin:list | grep minion | tac)
 if { ($FINDINSTANCE isEmpty) } {
@@ -55,48 +55,48 @@ admin:change-rmi-server-port minion 45446
 }
 admin:start minion
 
-FINDINSTANCE = (admin:list | grep sampler | tac)
-if { ($FINDINSTANCE isEmpty) } {
-admin:clone root sampler
-admin:change-ssh-port sampler 8204
-admin:change-rmi-registry-port sampler 1302
-admin:change-rmi-server-port sampler 45447
-}
-admin:start sampler
+#FINDINSTANCE = (admin:list | grep sampler | tac)
+#if { ($FINDINSTANCE isEmpty) } {
+#admin:clone root sampler
+#admin:change-ssh-port sampler 8204
+#admin:change-rmi-registry-port sampler 1302
+#admin:change-rmi-server-port sampler 45447
+#}
+#admin:start sampler
 
 }
 
 
-##########################################
-# Install the ActiveMQ instance          #
-##########################################
-
-if { "activemq" equals "$INSTANCE" } {
-
-# Configure the local ActiveMQ dispatcher broker
-config:edit org.apache.activemq.server-default
-# Needs to be globally unique
-config:propset broker-name "$BROKERNAME"
-config:propset activemq.data ${karaf.base}/data/activemq
-config:propset config ${karaf.base}/etc/activemq-dispatch.xml
-config:propset brokerUri "$BROKER"
-config:update
-
-# Configure the ActiveMQ web UI
-# Don't use this for now because it conflicts with the OpenNMS MX4J HTTP interface
-#config:edit org.apache.activemq.webconsole
-#config:propset webconsole.jms.url "vm://$VMTRANSPORTNAME"
-#config:propset webconsole.jmx.url service:jmx:rmi:///jndi/rmi://localhost:1300/karaf-root
-#config:propset webconsole.jmx.user karaf
-#config:propset webconsole.jmx.password karaf
-#config:propset webconsole.jms.user system
-#config:propset webconsole.jms.password manager
+###########################################
+## Install the ActiveMQ instance          #
+###########################################
+#
+#if { "activemq" equals "$INSTANCE" } {
+#
+## Configure the local ActiveMQ dispatcher broker
+#config:edit org.apache.activemq.server-default
+## Needs to be globally unique
+#config:propset broker-name "$BROKERNAME"
+#config:propset activemq.data ${karaf.base}/data/activemq
+#config:propset config ${karaf.base}/etc/activemq-dispatch.xml
+#config:propset brokerUri "$BROKER"
 #config:update
-
-# Install the ActiveMQ config file and feature
-features:install -v sample-dispatch-activemq-config activemq
-
-}
+#
+## Configure the ActiveMQ web UI
+## Don't use this for now because it conflicts with the OpenNMS MX4J HTTP interface
+##config:edit org.apache.activemq.webconsole
+##config:propset webconsole.jms.url "vm://$VMTRANSPORTNAME"
+##config:propset webconsole.jmx.url service:jmx:rmi:///jndi/rmi://localhost:1300/karaf-root
+##config:propset webconsole.jmx.user karaf
+##config:propset webconsole.jmx.password karaf
+##config:propset webconsole.jms.user system
+##config:propset webconsole.jms.password manager
+##config:update
+#
+## Install the ActiveMQ config file and feature
+#features:install -v sample-dispatch-activemq-config activemq
+#
+#}
 
 
 ##########################################
@@ -108,7 +108,8 @@ if { "minion" equals "$INSTANCE" } {
 # Configure the Minion location and broker URI
 config:edit org.opennms.minion.controller
 config:propset location "$LOCATION"
-config:propset brokerUri "tcp://127.0.0.1:61716"
+config:propset dominionBrokerUri "$BROKER"
+config:propset opennmsRestRoot "$ONMS"
 config:update
 
 # Install the Minion and Sampler features
@@ -117,26 +118,26 @@ features:install -v minion-base minion-controller
 }
 
 
-##########################################
-# Configure the Sampler instance         #
-##########################################
-
-if { "sampler" equals "$INSTANCE" } {
-
-# Configure the REST parameters for the config bundle
-config:edit org.opennms.netmgt.sampler.config
-config:propset rest.root $ONMS/opennms/rest
-config:propset location.name "$LOCATION"
-config:propset username $USER
-config:propset password $PASSWD
-config:update
-
-# Configure the ActiveMQ broker URI
-config:edit org.opennms.netmgt.sampler.persister.activemq
-config:propset brokerUri "tcp://127.0.0.1:61716"
-config:update
-
-# Install the Sampler features
-features:install -v sampler-with-activemq-export
-
-}
+###########################################
+## Configure the Sampler instance         #
+###########################################
+#
+#if { "sampler" equals "$INSTANCE" } {
+#
+## Configure the REST parameters for the config bundle
+#config:edit org.opennms.netmgt.sampler.config
+#config:propset rest.root $ONMS/opennms/rest
+#config:propset location.name "$LOCATION"
+#config:propset username $USER
+#config:propset password $PASSWD
+#config:update
+#
+## Configure the ActiveMQ broker URI
+#config:edit org.opennms.netmgt.sampler.persister.activemq
+#config:propset brokerUri "tcp://127.0.0.1:61716"
+#config:update
+#
+## Install the Sampler features
+#features:install -v sampler-with-activemq-export
+#
+#}

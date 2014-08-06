@@ -1,6 +1,7 @@
 package org.opennms.minion.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -10,6 +11,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.opennms.minion.api.Container;
 import org.opennms.minion.api.MinionException;
 import org.opennms.minion.api.MinionInitializationMessage;
 
@@ -21,11 +23,11 @@ public class MinionInitializationMessageImpl extends AbstractMinionMessage imple
 
     @XmlElementWrapper(name="feature-repositories")
     @XmlElement(name="repository")
-    private List<String> m_featureRepositories = new ArrayList<String>();
+    private List<String> m_featureRepositories = new ArrayList<>();
 
-    @XmlElementWrapper(name="features")
-    @XmlElement(name="feature")
-    private List<String> m_features = new ArrayList<String>();
+    @XmlElementWrapper(name="containers")
+    @XmlElement(name="container")
+    private List<ContainerImpl> m_containers = new ArrayList<>();
 
     protected MinionInitializationMessageImpl() {
         super();
@@ -61,25 +63,16 @@ public class MinionInitializationMessageImpl extends AbstractMinionMessage imple
         m_featureRepositories.add(repository);
     }
 
-    @Override
-    public List<String> getFeatures() {
-        return m_features;
+    public List<Container> getContainers() {
+        return Collections.unmodifiableList(new ArrayList<Container>(m_containers));
     }
 
-    public void setFeatures(final List<String> features) {
-        if (m_features == features) {
-            return;
-        }
-        m_features.clear();
-        m_features.addAll(features);
-    }
-
-    public void addFeature(final String feature) {
-        m_features.add(feature);
+    public void addContainer(final Container container) {
+        m_containers.add(ContainerImpl.fromContainer(container));
     }
 
     @Override
     public String toString() {
-        return "MinionInitializationMessageImpl [minion-id=" + m_minionId + ", feature-repositories=" + m_featureRepositories + ", features=" + m_features + ", properties=" + getProperties() + "]";
+        return "MinionInitializationMessageImpl [minion-id=" + m_minionId + ", feature-repositories=" + m_featureRepositories + ", properties=" + getProperties() + "]";
     }
 }

@@ -20,6 +20,8 @@ import org.opennms.minion.api.MinionMessageReceiver;
 import org.opennms.minion.api.MinionMessageSender;
 import org.opennms.minion.api.MinionStatusMessage;
 import org.opennms.minion.api.StatusMessageWriter;
+import org.opennms.minion.impl.ContainerImpl;
+import org.opennms.minion.impl.MinionExceptionMessageImpl;
 import org.opennms.minion.impl.MinionInitializationMessageImpl;
 import org.opennms.minion.impl.MinionStatusMessageImpl;
 import org.slf4j.Logger;
@@ -58,11 +60,34 @@ public class DominionControllerImpl implements MinionMessageReceiver {
         if (message instanceof MinionStatusMessage) {
             LOG.debug("got status message: {}", message);
             final MinionStatusMessage statusMessage = (MinionStatusMessage) message;
-            m_statusMessageWriter.write(statusMessage.getId(), statusMessage.getLocation(), statusMessage.getStatus(), statusMessage.getDate(), statusMessage.getProperties());
+            final String location = statusMessage.getLocation();
+            m_statusMessageWriter.write(statusMessage.getId(), location, statusMessage.getStatus(), statusMessage.getDate(), statusMessage.getProperties());
+
+            if (location == null || location.trim().isEmpty()) {
+                throw new MinionException("Null or empty location from minion " + statusMessage.getId());
+            }
+
+            final String dominionBrokerUri = statusMessage.getProperties().get("dominionBrokerUri");
+            final String dominionRestRoot  = statusMessage.getProperties().get("dominionRestRoot");
 
             final MinionInitializationMessageImpl initMessage = new MinionInitializationMessageImpl(statusMessage.getId(), 1);
             initMessage.addFeatureRepository("mvn:org.opennms.netmgt.sample/karaf/1.13.5-PJSM-SNAPSHOT/xml/minion");
             initMessage.addFeatureRepository("mvn:org.opennms.netmgt.sample/karaf/1.13.5-PJSM-SNAPSHOT/xml");
+
+            // set up an ActiveMQ container
+            final ContainerImpl container = new ContainerImpl("activemq");
+            container.addFeature("sample-dispatch-activemq-config");
+            container.addFeature("activemq");
+            /*
+            container.setScript(dominionRestRoot + "/smnnepo/activemq-setup.karaf");
+            container.setScriptArguments(dominionBrokerUri, location);
+            */
+            container.setConfigurationProperty("org.apache.activemq.server-default", "broker-name", location.replaceAll("[^\\p{Alnum}]+", "-"));
+            container.setConfigurationProperty("org.apache.activemq.server-default", "activemq.data", "${karaf.base}/data/activemq");
+            container.setConfigurationProperty("org.apache.activemq.server-default", "config", "${karaf.base}/etc/activemq-dispatch.xml");
+            container.setConfigurationProperty("org.apache.activemq.server-default", "brokerUri", dominionBrokerUri);
+            initMessage.addContainer(container);
+
             sendInitializationMessage(initMessage);
         } else {
             throw new MinionException("Unknown message type " + message.getClass().getName() + ": " + message);
@@ -96,7 +121,7 @@ public class DominionControllerImpl implements MinionMessageReceiver {
 
         final DataFormat df;
         try {
-            final JAXBContext context = JAXBContext.newInstance(MinionStatusMessageImpl.class, MinionInitializationMessageImpl.class);
+            final JAXBContext context = JAXBContext.newInstance(MinionStatusMessageImpl.class, MinionInitializationMessageImpl.class, MinionExceptionMessageImpl.class);
             df = new JaxbDataFormat(context);
         } catch (final JAXBException e) {
             final String errorMessage = "Failed to create JAXB context for the minion controller!";

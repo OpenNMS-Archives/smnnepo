@@ -17,7 +17,8 @@
 
 	<cm:property-placeholder persistent-id="org.opennms.minion.controller" update-strategy="reload">
 		<cm:default-properties>
-			<cm:property name="brokerUri" value="vm://localhost" />
+			<cm:property name="dominionBrokerUri" value="vm://localhost" />
+			<cm:property name="opennmsRestRoot"   value="http://localhost:8980" />
 		</cm:default-properties>
 	</cm:property-placeholder>
 
@@ -28,7 +29,8 @@
 		<property name="adminService" ref="adminService" />
 		<property name="configurationAdmin" ref="configAdmin" />
 
-		<property name="brokerUri" value="${brokerUri}" />
+		<property name="dominionBrokerUri" value="${dominionBrokerUri}" />
+		<property name="opennmsRestRoot" value="${opennmsRestRoot}" />
 		<property name="sendQueueName" value="initialization" />
 		<property name="camelContext" ref="minionCamelContext" />
 	</bean>

@@ -59,14 +59,14 @@ public class MinionControllerImplTest {
         when(config.getProperties()).thenReturn(properties);
         when(m_configurationAdmin.getConfiguration(MinionController.PID)).thenReturn(config);
 
-                final Instance rootInstance = mock(Instance.class);
-                when(rootInstance.isRoot()).thenReturn(true);
-                when(rootInstance.getName()).thenReturn("root");
-                when(rootInstance.getState()).thenReturn(Instance.STARTED);
+        final Instance rootInstance = mock(Instance.class);
+        when(rootInstance.isRoot()).thenReturn(true);
+        when(rootInstance.getName()).thenReturn("root");
+        when(rootInstance.getState()).thenReturn(Instance.STARTED);
 
-                        m_adminService = mock(AdminService.class);
-                        final Instance[] instances = new Instance[] {rootInstance};
-                        when(m_adminService.getInstances()).thenReturn(instances);
+        m_adminService = mock(AdminService.class);
+        final Instance[] instances = new Instance[] {rootInstance};
+        when(m_adminService.getInstances()).thenReturn(instances);
 
         m_sender = new MockMessageSender();
 
@@ -75,8 +75,9 @@ public class MinionControllerImplTest {
         m_controller.setConfigurationAdmin(m_configurationAdmin);
         m_controller.setMessageSender(m_sender);
         m_controller.setCamelContext(mock(CamelContext.class));
-        m_controller.setBrokerUri("vm://localhost");
+        m_controller.setDominionBrokerUri("vm://localhost");
         m_controller.setSendQueueName("initialization");
+        m_controller.setLocation("MyLocation");
 
         m_controller.start();
     }
