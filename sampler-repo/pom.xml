@@ -149,15 +149,15 @@
       <classifier>blueprint-activemq-receiver</classifier>
     </dependency>
     <dependency>
-      <groupId>org.opennms.netmgt.sample</groupId>
-      <artifactId>sampler-routes</artifactId>
+      <groupId>org.opennms.features.activemq</groupId>
+      <artifactId>org.opennms.features.activemq.broker</artifactId>
       <version>${project.version}</version>
       <type>xml</type>
-      <classifier>activemq-dispatch</classifier>
+      <classifier>activemq-dispatcher</classifier>
     </dependency>
     <dependency>
-      <groupId>org.opennms.netmgt.sample</groupId>
-      <artifactId>sampler-routes</artifactId>
+      <groupId>org.opennms.features.activemq</groupId>
+      <artifactId>org.opennms.features.activemq.broker</artifactId>
       <version>${project.version}</version>
       <type>xml</type>
       <classifier>activemq-receiver</classifier>
