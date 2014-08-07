@@ -108,69 +108,69 @@
     -->
 
     <!-- Call this to retrieve a URL in string form or URL form into the JAXB objects they represent. -->
-    <!--<route id="parseSnmpXml">-->
-      <!--<from uri="direct:parseSnmpXml"/>-->
-      <!--<log loggingLevel="INFO" message="blueprint-sampler-config-snmp.xml: Parsing SNMP XML: ${body.toString()}" />-->
-      <!--<setHeader headerName="CamelHttpUri">-->
-        <!--<simple>${body.toString()}</simple>-->
-      <!--</setHeader>-->
-      <!--<setHeader headerName="CamelHttpMethod">-->
-        <!--<simple>GET</simple>-->
-      <!--</setHeader>-->
-      <!--<to uri="http://dummyhost?httpClientConfigurer=customHttpClientConfigurer&amp;authUsername={{username}}&amp;authPassword={{password}}&amp;authMethod=Basic" />-->
-      <!--<unmarshal ref="snmpConfigXmlFormat"/>-->
-    <!--</route>-->
+    <route id="parseSnmpXml">
+      <from uri="direct:parseSnmpXml"/>
+      <log loggingLevel="INFO" message="blueprint-sampler-config-snmp.xml: Parsing SNMP XML: ${body.toString()}" />
+      <setHeader headerName="CamelHttpUri">
+        <simple>${body.toString()}</simple>
+      </setHeader>
+      <setHeader headerName="CamelHttpMethod">
+        <simple>GET</simple>
+      </setHeader>
+      <to uri="http://dummyhost?httpClientConfigurer=customHttpClientConfigurer&amp;authUsername={{username}}&amp;authPassword={{password}}&amp;authMethod=Basic" />
+      <unmarshal ref="snmpConfigXmlFormat"/>
+    </route>
 
-    <!--&lt;!&ndash; Direct route to fetch the config &ndash;&gt;-->
-    <!--<route id="snmpConfig">-->
-      <!--<from uri="direct:snmpConfig"/>-->
-      <!--<log loggingLevel="INFO" message="blueprint-sampler-config-snmp.xml: Getting SNMP configuration" />-->
-      <!--<bean ref="snmpConfigFactory" method="getInstance"/>-->
-    <!--</route>-->
+    <!-- Direct route to fetch the config -->
+    <route id="snmpConfig">
+      <from uri="direct:snmpConfig"/>
+      <log loggingLevel="INFO" message="blueprint-sampler-config-snmp.xml: Getting SNMP configuration" />
+      <bean ref="snmpConfigFactory" method="getInstance"/>
+    </route>
 
-    <!--<route id="fireStartSamplerConfigSnmp">-->
-      <!--<from uri="timer://runOnce?repeatCount=1&amp;delay=5000" />-->
-      <!--<log loggingLevel="INFO" message="blueprint-sampler-config-snmp.xml: Triggering Startup" />-->
-      <!--<to uri="direct:start" />-->
-    <!--</route>-->
+    <route id="fireStartSamplerConfigSnmp">
+      <from uri="timer://runOnce?repeatCount=1&amp;delay=5000" />
+      <log loggingLevel="INFO" message="blueprint-sampler-config-snmp.xml: Triggering Startup" />
+      <to uri="direct:start" />
+    </route>
 
-    <!--<route id="triggerReloadConfiguration">-->
-      <!--<from uri="timer://reloadConfigs?delay=30000&amp;period={{refreshInterval}}" />-->
-      <!--<log loggingLevel="INFO" message="blueprint-sampler-config-snmp.xml: Reloading Configuration" />-->
-      <!--<multicast parallelProcessing="true">-->
-        <!--<to uri="direct:loadDataCollectionConfig"/>-->
-        <!--<to uri="direct:loadSnmpConfig"/>-->
-      <!--</multicast>-->
-    <!--</route>-->
+    <route id="triggerReloadConfiguration">
+      <from uri="timer://reloadConfigs?delay=30000&amp;period={{refreshInterval}}" />
+      <log loggingLevel="INFO" message="blueprint-sampler-config-snmp.xml: Reloading Configuration" />
+      <multicast parallelProcessing="true">
+        <to uri="direct:loadDataCollectionConfig"/>
+        <to uri="direct:loadSnmpConfig"/>
+      </multicast>
+    </route>
 
-    <!--<route id="loadAllConfigs">-->
-      <!--<from uri="direct:start"/>-->
-      <!--<log loggingLevel="INFO" message="blueprint-sampler-config-snmp.xml: Loading Configuration Files" />-->
-      <!--&lt;!&ndash; Load all of the configs &ndash;&gt;-->
-      <!--<multicast parallelProcessing="true">-->
-        <!--<to uri="direct:loadDataCollectionConfig"/>-->
-        <!--<to uri="direct:loadSnmpConfig"/>-->
-      <!--</multicast>-->
-      <!--<log loggingLevel="INFO" message="blueprint-sampler-config-snmp.xml: Configuration Files Loaded" />-->
-      <!--&lt;!&ndash; TODO: Do something else? &ndash;&gt;-->
-    <!--</route>-->
+    <route id="loadAllConfigs">
+      <from uri="direct:start"/>
+      <log loggingLevel="INFO" message="blueprint-sampler-config-snmp.xml: Loading Configuration Files" />
+      <!-- Load all of the configs -->
+      <multicast parallelProcessing="true">
+        <to uri="direct:loadDataCollectionConfig"/>
+        <to uri="direct:loadSnmpConfig"/>
+      </multicast>
+      <log loggingLevel="INFO" message="blueprint-sampler-config-snmp.xml: Configuration Files Loaded" />
+      <!-- TODO: Do something else? -->
+    </route>
 
-	<!--&lt;!&ndash; TODO: Create a reload timer that will check for changes to the config &ndash;&gt;-->
-    <!--<route id="loadDataCollectionConfig">-->
-      <!--<from uri="direct:loadDataCollectionConfig"/>-->
-      <!--<log loggingLevel="INFO" message="blueprint-sampler-config-snmp.xml: Refreshing snmpMetricRepository" />-->
-      <!--<bean ref="snmpMetricRepository" method="refresh"/>-->
-    <!--</route>-->
+	<!-- TODO: Create a reload timer that will check for changes to the config -->
+    <route id="loadDataCollectionConfig">
+      <from uri="direct:loadDataCollectionConfig"/>
+      <log loggingLevel="INFO" message="blueprint-sampler-config-snmp.xml: Refreshing snmpMetricRepository" />
+      <bean ref="snmpMetricRepository" method="refresh"/>
+    </route>
 
-	<!--&lt;!&ndash; TODO: Create a reload timer that will check for changes to the config &ndash;&gt;-->
-    <!--<route id="loadSnmpConfig">-->
-      <!--<from uri="direct:loadSnmpConfig"/>-->
-      <!--<log loggingLevel="INFO" message="blueprint-sampler-config-snmp.xml: Loading SNMP Configuration" />-->
-      <!--<transform><constant>{{snmpConfigUrl}}</constant></transform>-->
-      <!--<to uri="direct:parseSnmpXml"/>-->
-      <!--<log loggingLevel="INFO" message="blueprint-sampler-config-snmp.xml: SNMP Configuration parsed, setting instance" />-->
-      <!--<bean ref="snmpConfigFactory" method="setInstance"/>-->
-    <!--</route>-->
+	<!-- TODO: Create a reload timer that will check for changes to the config -->
+    <route id="loadSnmpConfig">
+      <from uri="direct:loadSnmpConfig"/>
+      <log loggingLevel="INFO" message="blueprint-sampler-config-snmp.xml: Loading SNMP Configuration" />
+      <transform><constant>{{snmpConfigUrl}}</constant></transform>
+      <to uri="direct:parseSnmpXml"/>
+      <log loggingLevel="INFO" message="blueprint-sampler-config-snmp.xml: SNMP Configuration parsed, setting instance" />
+      <bean ref="snmpConfigFactory" method="setInstance"/>
+    </route>
 
   </camelContext>
 
