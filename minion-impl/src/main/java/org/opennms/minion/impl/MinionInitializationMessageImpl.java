@@ -22,7 +22,7 @@ public class MinionInitializationMessageImpl extends AbstractMinionMessage imple
     @XmlElementWrapper(name="feature-repositories")
     @XmlElement(name="repository")
     private List<String> m_featureRepositories = new ArrayList<String>();
-    
+
     @XmlElementWrapper(name="features")
     @XmlElement(name="feature")
     private List<String> m_features = new ArrayList<String>();
@@ -30,7 +30,7 @@ public class MinionInitializationMessageImpl extends AbstractMinionMessage imple
     protected MinionInitializationMessageImpl() {
         super();
     }
-    
+
     public MinionInitializationMessageImpl(final String minionId, final Integer version) throws MinionException {
         super(version);
         if (minionId == null) {
@@ -57,6 +57,10 @@ public class MinionInitializationMessageImpl extends AbstractMinionMessage imple
         m_featureRepositories.addAll(featureRepositories);
     }
 
+    public void addFeatureRepository(final String repository) {
+        m_featureRepositories.add(repository);
+    }
+
     @Override
     public List<String> getFeatures() {
         return m_features;
@@ -68,6 +72,10 @@ public class MinionInitializationMessageImpl extends AbstractMinionMessage imple
         }
         m_features.clear();
         m_features.addAll(features);
+    }
+
+    public void addFeature(final String feature) {
+        m_features.add(feature);
     }
 
     @Override

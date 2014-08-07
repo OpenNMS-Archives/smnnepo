@@ -9,7 +9,7 @@
   <parent>
     <groupId>org.opennms.netmgt.sample</groupId>
     <artifactId>sample-parent</artifactId>
-    <version>1.13.4-PJSM-SNAPSHOT</version>
+    <version>1.13.5-PJSM-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -56,6 +56,11 @@
                 <artifact>
                   <file>${project.build.outputDirectory}/features.xml</file>
                   <type>xml</type>
+                </artifact>
+                <artifact>
+                  <file>${project.build.outputDirectory}/features-minion.xml</file>
+                  <type>xml</type>
+                  <classifier>minion</classifier>
                 </artifact>
               </artifacts>
             </configuration>
