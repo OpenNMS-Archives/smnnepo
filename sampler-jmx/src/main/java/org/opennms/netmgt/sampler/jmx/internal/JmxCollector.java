@@ -1,4 +1,4 @@
-package org.opennms.netmgt.sampler.jmx;
+package org.opennms.netmgt.sampler.jmx.internal;
 
 import org.opennms.netmgt.api.sample.SampleSet;
 

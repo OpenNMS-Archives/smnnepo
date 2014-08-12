@@ -1,21 +1,16 @@
 <features xmlns="http://karaf.apache.org/xmlns/features/v1.0.0" name="opennms-sampler-${project.version}">    
-    <!-- OpenNMS features -->
-    <repository>mvn:org.opennms.karaf/opennms/${project.version}/xml/features</repository>
-
     <!-- Apache Camel features -->
     <repository>mvn:org.apache.camel.karaf/apache-camel/${camelVersion}/xml/features</repository>
     
     <!-- Apache ActiveMQ features -->
     <repository>mvn:org.apache.activemq/activemq-karaf/5.9.0/xml/features</repository>
 
+    <!-- OpenNMS features -->
+    <repository>mvn:org.opennms.karaf/opennms/${project.version}/xml/features</repository>
     <!-- Newts features -->
     <repository>mvn:org.opennms.newts/karaf/1.0.0-SNAPSHOT/xml/features</repository>
-
     <!-- minion features -->
-    <repository>mvn:org.opennms.netmgt.sample/karaf/1.13.5-PJSM-SNAPSHOT/xml/minion</repository>
-
-    <!-- CXF features -->
-    <!--<repository>mvn:org.apache.cxf.karaf/apache-cxf/2.7.7/xml/features</repository>-->
+    <repository>mvn:org.opennms.netmgt.sample/karaf/${project.version}/xml/minion</repository>
 
     <!-- Sampler features -->
 
@@ -65,6 +60,19 @@
       <feature>sample-api</feature>
       <feature>sampler-config-snmp</feature>
       <bundle>mvn:org.opennms.netmgt.sample/sampler-snmp/${project.version}</bundle>
+    </feature>
+
+    <feature name="sampler-jmx" description="Sample Collection and Storage :: JMX Collector" version="${project.version}">
+      <feature>camel-blueprint</feature>
+      <feature>camel-http</feature>
+      <feature>camel-jaxb</feature>
+      <feature>sample-api</feature>
+      <bundle>mvn:org.opennms.core/org.opennms.core.camel/${project.version}</bundle>
+
+      <!-- TODO mvr should we define a feature for jmx as well? -->
+      <bundle>mvn:org.opennms.core.jmx/org.opennms.core.jmx.api/${project.version}</bundle>
+      <bundle>mvn:org.opennms.core.jmx/org.opennms.core.jmx.impl/${project.version}</bundle>
+      <bundle>mvn:org.opennms.netmgt.sample/sampler-jmx/${project.version}</bundle>
     </feature>
 
     <feature name="sample-graphs" description="Sample Collection and Storage :: Graphing" version="${project.version}">

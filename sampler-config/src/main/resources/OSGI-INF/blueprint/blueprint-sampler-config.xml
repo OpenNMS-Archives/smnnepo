@@ -38,6 +38,12 @@
   <bean id="collectdConfiguration" class="org.opennms.netmgt.api.sample.support.SingletonBeanFactoryImpl"/>
   <bean id="snmpConfiguration" class="org.opennms.netmgt.api.sample.support.SingletonBeanFactoryImpl"/>
 
+  <service ref="collectdConfiguration" interface="org.opennms.netmgt.api.sample.support.SingletonBeanFactory">
+    <service-properties>
+      <entry key="beanClass" value="org.opennms.netmgt.config.collectd.CollectdConfiguration" />
+    </service-properties>
+  </service>
+
   <!-- Camel EIP helper beans -->
   <bean id="urlNormalizer" class="org.opennms.netmgt.api.sample.support.UrlNormalizer"/>
   <bean id="packageServiceSplitter" class="org.opennms.netmgt.sampler.config.internal.PackageServiceSplitter"/>
@@ -104,6 +110,7 @@
       <bean ref="collectdConfiguration" method="getInstance"/>
     </route>
 
+    <!-- start hook -->
     <route id="triggerStartSamplerConfig">
       <from uri="timer://runOnce?repeatCount=1&amp;delay=30000" />
       <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Triggering Startup" />
@@ -162,42 +169,10 @@
         <process ref="packageServiceSplitter"/>
         <split>
           <simple>${body}</simple>
-          <!-- 
-          <!- - Route different service types to different routes - ->
-          <choice>
-            <when>
-              <simple>${body.services[0].name} == 'SNMP'</simple>
-              <to uri="seda:loadSnmpAgents"/>
-            </when>
-            <when>
-              <simple>${body.services[0].name} == 'JMX'</simple>
-              <to uri="seda:loadJmxAgents"/>
-            </when>
-            <otherwise>
-              <!- - Throw exception? - ->
-              <!- - throwException(new UnsupportedOperationException("Cannot process service ${body}")) - ->
-            </otherwise>
-          </choice>
-          -->
           <to uri="seda:loadPackageAgents"/>
         </split>
       </split>
     </route>
-
-    <!-- 
-    <route id="loadSnmpAgents">
-      <from uri="seda:loadSnmpAgents"/>
-      <log loggingLevel="INFO" message="Loading package ${body.name} with ${body.services.size} service(s)" />
-      <log loggingLevel="INFO" message="Running seda:loadSnmpAgents" />
-      <to uri="seda:loadPackageAgents"/>
-    </route>
-
-    <route id="loadJmxAgents">
-      <from uri="seda:loadJmxAgents"/>
-      <log loggingLevel="INFO" message="Running seda:loadJmxAgents" />
-      <to uri="seda:loadPackageAgents"/>
-    </route>
-    -->
 
     <route id="loadPackageAgents">
       <from uri="seda:loadPackageAgents"/>
