@@ -1,5 +1,7 @@
 package org.opennms.netmgt.sampler.storage.newts;
 
+import java.util.List;
+
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedLong;
 import org.opennms.newts.api.Absolute;
@@ -11,9 +13,6 @@ import org.opennms.newts.api.Resource;
 import org.opennms.newts.api.Sample;
 import org.opennms.newts.api.SampleRepository;
 import org.opennms.newts.api.Timestamp;
-
-import java.util.List;
-
 
 public class NewtsRepositoryAdapter {
 	
