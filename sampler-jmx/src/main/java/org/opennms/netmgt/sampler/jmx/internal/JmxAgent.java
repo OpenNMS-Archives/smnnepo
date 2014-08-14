@@ -1,6 +1,7 @@
 package org.opennms.netmgt.sampler.jmx.internal;
 
 import org.opennms.netmgt.api.sample.Agent;
+import org.opennms.netmgt.collection.api.ServiceParameters;
 import org.opennms.netmgt.config.collectd.jmx.JmxCollection;
 import org.opennms.netmgt.jmx.JmxCollectorConfig;
 import org.opennms.netmgt.snmp.InetAddrUtils;
@@ -24,7 +25,7 @@ public class JmxAgent extends Agent {
     public JmxCollectorConfig getCollectorConfig() {
         final JmxCollectorConfig config = new JmxCollectorConfig();
         config.setAgentAddress(InetAddrUtils.str(getInetAddress()));
-        config.setRetries(Integer.valueOf(getParameter("retry")));
+        config.setRetries(Integer.valueOf(getParameter(ServiceParameters.ParameterName.RETRY.toString())));
         config.setServiceProperties(getParameters());
         config.setConnectionName(connectorName);
         config.setJmxCollection(collection);
