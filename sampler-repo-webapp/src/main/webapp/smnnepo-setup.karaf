@@ -77,9 +77,9 @@ admin:start minion
 #config:edit org.apache.activemq.server-default
 ## Needs to be globally unique
 #config:propset broker-name "$BROKERNAME"
-#config:propset activemq.data ${karaf.base}/data/activemq
-#config:propset config ${karaf.base}/etc/activemq-dispatch.xml
+#config:propset config ${karaf.base}/etc/activemq-dispatcher.xml
 #config:propset brokerUri "$BROKER"
+#config:propset data ${karaf.base}/data/activemq
 #config:update
 #
 ## Configure the ActiveMQ web UI
@@ -94,7 +94,7 @@ admin:start minion
 ##config:update
 #
 ## Install the ActiveMQ config file and feature
-#features:install -v sample-dispatch-activemq-config activemq
+#features:install -v opennms-activemq-dispatcher
 #
 #}
 

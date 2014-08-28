@@ -124,8 +124,7 @@
         <to uri="direct:loadCollectdConfiguration"/>
       </multicast>
       <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Configuration Files Loaded" />
-      <!-- Launch the scheduler -->
-      <to uri="direct:schedulerStart"/>
+      <to uri="direct:loadCollectionPackages"/>
     </route>
 
 	<!-- TODO: Create a reload timer that will check for changes to the config -->
@@ -141,11 +140,6 @@
       </filter>
     </route>
 
-    <route id="schedulerStart">
-      <from uri="direct:schedulerStart"/>
-      <to uri="direct:loadCollectionPackages"/>
-    </route>
-    
     <!-- Get all of the collection packages that are associated with the current config -->
     <route id="loadCollectionPackages">
       <from uri="direct:loadCollectionPackages"/>
@@ -160,48 +154,17 @@
         <!-- Split the package into a package-per-service -->
         <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Parsing package ${body.name} with ${body.services.size} service(s)" />
         <process ref="packageServiceSplitter"/>
+        <!-- split each package-per-service send a message for each entry -->
         <split>
           <simple>${body}</simple>
-          <!-- 
-          <!- - Route different service types to different routes - ->
-          <choice>
-            <when>
-              <simple>${body.services[0].name} == 'SNMP'</simple>
-              <to uri="seda:loadSnmpAgents"/>
-            </when>
-            <when>
-              <simple>${body.services[0].name} == 'JMX'</simple>
-              <to uri="seda:loadJmxAgents"/>
-            </when>
-            <otherwise>
-              <!- - Throw exception? - ->
-              <!- - throwException(new UnsupportedOperationException("Cannot process service ${body}")) - ->
-            </otherwise>
-          </choice>
-          -->
           <to uri="seda:loadPackageAgents"/>
         </split>
       </split>
     </route>
 
-    <!-- 
-    <route id="loadSnmpAgents">
-      <from uri="seda:loadSnmpAgents"/>
-      <log loggingLevel="INFO" message="Loading package ${body.name} with ${body.services.size} service(s)" />
-      <log loggingLevel="INFO" message="Running seda:loadSnmpAgents" />
-      <to uri="seda:loadPackageAgents"/>
-    </route>
-
-    <route id="loadJmxAgents">
-      <from uri="seda:loadJmxAgents"/>
-      <log loggingLevel="INFO" message="Running seda:loadJmxAgents" />
-      <to uri="seda:loadPackageAgents"/>
-    </route>
-    -->
-
     <route id="loadPackageAgents">
       <from uri="seda:loadPackageAgents"/>
-      <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Loading package agents" />
+      <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Loading package agents for package ${body.name}" />
       <enrich uri="direct:getServiceAgents" strategyRef="packageAgentAggregator"/>
       <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Got package agents" />
       <filter>

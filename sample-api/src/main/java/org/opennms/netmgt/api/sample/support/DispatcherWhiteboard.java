@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This class will redirect messages to the {@link DispatcherWhiteboard#m_endpointUri} URI
  * to any OSGi services that are registered at the interface that is defined by the
- * {@link #setMessageClass(String)} method call.
+ * {@link #setServiceClass(String)} method call.
  */
 @InOnly
 public class DispatcherWhiteboard {
