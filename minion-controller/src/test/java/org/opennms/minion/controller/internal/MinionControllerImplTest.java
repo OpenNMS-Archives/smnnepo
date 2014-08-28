@@ -78,6 +78,7 @@ public class MinionControllerImplTest {
         m_controller.setDominionBrokerUri("vm://localhost");
         m_controller.setSendQueueName("initialization");
         m_controller.setLocation("MyLocation");
+        m_controller.setOpennmsRestRoot("http://localhost:8980");
 
         m_controller.start();
     }
