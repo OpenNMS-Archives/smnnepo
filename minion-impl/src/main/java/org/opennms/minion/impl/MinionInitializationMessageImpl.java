@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.opennms.minion.api.Container;
+import org.opennms.minion.api.MinionContainer;
 import org.opennms.minion.api.MinionException;
 import org.opennms.minion.api.MinionInitializationMessage;
 
@@ -21,13 +21,9 @@ public class MinionInitializationMessageImpl extends AbstractMinionMessage imple
     @XmlAttribute(name="minion-id")
     private String m_minionId;
 
-    @XmlElementWrapper(name="feature-repositories")
-    @XmlElement(name="repository")
-    private List<String> m_featureRepositories = new ArrayList<>();
-
     @XmlElementWrapper(name="containers")
     @XmlElement(name="container")
-    private List<ContainerImpl> m_containers = new ArrayList<>();
+    private List<MinionContainerImpl> m_containers = new ArrayList<>();
 
     protected MinionInitializationMessageImpl() {
         super();
@@ -46,33 +42,16 @@ public class MinionInitializationMessageImpl extends AbstractMinionMessage imple
         return m_minionId;
     }
 
-    @Override
-    public List<String> getFeatureRepositories() {
-        return m_featureRepositories;
+    public List<MinionContainer> getContainers() {
+        return Collections.unmodifiableList(new ArrayList<MinionContainer>(m_containers));
     }
 
-    public void setFeatureRepositories(final List<String> featureRepositories) {
-        if (m_featureRepositories == featureRepositories) {
-            return;
-        }
-        m_featureRepositories.clear();
-        m_featureRepositories.addAll(featureRepositories);
-    }
-
-    public void addFeatureRepository(final String repository) {
-        m_featureRepositories.add(repository);
-    }
-
-    public List<Container> getContainers() {
-        return Collections.unmodifiableList(new ArrayList<Container>(m_containers));
-    }
-
-    public void addContainer(final Container container) {
-        m_containers.add(ContainerImpl.fromContainer(container));
+    public void addContainer(final MinionContainer minionContainer) {
+        m_containers.add(MinionContainerImpl.fromContainer(minionContainer));
     }
 
     @Override
     public String toString() {
-        return "MinionInitializationMessageImpl [minion-id=" + m_minionId + ", feature-repositories=" + m_featureRepositories + ", properties=" + getProperties() + "]";
+        return "MinionInitializationMessageImpl [minion-id=" + m_minionId + ", containers=" + getContainers() + ", properties=" + getProperties() + "]";
     }
 }

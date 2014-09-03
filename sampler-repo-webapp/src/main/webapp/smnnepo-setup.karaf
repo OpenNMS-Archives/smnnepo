@@ -26,9 +26,21 @@ config:edit org.ops4j.pax.url.mvn
 config:propset org.ops4j.pax.url.mvn.repositories $ONMS/smnnepo@snapshots@id=opennms-repo
 config:update
 
+config:edit org.opennms.minion.bootstrap
+config:propset dominionBrokerUri "$BROKER"
+config:propset opennmsRestRoot "$ONMS"
+config:update
+
 # Add the required features URLs
 features:addurl mvn:org.apache.activemq/activemq-karaf/5.9.0/xml/features
 features:addurl mvn:org.opennms.netmgt.sample/karaf/1.13.5-PJSM-SNAPSHOT/xml
 features:addurl mvn:org.opennms.netmgt.sample/karaf/1.13.5-PJSM-SNAPSHOT/xml/minion
 
-admin:create -f minion-controller -s 8202 -rr 1300 -rs 45445 minion
+FINDBOOTSTRAP = (features:list | grep minion-bootstrap | grep -v uninstalled | tac)
+if { ($FINDBOOTSTRAP isEmpty) } {
+	features:install minion-bootstrap
+} {
+	features:uninstall minion-bootstrap
+	sleep 10000
+	features:install minion-bootstrap
+}

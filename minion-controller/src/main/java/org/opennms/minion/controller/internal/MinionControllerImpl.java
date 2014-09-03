@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.UUID;
@@ -22,9 +21,8 @@ import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.spi.DataFormat;
 import org.apache.karaf.admin.AdminService;
 import org.apache.karaf.admin.Instance;
-import org.apache.karaf.admin.InstanceSettings;
-import org.opennms.minion.api.Container;
-import org.opennms.minion.api.ContainerConfiguration;
+import org.opennms.minion.api.MinionContainer;
+import org.opennms.minion.api.MinionContainerManager;
 import org.opennms.minion.api.MinionController;
 import org.opennms.minion.api.MinionException;
 import org.opennms.minion.api.MinionInitializationMessage;
@@ -44,6 +42,7 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
     private static final Logger LOG = LoggerFactory.getLogger(MinionControllerImpl.class);
     private AdminService m_adminService;
     private ConfigurationAdmin m_configurationAdmin;
+    private MinionContainerManager m_minionContainerManager;
 
     private String m_brokerUri;
     private String m_restRoot;
@@ -138,142 +137,20 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
             final MinionInitializationMessage initMessage = (MinionInitializationMessage)message;
 
             final List<String> containerNames = new ArrayList<>();
-            for (final Container container : initMessage.getContainers()) {
-                LOG.info("(Re-)Creating '{}' container.", container.getName());
-                createContainer(initMessage, container);
-                containerNames.add(container.getName());
+            for (final MinionContainer minionContainer : initMessage.getContainers()) {
+                LOG.info("(Re-)Creating '{}' container.", minionContainer.getName());
+                m_minionContainerManager.createInstance(minionContainer);
+                containerNames.add(minionContainer.getName());
             }
 
-            for (final Instance instance : m_adminService.getInstances()) {
-                if (instance.isRoot()) { continue; }
-
-                if (!containerNames.contains(instance.getName())) {
-                    LOG.info("Destroying '{}' container.", instance.getName());
-                    destroyInstance(instance);
+            for (final String instance : m_minionContainerManager.getInstanceNames(false)) {
+                if (!containerNames.contains(instance)) {
+                    LOG.info("Destroying '{}' container.  It should no longer be active.", instance);
+                    m_minionContainerManager.destroyInstance(instance);
                 }
             }
         } else {
             LOG.warn("Unknown message received: {}", message);
-        }
-    }
-
-    protected void createContainer(final MinionInitializationMessage initMessage, final Container container) throws MinionException {
-        final List<String> featureRepositories = initMessage.getFeatureRepositories();
-        final List<String> features = container.getFeatures();
-
-        Instance instance = m_adminService.getInstance(container.getName());
-        if (instance == null) {
-            instance = createInstance(container.getName(), featureRepositories, features);
-        }
-
-        String state;
-        try {
-            state = instance.getState();
-        } catch (final Exception e) {
-            LOG.warn("Unable to get state from instance '{}'", instance.getName(), e);
-            state = Instance.ERROR;
-        }
-        
-        boolean doStart = false;
-        switch (state) {
-            case Instance.STARTED:
-                // do nothing
-                ;;
-            case Instance.STARTING:
-                // we'll wait for it to finish below
-                ;;
-            case Instance.ERROR:
-                // recreate the instance
-                destroyInstance(instance);
-                instance = createInstance(container.getName(), featureRepositories, features);
-                doStart = true;
-                ;;
-            case Instance.STOPPED:
-                doStart = true;
-                ;;
-        }
-
-        setConfigurationPropertiesForContainer(container, instance);
-
-        if (doStart) {
-            try {
-                instance.start(null);
-            } catch (final Exception e) {
-                final MinionException me = new MinionException("Failed to start instance '" + container.getName() + "'.", e);
-                LOG.error(me.getMessage(), me);
-                sendFailure(me);
-                throw me;
-            }
-        }
-        waitForInstance(instance);
-    }
-
-    protected void setConfigurationPropertiesForContainer(final Container container, final Instance instance) throws MinionException {
-        final String instanceLocation = instance.getLocation();
-        for (final ContainerConfiguration config : container.getConfigurations()) {
-            final String pid = config.getPid();
-            try {
-                final Configuration configuration = m_configurationAdmin.getConfiguration(pid);
-                final Hashtable<String,Object> properties = new Hashtable<>();
-                final Dictionary<String,Object> existing = configuration.getProperties();
-                for (final Enumeration<String> keys = existing.keys(); keys.hasMoreElements();) {
-                    final String key = keys.nextElement();
-                    Object value = existing.get(key);
-                    if (value != null && value.toString().contains("${karaf.base}")) {
-                        value = value.toString().replace("${karaf.base}", instanceLocation);
-                    }
-                    properties.put(key, value);
-                }
-                properties.putAll(config.getProperties());
-                configuration.update(properties);
-            } catch (final IOException e) {
-                throw new MinionException("Failed to get configuration for pid '" + pid + "' while configuring container '" + container.getName() + "'", e);
-            }
-        }
-    }
-
-    protected void waitForInstance(final Instance instance) throws MinionException {
-        final long waitUntil = System.currentTimeMillis() + (60 * 2 * 1000); // 2 minutes
-        final String instanceName = instance.getName();
-
-        while (System.currentTimeMillis() < waitUntil) {
-            try {
-                final String s = instance.getState();
-                if (Instance.STARTED.equals(s)) {
-                    LOG.info("Instance '{}' has started.", instanceName);
-                    break;
-                }
-                Thread.sleep(1000);
-            } catch (final InterruptedException e) {
-                final MinionException minionException = new MinionException("Interrupted while waiting for instance '" + instanceName + "' to start.", e);
-                LOG.error(minionException.getMessage(), e);
-                Thread.currentThread().interrupt();
-                sendFailure(minionException);
-                throw minionException;
-            } catch (final Exception e) {
-                final MinionException minionException = new MinionException("Failed to get state from instance '" + instanceName + "' while waiting for it to start.", e);
-                LOG.error(minionException.getMessage(), e);
-                sendFailure(minionException);
-                throw minionException;
-            }
-        }
-    }
-
-    protected Instance createInstance(final String name, final List<String> featureRepositories, final List<String> features) throws MinionException {
-        try {
-            final Instance rootInstance = getRootInstance();
-            final InstanceSettings settings = new InstanceSettings(0, 0, 0, null, null, featureRepositories, features);
-
-            if (rootInstance == null) {
-                LOG.warn("Unable to locate root instance.  Trying with 'createInstance' instead, but this will probably not work.");
-                return m_adminService.createInstance(name, settings);
-            } else {
-                return m_adminService.cloneInstance(rootInstance.getName(), name, settings);
-            }
-        } catch (final Exception e) {
-            LOG.error("Failed to create '{}' instance.", name, e);
-            sendFailure(e);
-            return null;
         }
     }
 
@@ -297,14 +174,6 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
     protected void sendFailure(final Exception e) throws MinionException {
         final MinionExceptionMessageImpl exceptionMessage = new MinionExceptionMessageImpl(e);
         m_messageSender.sendMessage(exceptionMessage);
-    }
-
-    protected boolean isStarted(final Instance instance) {
-        try {
-            return Instance.STARTED.equals(instance.getState());
-        } catch (final Exception e) {
-            return false;
-        }
     }
 
     protected void assertMessageReceiverExists() {
@@ -450,6 +319,10 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
 
     public void setConfigurationAdmin(final ConfigurationAdmin configurationAdmin) {
         m_configurationAdmin = configurationAdmin;
+    }
+
+    public void setMinionContainerManager(final MinionContainerManager manager) {
+        m_minionContainerManager = manager;
     }
 
     public void setMessageSender(final MinionMessageSender sender) {

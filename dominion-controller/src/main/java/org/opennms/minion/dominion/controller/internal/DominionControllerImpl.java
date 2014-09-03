@@ -20,7 +20,7 @@ import org.opennms.minion.api.MinionMessageReceiver;
 import org.opennms.minion.api.MinionMessageSender;
 import org.opennms.minion.api.MinionStatusMessage;
 import org.opennms.minion.api.StatusMessageWriter;
-import org.opennms.minion.impl.ContainerImpl;
+import org.opennms.minion.impl.MinionContainerImpl;
 import org.opennms.minion.impl.MinionExceptionMessageImpl;
 import org.opennms.minion.impl.MinionInitializationMessageImpl;
 import org.opennms.minion.impl.MinionStatusMessageImpl;
@@ -68,16 +68,16 @@ public class DominionControllerImpl implements MinionMessageReceiver {
             }
 
             final String dominionBrokerUri = statusMessage.getProperties().get("dominionBrokerUri");
-            final String dominionRestRoot  = statusMessage.getProperties().get("dominionRestRoot");
 
             final MinionInitializationMessageImpl initMessage = new MinionInitializationMessageImpl(statusMessage.getId(), 1);
-            initMessage.addFeatureRepository("mvn:org.opennms.netmgt.sample/karaf/1.13.5-PJSM-SNAPSHOT/xml/minion");
-            initMessage.addFeatureRepository("mvn:org.opennms.netmgt.sample/karaf/1.13.5-PJSM-SNAPSHOT/xml");
 
             // set up an ActiveMQ container
-            final ContainerImpl container = new ContainerImpl("activemq");
+            final MinionContainerImpl container = new MinionContainerImpl("activemq", "org.opennms.minion.activemq");
+            container.addFeatureRepository("mvn:org.opennms.netmgt.sample/karaf/1.13.5-PJSM-SNAPSHOT/xml/minion");
+            container.addFeatureRepository("mvn:org.opennms.netmgt.sample/karaf/1.13.5-PJSM-SNAPSHOT/xml");
             container.addFeature("sample-dispatch-activemq-config");
             container.addFeature("activemq");
+            
             /*
             container.setScript(dominionRestRoot + "/smnnepo/activemq-setup.karaf");
             container.setScriptArguments(dominionBrokerUri, location);

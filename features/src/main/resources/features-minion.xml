@@ -14,6 +14,11 @@
       <bundle>mvn:org.opennms.minion/minion-impl/${project.version}</bundle>
     </feature>
 
+    <feature name="minion-bootstrap" description="Minion :: Bootstrap" version="${project.version}">
+      <feature>minion-base</feature>
+      <bundle>mvn:org.opennms.minion/minion-bootstrap/${project.version}</bundle>
+    </feature>
+
     <feature name="minion-controller" description="Minion :: Controller" version="${project.version}">
       <feature>minion-base</feature>
       <bundle>mvn:org.opennms.minion/minion-controller/${project.version}</bundle>

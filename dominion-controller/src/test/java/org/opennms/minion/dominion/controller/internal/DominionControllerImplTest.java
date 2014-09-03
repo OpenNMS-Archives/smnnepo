@@ -1,6 +1,7 @@
 package org.opennms.minion.dominion.controller.internal;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -75,7 +76,8 @@ public class DominionControllerImplTest {
         assertNotNull(mess);
         assertTrue(mess instanceof MinionInitializationMessage);
         final MinionInitializationMessage initMess = (MinionInitializationMessage)mess;
-        assertEquals(2, initMess.getFeatureRepositories().size());
+        System.err.println(initMess);
+        assertFalse(true);
     }
 
     private static final class MockMessageSender implements MinionMessageSender {

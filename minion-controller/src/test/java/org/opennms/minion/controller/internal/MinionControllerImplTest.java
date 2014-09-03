@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -15,11 +16,14 @@ import org.apache.karaf.admin.AdminService;
 import org.apache.karaf.admin.Instance;
 import org.junit.Before;
 import org.junit.Test;
+import org.opennms.minion.api.MinionContainerManager;
 import org.opennms.minion.api.MinionController;
 import org.opennms.minion.api.MinionException;
 import org.opennms.minion.api.MinionMessage;
 import org.opennms.minion.api.MinionMessageSender;
 import org.opennms.minion.api.MinionStatusMessage;
+import org.opennms.minion.impl.MinionContainerImpl;
+import org.opennms.minion.impl.MinionInitializationMessageImpl;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
@@ -45,6 +49,7 @@ public class MinionControllerImplTest {
     private ConfigurationAdmin m_configurationAdmin = null;
     private AdminService m_adminService = null;
     private MinionControllerImpl m_controller = null;
+    private MinionContainerManager m_containerManager = null;
     private MockMessageSender m_sender;
 
     @Before
@@ -68,11 +73,14 @@ public class MinionControllerImplTest {
         final Instance[] instances = new Instance[] {rootInstance};
         when(m_adminService.getInstances()).thenReturn(instances);
 
+        m_containerManager = mock(MinionContainerManager.class);
+
         m_sender = new MockMessageSender();
 
         m_controller = new MinionControllerImpl();
         m_controller.setAdminService(m_adminService);
         m_controller.setConfigurationAdmin(m_configurationAdmin);
+        m_controller.setMinionContainerManager(m_containerManager);
         m_controller.setMessageSender(m_sender);
         m_controller.setCamelContext(mock(CamelContext.class));
         m_controller.setDominionBrokerUri("vm://localhost");
@@ -98,5 +106,20 @@ public class MinionControllerImplTest {
         assertNotNull(status.getLocation());
         assertEquals(Instance.STARTED, status.getStatus());
         assertNotNull(status.getDate());
+    }
+    
+    @Test
+    public void testMessage() throws Exception {
+        final MinionInitializationMessageImpl message = new MinionInitializationMessageImpl("testId", 1);
+        final MinionContainerImpl container = new MinionContainerImpl("testContainer", "org.opennms.test");
+        message.addContainer(container);
+        
+        final List<String> instances = new ArrayList<String>();
+        instances.add("foo");
+        instances.add("testContainer");
+        when(m_containerManager.getInstanceNames(false)).thenReturn(instances);
+        m_controller.onMessage(message);
+        verify(m_containerManager).createInstance(container);
+        verify(m_containerManager).destroyInstance("foo");
     }
 }

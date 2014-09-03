@@ -15,27 +15,22 @@
 		http://aries.apache.org/schemas/blueprint-ext/blueprint-ext-1.1.xsd
 ">
 
-	<cm:property-placeholder persistent-id="org.opennms.minion.controller" update-strategy="reload">
+	<cm:property-placeholder persistent-id="org.opennms.minion.bootstrap" update-strategy="reload">
 		<cm:default-properties>
 			<cm:property name="dominionBrokerUri" value="vm://localhost" />
 			<cm:property name="opennmsRestRoot"   value="http://localhost:8980" />
 		</cm:default-properties>
 	</cm:property-placeholder>
 
-	<reference id="adminService"     interface="org.apache.karaf.admin.AdminService" />
 	<reference id="configAdmin"      interface="org.osgi.service.cm.ConfigurationAdmin" />
 	<reference id="containerManager" interface="org.opennms.minion.api.MinionContainerManager" />
 
-	<bean id="controller" class="org.opennms.minion.controller.internal.MinionControllerImpl" init-method="start" destroy-method="stop" depends-on="minionCamelContext">
-		<property name="adminService"           ref="adminService" />
-		<property name="configurationAdmin"     ref="configAdmin" />
+	<bean id="minionBootstrap" class="org.opennms.minion.bootstrap.internal.MinionBootstrapImpl" init-method="start" destroy-method="stop">
+		<property name="bundleContext" ref="blueprintBundleContext" />
+		<property name="configurationAdmin" ref="configAdmin" />
 		<property name="minionContainerManager" ref="containerManager" />
 
-		<property name="dominionBrokerUri"      value="${dominionBrokerUri}" />
-		<property name="opennmsRestRoot"        value="${opennmsRestRoot}" />
-		<property name="sendQueueName"          value="initialization" />
-		<property name="camelContext"           ref="minionCamelContext" />
+		<property name="dominionBrokerUri" value="${dominionBrokerUri}" />
+		<property name="opennmsRestRoot" value="${opennmsRestRoot}" />
 	</bean>
-
-	<camelContext id="minionCamelContext" xmlns="http://camel.apache.org/schema/blueprint" />
 </blueprint>

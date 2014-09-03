@@ -30,6 +30,7 @@
     <module>sample-storage-newts</module>
     <module>minion-api</module>
     <module>minion-impl</module>
+    <module>minion-bootstrap</module>
     <module>minion-controller</module>
     <module>dominion-status-writer/dao</module>
     <module>dominion-status-writer/logging</module>
