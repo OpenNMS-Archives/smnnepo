@@ -23,6 +23,7 @@ use vars qw(
 	$MVN
 	$MAVEN_VERSION
 	$MAVEN_OPTS
+	$OOSNMP_TRUSTSTORE
 	$PATHSEP
 	$PREFIX
 	$TESTS
@@ -46,6 +47,7 @@ $LOGLEVEL      = 'debug' unless (defined $LOGLEVEL);
 	/opt
 	/opt/ci/java
 );
+unshift(@JAVA_SEARCH_DIRS, File::Spec->catdir($ENV{'HOME'}, 'ci', 'java'));
 
 push(@JAVA_SEARCH_DIRS, File::Spec->catdir($ENV{'HOME'}, 'ci', 'java'));
 
@@ -79,8 +81,9 @@ delete $ENV{'M2_HOME'};
 
 # maven options
 $MAVEN_OPTS = $ENV{'MAVEN_OPTS'};
+$OOSNMP_TRUSTSTORE = File::Spec->catfile($PREFIX, 'bin', 'oosnmp.net.trustStore');
 if (not defined $MAVEN_OPTS or $MAVEN_OPTS eq '') {
-	$MAVEN_OPTS = '-XX:PermSize=512m -XX:MaxPermSize=1g -Xmx1g -XX:ReservedCodeCacheSize=512m';
+	$MAVEN_OPTS = "-XX:PermSize=512m -XX:MaxPermSize=1g -Xmx1g -XX:ReservedCodeCacheSize=512m -Djavax.net.ssl.trustStore=$OOSNMP_TRUSTSTORE -Djavax.net.ssl.trustStorePassword=password";
 }
 
 my $result = GetOptions(
