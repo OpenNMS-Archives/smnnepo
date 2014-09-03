@@ -33,26 +33,6 @@ public class MinionContainerConfigurationImpl implements MinionContainerConfigur
         m_pid = pid;
     }
 
-    public static MinionContainerConfigurationImpl fromConfiguration(final MinionContainerConfiguration minionContainerConfiguration) {
-        if (minionContainerConfiguration instanceof MinionContainerConfigurationImpl) {
-            return (MinionContainerConfigurationImpl)minionContainerConfiguration;
-        }
-
-        final MinionContainerConfigurationImpl impl = new MinionContainerConfigurationImpl(minionContainerConfiguration.getPid());
-        for (final Map.Entry<String,String> prop : minionContainerConfiguration.getProperties().entrySet()) {
-            impl.setProperty(prop.getKey(), prop.getValue());
-        }
-        return impl;
-    }
-
-    public static List<MinionContainerConfigurationImpl> fromConfigurations(final List<MinionContainerConfiguration> configs) {
-        final List<MinionContainerConfigurationImpl> impls = new ArrayList<>();
-        for (final MinionContainerConfiguration config : configs) {
-            impls.add(MinionContainerConfigurationImpl.fromConfiguration(config));
-        }
-        return impls;
-    }
-
     @Override
     public String getPid() {
         return m_pid;
@@ -80,5 +60,25 @@ public class MinionContainerConfigurationImpl implements MinionContainerConfigur
     @Override
     public String toString() {
         return "MinionContainerConfigurationImpl [pid=" + m_pid + ", properties=" + m_properties + "]";
+    }
+
+    public static MinionContainerConfigurationImpl fromConfiguration(final MinionContainerConfiguration minionContainerConfiguration) {
+        if (minionContainerConfiguration instanceof MinionContainerConfigurationImpl) {
+            return (MinionContainerConfigurationImpl)minionContainerConfiguration;
+        }
+
+        final MinionContainerConfigurationImpl impl = new MinionContainerConfigurationImpl(minionContainerConfiguration.getPid());
+        for (final Map.Entry<String,String> prop : minionContainerConfiguration.getProperties().entrySet()) {
+            impl.setProperty(prop.getKey(), prop.getValue());
+        }
+        return impl;
+    }
+
+    public static List<MinionContainerConfigurationImpl> fromConfigurations(final List<MinionContainerConfiguration> configs) {
+        final List<MinionContainerConfigurationImpl> impls = new ArrayList<>();
+        for (final MinionContainerConfiguration config : configs) {
+            impls.add(MinionContainerConfigurationImpl.fromConfiguration(config));
+        }
+        return impls;
     }
 }

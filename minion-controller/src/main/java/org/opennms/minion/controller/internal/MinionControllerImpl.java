@@ -11,6 +11,7 @@ import java.util.UUID;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
+import org.apache.activemq.camel.component.ActiveMQComponent;
 import org.apache.camel.CamelContext;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.ProducerTemplate;
@@ -132,7 +133,7 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
 
     @Override
     public void onMessage(final MinionMessage message) throws MinionException {
-        LOG.debug("Got minion message: {}", message);
+        LOG.info("Got minion message: {}", message);
         if (message instanceof MinionInitializationMessage) {
             final MinionInitializationMessage initMessage = (MinionInitializationMessage)message;
 
@@ -198,6 +199,9 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
             throw new MinionException(errorMessage, e);
         }
 
+        final ActiveMQComponent activemq = new ActiveMQComponent();
+        activemq.setBrokerURL(m_brokerUri);
+        m_camelContext.addComponent("activemq", activemq);
         try {
             if (m_camelContext instanceof DefaultCamelContext) {
                 final DefaultCamelContext defaultCamelContext = (DefaultCamelContext)m_camelContext;
@@ -216,10 +220,10 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
                     .shutdownRunningTask(ShutdownRunningTask.CompleteAllTasks)
                     .log(LoggingLevel.DEBUG, "minion-controller: sendMinionMessage: ${body.toString()}")
                     .marshal(df)
-                    .to("amq:queue:" + m_sendQueueName + "?disableReplyTo=true");
+                    .to("activemq:" + m_sendQueueName + "?disableReplyTo=true");
 
                     assertMessageReceiverExists();
-                    from("amq:queue:control-" + m_id)
+                    from("activemq:control-" + m_id)
                     .routeId("receiveMinionMessage")
                     .shutdownRunningTask(ShutdownRunningTask.CompleteAllTasks)
                     .log(LoggingLevel.DEBUG, "minion-controller: receiveMinionMessage: ${body}")

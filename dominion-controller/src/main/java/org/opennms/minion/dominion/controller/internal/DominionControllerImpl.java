@@ -73,15 +73,9 @@ public class DominionControllerImpl implements MinionMessageReceiver {
 
             // set up an ActiveMQ container
             final MinionContainerImpl container = new MinionContainerImpl("activemq", "org.opennms.minion.activemq");
-            container.addFeatureRepository("mvn:org.opennms.netmgt.sample/karaf/1.13.5-PJSM-SNAPSHOT/xml/minion");
-            container.addFeatureRepository("mvn:org.opennms.netmgt.sample/karaf/1.13.5-PJSM-SNAPSHOT/xml");
             container.addFeature("sample-dispatch-activemq-config");
             container.addFeature("activemq");
             
-            /*
-            container.setScript(dominionRestRoot + "/smnnepo/activemq-setup.karaf");
-            container.setScriptArguments(dominionBrokerUri, location);
-            */
             container.setConfigurationProperty("org.apache.activemq.server-default", "broker-name", location.replaceAll("[^\\p{Alnum}]+", "-"));
             container.setConfigurationProperty("org.apache.activemq.server-default", "activemq.data", "${karaf.base}/data/activemq");
             container.setConfigurationProperty("org.apache.activemq.server-default", "config", "${karaf.base}/etc/activemq-dispatch.xml");

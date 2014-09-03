@@ -57,6 +57,7 @@
                 <feature>minion-base</feature>
                 <feature>dominion-controller-statuswriter-dao</feature>
                 <feature>dominion-controller-statuswriter-logging</feature>
+                <feature>minion-bootstrap</feature>
                 <feature>minion-controller</feature>
                 <feature>dominion-controller</feature>
                 <feature>sampler-with-activemq-export</feature>

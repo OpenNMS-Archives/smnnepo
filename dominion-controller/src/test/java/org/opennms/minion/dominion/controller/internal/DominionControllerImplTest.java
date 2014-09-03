@@ -1,7 +1,6 @@
 package org.opennms.minion.dominion.controller.internal;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -10,8 +9,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -58,17 +57,18 @@ public class DominionControllerImplTest {
 
         controller.start();
 
-        final Map<String, String> emptyMap = Collections.emptyMap();
+        final Map<String, String> props = new LinkedHashMap<String,String>();
+        props.put("dominionBrokerUri", "vm://BROKER");
         final MinionStatusMessage message = new MinionStatusMessage() {
             @Override public int                 getVersion()    { return 1; }
             @Override public String              getId()         { return "Foo"; }
             @Override public String              getLocation()   { return "Bar"; }
             @Override public String              getStatus()     { return "Started"; }
             @Override public Date                getDate()       { return new Date(0); }
-            @Override public Map<String, String> getProperties() { return emptyMap; }
+            @Override public Map<String, String> getProperties() { return props; }
         };
         controller.onMessage(message);
-        verify(statusMessageWriter, times(1)).write("Foo", "Bar", "Started", new Date(0), emptyMap);
+        verify(statusMessageWriter, times(1)).write("Foo", "Bar", "Started", new Date(0), props);
 
         final List<MinionMessage> responses = sender.getMessages();
         assertEquals(1, responses.size());
@@ -77,7 +77,9 @@ public class DominionControllerImplTest {
         assertTrue(mess instanceof MinionInitializationMessage);
         final MinionInitializationMessage initMess = (MinionInitializationMessage)mess;
         System.err.println(initMess);
-        assertFalse(true);
+        assertEquals(1, initMess.getContainers().size());
+        assertEquals(1, initMess.getContainers().get(0).getConfigurations().size());
+        assertEquals("vm://BROKER", initMess.getContainers().get(0).getConfigurations().get(0).getProperty("brokerUri"));
     }
 
     private static final class MockMessageSender implements MinionMessageSender {

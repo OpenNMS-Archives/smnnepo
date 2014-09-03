@@ -1,10 +1,13 @@
 package org.opennms.minion.impl;
 
+import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.util.ArrayList;
@@ -14,6 +17,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.apache.karaf.admin.AdminService;
@@ -52,10 +56,13 @@ public class MinionContainerManagerImpl implements MinionContainerManager {
 
     @Override
     public void createInstance(final MinionContainer fromContainer) throws MinionException {
+        LOG.info("createInstance: {}", fromContainer);
         final String name = fromContainer.getName();
         final List<String> featureRepositories = fromContainer.getFeatureRepositories();
         final List<String> features = fromContainer.getFeatures();
 
+        Reader r = null;
+        Writer w = null;
         try {
             final Instance rootInstance = getRootInstance();
 
@@ -63,35 +70,34 @@ public class MinionContainerManagerImpl implements MinionContainerManager {
                 throw new MinionException("Unable to determine root instance!");
             }
             final InstanceSettings settings = new InstanceSettings(getFreePort(rootInstance.getSshPort()), getFreePort(rootInstance.getRmiRegistryPort()), getFreePort(rootInstance.getRmiServerPort()), null, rootInstance.getJavaOpts(), featureRepositories, features);
-            m_adminService.cloneInstance(rootInstance.getName(), name, settings);
+            m_adminService.createInstance(name, settings);
 
             final Instance instance = getInstance(name);
+            final MinionContainerImpl updatedContainer = cloneConfigurationProperties(rootInstance, fromContainer);
+            setConfigurationProperties(updatedContainer, instance);
+
             final String location = instance.getLocation();
             final File f = new File(location + File.separator + "etc" + File.separator + "users.properties");
+
             LOG.info("Updating {}", f);
 
             final Properties users = new Properties();
-            FileReader fr = null;
-            FileWriter fw = null;
-            try {
-                fr = new FileReader(f);
-                users.load(fr);
 
-                if (!users.containsKey("admin")) {
-                    users.put("admin", "admin,admin");
-                }
-
-                fw = new FileWriter(f);
-                users.store(fw, null);
-            } catch (final IOException ioe) {
-                LOG.warn("Failed to add 'admin' user to {}", f, ioe);
-            } finally {
-                closeQuietly(fr, fw);
+            if (f.exists()) {
+                r = new FileReader(f);
+                users.load(r);
             }
 
-            setConfigurationProperties(fromContainer, instance);
+            if (!users.containsKey("admin")) {
+                users.put("admin", "admin,admin");
+            }
+
+            w = new FileWriter(f);
+            users.store(w, null);
         } catch (final Exception e) {
             throw new MinionException("Failed to create '" + name + "' instance.", e);
+        } finally {
+            closeQuietly(r, w);
         }
     }
 
@@ -105,6 +111,7 @@ public class MinionContainerManagerImpl implements MinionContainerManager {
         try {
             instance.stop();
         } catch (final Exception e) {
+
             LOG.warn("Failed to stop instance '{}', trying to destroy it.", instanceName, e);
             try {
                 instance.destroy();
@@ -174,7 +181,7 @@ public class MinionContainerManagerImpl implements MinionContainerManager {
         int port = currentPort;
         do {
             port += 1;
-            
+
             if (skip.contains(port)) {
                 // known taken port, skip it
                 continue;
@@ -224,9 +231,9 @@ public class MinionContainerManagerImpl implements MinionContainerManager {
         }
 
         for (final String pid : new String[] {
-            "org.apache.karaf.features.repos",
-            "org.apache.karaf.jaas",
-            "org.apache.karaf.kar"
+                "org.apache.karaf.features.repos",
+                "org.apache.karaf.jaas",
+                "org.apache.karaf.kar"
         }) {
             LOG.info("Cloning configuration for pid {} to {}", pid, toContainer.getName());
             try {
@@ -259,24 +266,55 @@ public class MinionContainerManagerImpl implements MinionContainerManager {
 
     protected void setConfigurationProperties(final MinionContainer fromContainer, final Instance toInstance) throws MinionException {
         final String instanceLocation = toInstance.getLocation();
+        LOG.info("Setting configuration properties in instance location {} for container {}: {}", instanceLocation, fromContainer.getName(), fromContainer.getConfigurations());
         for (final MinionContainerConfiguration config : fromContainer.getConfigurations()) {
             final String pid = config.getPid();
+
+            final File f = new File(instanceLocation + File.separator + "etc" + File.separator + pid + ".cfg");
+            Reader r = null;
+            Writer w = null;
+            BufferedWriter bw = null;
             try {
-                final Configuration configuration = m_configurationAdmin.getConfiguration(pid);
-                final Hashtable<String,Object> properties = new Hashtable<>();
-                final Dictionary<String,Object> existing = configuration.getProperties();
-                for (final Enumeration<String> keys = existing.keys(); keys.hasMoreElements();) {
-                    final String key = keys.nextElement();
-                    Object value = existing.get(key);
-                    if (value != null && value.toString().contains("${karaf.base}")) {
-                        value = value.toString().replace("${karaf.base}", instanceLocation);
-                    }
-                    properties.put(key, value);
+                final Properties existingProps = new Properties();
+                
+                if (f.exists()) {
+                    r = new FileReader(f);
+                    existingProps.load(r);
                 }
-                properties.putAll(config.getProperties());
-                configuration.update(properties);
+
+                final Properties newProps = new Properties(existingProps);
+
+                for (final Entry<Object,Object> entry : existingProps.entrySet()) {
+                    String key = entry.getKey().toString();
+                    if (existingProps.get(key) != null) {
+                        String value = existingProps.get(key).toString();
+                        if (value != null && value.contains("${karaf.base}")) {
+                            value = value.replace("${karaf.base}", instanceLocation);
+                            newProps.put(key.toString(), value);
+                        }
+                    }
+                }
+
+                for (final Entry<String,String> entry : config.getProperties().entrySet()) {
+                    final String key = entry.getKey();
+                    String value = entry.getValue();
+                    if (value != null && value.contains("${karaf.base}")) {
+                        value = value.replace("${karaf.base}", instanceLocation);
+                    }
+                    newProps.put(key, value);
+                }
+
+                w = new FileWriter(f);
+                bw = new BufferedWriter(w);
+                for (final Entry<Object,Object> entry : newProps.entrySet()) {
+                    LOG.info("{}: {}={}", f, entry.getKey(), entry.getValue());
+                    bw.write(entry.getKey() + " = " + entry.getValue() + "\n");
+                }
             } catch (final IOException e) {
-                throw new MinionException("Failed to get configuration for pid '" + pid + "' while configuring container '" + fromContainer.getName() + "'", e);
+                LOG.error("Unable to set configuration properties in {}", f, e);
+                throw new MinionException("Unable to set configuration properties in " + f, e);
+            } finally {
+                closeQuietly(r, bw, w);
             }
         }
     }

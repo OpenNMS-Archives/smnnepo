@@ -1,5 +1,6 @@
 package org.opennms.minion.bootstrap.internal;
 
+import java.util.Dictionary;
 import java.util.List;
 
 import org.apache.karaf.admin.AdminService;
@@ -8,10 +9,9 @@ import org.apache.karaf.features.Repository;
 import org.opennms.minion.api.MinionContainerManager;
 import org.opennms.minion.api.MinionException;
 import org.opennms.minion.impl.MinionContainerImpl;
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,26 +59,9 @@ public class MinionBootstrapImpl {
         assert m_brokerUri          != null : "Broker URI is missing!";
         assert m_restRoot           != null : "OpenNMS ReST root is missing!";
 
-        final String currentInstance = System.getProperty("karaf.name");
-        if (!m_containerManager.isRootInstance(currentInstance)) {
-            LOG.info("This is not the root instance, removing bootstrap.");
-            for (final Bundle bundle : m_bundleContext.getBundles()) {
-                if ("org.opennms.minion.bootstrap".equals(bundle.getSymbolicName())) {
-                    try {
-                        LOG.info("Found our bundle; uninstalling.");
-                        bundle.uninstall();
-                        return;
-                    } catch (final BundleException e) {
-                        LOG.info("Failed to uninstall ourselves.  Exiting.", e);
-                        return;
-                    }
-                }
-            }
-        }
-
         final List<String> instanceNames = m_containerManager.getInstanceNames(false);
         if (instanceNames.contains("minion-controller")) {
-            LOG.debug("Minion Controller instance already exists.  Destroying it to make way for the updated version.");
+            LOG.info("Minion Controller instance already exists.  Destroying it to make way for the updated version.");
             m_containerManager.destroyInstance("minion-controller");
         }
 
@@ -90,7 +73,13 @@ public class MinionBootstrapImpl {
         }
 
         container.addFeature("minion-controller");
-        container.setConfigurationProperty("org.ops4j.pax.url.mvn", "org.ops4j.pax.url.mvn.repositories", m_restRoot + "/smnnepo@snapshots@id=opennms-repo");
+
+        final String opennmsRepo = m_restRoot + "/smnnepo@snapshots@id=opennms-repo";
+        String mavenRepositories = getExistingMavenRepositories();
+        if (!mavenRepositories.contains(opennmsRepo)) {
+            mavenRepositories += ", " + opennmsRepo;
+        }
+        container.setConfigurationProperty("org.ops4j.pax.url.mvn", "org.ops4j.pax.url.mvn.repositories", mavenRepositories);
         container.setConfigurationProperty("org.opennms.minion.controller", "dominionBrokerUri", m_brokerUri);
         container.setConfigurationProperty("org.opennms.minion.controller", "opennmsRestRoot", m_restRoot);
 
@@ -98,6 +87,17 @@ public class MinionBootstrapImpl {
         m_containerManager.startInstance("minion-controller");
 
         LOG.info("MinionBootstrap started.");
+    }
+
+    protected String getExistingMavenRepositories() {
+        try {
+            final Configuration configuration = m_configurationAdmin.getConfiguration("org.ops4j.pax.url.mvn");
+            final Dictionary<String, Object> properties = configuration.getProperties();
+            return properties.get("org.ops4j.pax.url.mvn.repositories").toString();
+        } catch (final Exception e) {
+            LOG.warn("Unable to get existing maven repositories from configuration service.", e);
+        }
+        return null;
     }
 
     public void stop() throws MinionException {

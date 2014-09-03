@@ -140,8 +140,15 @@ public class MinionContainerImpl implements MinionContainer {
         
         if (config == null) {
             config = new MinionContainerConfigurationImpl(pid);
+            m_containerConfigurations.add(config);
         }
         config.setProperty(key, value);
+    }
+
+    @Override
+    public String toString() {
+        return "MinionContainerImpl [name=" + m_name + ", pid=" + m_pid + ", features=" + m_features + ", featureRepositories=" + m_featureRepositories + ", script=" + m_script
+                + ", scriptArguments=" + m_scriptArguments + ", containerConfigurations=" + m_containerConfigurations + "]";
     }
 
     public static MinionContainerImpl fromContainer(final MinionContainer minionContainer) {
