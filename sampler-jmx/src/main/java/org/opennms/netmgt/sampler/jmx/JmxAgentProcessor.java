@@ -8,11 +8,11 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.opennms.netmgt.api.sample.Agent;
 import org.opennms.netmgt.api.sample.support.SingletonBeanFactory;
-import org.opennms.netmgt.collection.api.ServiceParameters;
 import org.opennms.netmgt.config.collectd.CollectdConfiguration;
 import org.opennms.netmgt.config.collectd.Collector;
 import org.opennms.netmgt.config.collectd.jmx.JmxCollection;
 import org.opennms.netmgt.config.collectd.jmx.JmxDatacollectionConfig;
+import org.opennms.netmgt.jmx.ParameterName;
 import org.opennms.netmgt.jmx.connection.JmxConnectors;
 import org.opennms.netmgt.sampler.jmx.internal.JmxAgent;
 
@@ -37,13 +37,13 @@ public class JmxAgentProcessor implements Processor {
 
         final String serviceClassName = getServiceClassName(jmxAgent);
 
-        final String collection = Objects.toString(jmxAgent.getParameter(ServiceParameters.ParameterName.COLLECTION.toString()), "jsr160");
-        final String retry = Objects.toString(jmxAgent.getParameter(ServiceParameters.ParameterName.RETRY.toString()), "3");
+        final String collection = Objects.toString(jmxAgent.getParameter(ParameterName.COLLECTION.toString()), "jsr160");
+        final String retry = Objects.toString(jmxAgent.getParameter(ParameterName.RETRY.toString()), "3");
         final String connectorName = Objects.toString(getJmxConnectorName(serviceClassName), JmxConnectors.JSR160);
         final JmxCollection jmxCollection = jmxConfigFactory.getInstance().getJmxCollection(collection);
 
-        jmxAgent.setParameter(ServiceParameters.ParameterName.COLLECTION.toString(), collection);
-        jmxAgent.setParameter(ServiceParameters.ParameterName.RETRY.toString(), retry);
+        jmxAgent.setParameter(ParameterName.COLLECTION.toString(), collection);
+        jmxAgent.setParameter(ParameterName.RETRY.toString(), retry);
         jmxAgent.setConnectorName(connectorName);
         jmxAgent.setCollection(jmxCollection);
 

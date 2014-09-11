@@ -12,11 +12,11 @@ import org.opennms.netmgt.api.sample.MetricType;
 import org.opennms.netmgt.api.sample.Resource;
 import org.opennms.netmgt.api.sample.SampleSet;
 import org.opennms.netmgt.api.sample.SampleValue;
-import org.opennms.netmgt.collection.api.ServiceParameters;
 import org.opennms.netmgt.config.collectd.jmx.Attrib;
 import org.opennms.netmgt.config.collectd.jmx.Mbean;
 import org.opennms.netmgt.jmx.JmxSampleProcessor;
 import org.opennms.netmgt.jmx.JmxUtils;
+import org.opennms.netmgt.jmx.ParameterName;
 import org.opennms.netmgt.jmx.samples.JmxAttributeSample;
 import org.opennms.netmgt.jmx.samples.JmxCompositeSample;
 import org.slf4j.Logger;
@@ -44,7 +44,7 @@ public class JmxCollectionRequest implements CollectionRequest<JmxAgent> {
 
     public JmxSampleProcessor getSampleProcessor(final SampleSet sampleSet) {
         final String serviceName = agent.getServiceName();
-        final String friendlyName = agent.getParameter(ServiceParameters.ParameterName.FRIENDLY_NAME.toString());
+        final String friendlyName = agent.getParameter(ParameterName.FRIENDLY_NAME.toString());
         final String collectionDirectoryName = JmxUtils.getCollectionDirectory(agent.getParameters(), friendlyName, serviceName);
         final Resource resource = new Resource(agent, getProtocol(), collectionDirectoryName, serviceName);
 
