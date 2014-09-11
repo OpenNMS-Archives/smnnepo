@@ -21,7 +21,7 @@ public class DefaultJmxCollector implements JmxCollector {
 
             LOG.debug("Collect: sampleProcessor =  {}, agent = {}, collectorConfig = {}", sampleProcessor, agent, collectorConfig);
 
-            final org.opennms.netmgt.jmx.JmxCollector collector = new org.opennms.netmgt.jmx.DefaultJmxCollector();
+            final org.opennms.netmgt.jmx.JmxCollector collector = new org.opennms.netmgt.jmx.impl.DefaultJmxCollector();
             collector.collect(collectorConfig, sampleProcessor);
 
             return sampleSet;
