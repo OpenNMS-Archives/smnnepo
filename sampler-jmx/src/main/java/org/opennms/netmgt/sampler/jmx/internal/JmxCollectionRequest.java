@@ -46,7 +46,7 @@ public class JmxCollectionRequest implements CollectionRequest<JmxAgent> {
         final String serviceName = agent.getServiceName();
         final String friendlyName = agent.getParameter(ParameterName.FRIENDLY_NAME.toString());
         final String collectionDirectoryName = JmxUtils.getCollectionDirectory(agent.getParameters(), friendlyName, serviceName);
-        final Resource resource = new Resource(agent, getProtocol(), collectionDirectoryName, serviceName);
+        final Resource resource = new Resource(agent, "if" /* TODO mvr add dependency to collection-api and use CollectionResource.RESOURCE_TYPE_IF */, collectionDirectoryName, serviceName);
 
         return new JmxSampleProcessor() {
 
