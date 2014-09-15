@@ -131,8 +131,7 @@
         <to uri="direct:loadCollectdConfiguration"/>
       </multicast>
       <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Configuration Files Loaded" />
-      <!-- Launch the scheduler -->
-      <to uri="direct:schedulerStart"/>
+      <to uri="direct:loadCollectionPackages"/>
     </route>
 
 	<!-- TODO: Create a reload timer that will check for changes to the config -->
@@ -148,11 +147,6 @@
       </filter>
     </route>
 
-    <route id="schedulerStart">
-      <from uri="direct:schedulerStart"/>
-      <to uri="direct:loadCollectionPackages"/>
-    </route>
-    
     <!-- Get all of the collection packages that are associated with the current config -->
     <route id="loadCollectionPackages">
       <from uri="direct:loadCollectionPackages"/>
@@ -167,6 +161,7 @@
         <!-- Split the package into a package-per-service -->
         <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Parsing package ${body.name} with ${body.services.size} service(s)" />
         <process ref="packageServiceSplitter"/>
+        <!-- split each package-per-service send a message for each entry -->
         <split>
           <simple>${body}</simple>
           <to uri="seda:loadPackageAgents"/>
@@ -176,7 +171,7 @@
 
     <route id="loadPackageAgents">
       <from uri="seda:loadPackageAgents"/>
-      <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Loading package agents" />
+      <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Loading package agents for package ${body.name}" />
       <enrich uri="direct:getServiceAgents" strategyRef="packageAgentAggregator"/>
       <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Got package agents" />
       <filter>

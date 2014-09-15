@@ -58,7 +58,6 @@ public class Parser {
 
             final String basicAuth = "Basic " + new String(new Base64().encode((username + ":" + password).getBytes()));
             connection.setRequestProperty("Authorization", basicAuth);
-
             connection.connect();
             urlStream = connection.getInputStream();
             JAXBElement<T> jaxbElement = m_unmarshaller.unmarshal(new StreamSource(urlStream), declaredType);
