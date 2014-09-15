@@ -69,7 +69,6 @@
       <feature>sample-api</feature>
       <bundle>mvn:org.opennms.core/org.opennms.core.camel/${project.version}</bundle>
 
-      <!-- TODO mvr should we define a feature for jmx as well? -->
       <bundle>mvn:org.opennms.core.jmx/org.opennms.core.jmx.api/${project.version}</bundle>
       <bundle>mvn:org.opennms.core.jmx/org.opennms.core.jmx.impl/${project.version}</bundle>
       <bundle>mvn:org.opennms.netmgt.sample/sampler-jmx/${project.version}</bundle>

@@ -30,7 +30,7 @@
 
   <reference id="collectdConfiguration" interface="org.opennms.netmgt.api.sample.support.SingletonBeanFactory"/>
 
-  <bean id="jmxMetricRepository" class="org.opennms.netmgt.sampler.jmx.internal.JmxMetricRepository"/>
+  <bean id="jmxCollectionConfiguration" class="org.opennms.netmgt.sampler.jmx.internal.JmxCollectionConfiguration"/>
 
   <!-- Register a whiteboard of sample repositories where samples will be saved -->
   <bean id="sampleSetDispatcher" class="org.opennms.netmgt.api.sample.support.DispatcherWhiteboard">
@@ -119,7 +119,7 @@
       <bean ref="jmxAgentProcessor"/>
       <log loggingLevel="INFO" message="sampler-jmx: Collecting agent ${body.id}"/>
       <!-- create a request for data collection for the agent -->
-      <bean ref="jmxMetricRepository" method="createRequestForAgent"/>
+      <bean ref="jmxCollectionConfiguration" method="createRequestForAgent"/>
       <!-- collect the data for the agent -->
       <bean ref="jmxCollector" method="collect"/>
       <log loggingLevel="DEBUG" message="sampler-jmx blueprint.xml: ${body}"/>

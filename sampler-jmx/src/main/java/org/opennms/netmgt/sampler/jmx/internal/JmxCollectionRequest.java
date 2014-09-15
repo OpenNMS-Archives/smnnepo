@@ -46,7 +46,7 @@ public class JmxCollectionRequest implements CollectionRequest<JmxAgent> {
         final String serviceName = agent.getServiceName();
         final String friendlyName = agent.getParameter(ParameterName.FRIENDLY_NAME.toString());
         final String collectionDirectoryName = JmxUtils.getCollectionDirectory(agent.getParameters(), friendlyName, serviceName);
-        final Resource resource = new Resource(agent, "if" /* TODO mvr add dependency to collection-api and use CollectionResource.RESOURCE_TYPE_IF */, collectionDirectoryName, serviceName);
+        final Resource resource = new Resource(agent, "if", collectionDirectoryName, serviceName);
 
         return new JmxSampleProcessor() {
 
@@ -90,8 +90,6 @@ public class JmxCollectionRequest implements CollectionRequest<JmxAgent> {
                 return getMetric(agent.getParameters(), sample.getMbean(), sample.getAttrib());
             }
 
-            // TODO mvr convert to CompositeSample
-            // TODO mvr CompositeSample should not inherit AttributeSample (getAttrib()) is not inheritable
             private Metric getMetric(JmxCompositeSample sample) {
                 final Attrib attrib = sample.getCompositeMember().toAttrib();
                 return getMetric(agent.getParameters(), sample.getMbean(), attrib);
