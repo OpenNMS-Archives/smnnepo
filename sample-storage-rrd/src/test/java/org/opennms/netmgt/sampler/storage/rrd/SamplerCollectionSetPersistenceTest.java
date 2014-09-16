@@ -106,7 +106,7 @@ public class SamplerCollectionSetPersistenceTest {
         m_fileAnticipator.expecting(nodeDir, "rrdName" + ".meta");
 
         SamplerCollectionSet collectionSet = new SamplerCollectionSet();
-        collectionSet.setCollectionResources(Collections.singletonList(m_collectionResource));
+        collectionSet.setCollectionResources(Collections.singleton(m_collectionResource));
 
         Sample sample = new Sample(m_resource, new Metric("mibObjectAlias", MetricType.COUNTER, "mibGroup"), Timestamp.now(), new CounterValue(100));
         AttributeGroupType groupType = new AttributeGroupType("mibGroup", AttributeGroupType.IF_TYPE_IGNORE);
@@ -128,7 +128,7 @@ public class SamplerCollectionSetPersistenceTest {
         m_fileAnticipator.expecting(nodeDir, "rrdName" + ".meta");
 
         SamplerCollectionSet collectionSet = new SamplerCollectionSet();
-        collectionSet.setCollectionResources(Collections.singletonList(m_collectionResource));
+        collectionSet.setCollectionResources(Collections.singleton(m_collectionResource));
 
         Sample sample = new Sample(m_resource, new Metric("mibObjectAlias", MetricType.COUNTER, "mibGroup"), Timestamp.now(), new CounterValue(100));
         AttributeGroupType groupType = new AttributeGroupType("mibGroup", AttributeGroupType.IF_TYPE_IGNORE);
