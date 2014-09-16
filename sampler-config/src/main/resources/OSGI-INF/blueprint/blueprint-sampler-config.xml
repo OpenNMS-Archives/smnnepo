@@ -131,7 +131,8 @@
         <to uri="direct:loadCollectdConfiguration"/>
       </multicast>
       <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Configuration Files Loaded" />
-      <to uri="direct:loadCollectionPackages"/>
+      <!-- Launch the scheduler -->
+      <to uri="direct:schedulerStart"/>
     </route>
 
 	<!-- TODO: Create a reload timer that will check for changes to the config -->
@@ -145,6 +146,12 @@
         <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Collectd Configuration parsed, setting instance" />
         <bean ref="collectdConfiguration" method="setInstance"/>
       </filter>
+    </route>
+
+    <!-- We could invoke direct:loadCollectionPackages directly, but we need this for test purposes -->
+    <route id="schedulerStart">
+      <from uri="direct:schedulerStart"/>
+      <to uri="direct:loadCollectionPackages"/>
     </route>
 
     <!-- Get all of the collection packages that are associated with the current config -->
