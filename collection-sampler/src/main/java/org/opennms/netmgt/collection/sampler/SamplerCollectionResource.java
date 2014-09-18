@@ -31,6 +31,8 @@ package org.opennms.netmgt.collection.sampler;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 
 import org.opennms.netmgt.api.sample.Resource;
@@ -128,6 +130,7 @@ public class SamplerCollectionResource extends AbstractCollectionResource {
 	@Override
 	public void visit(CollectionSetVisitor visitor) {
 		File resourceDir = getResourceDir(m_repository);
+        createResourcePath(resourceDir.toPath());
 		for (Map.Entry<String,String> entry : m_resource.getAttributes().entrySet()) {
 			try {
 				ResourceTypeUtils.updateStringProperty(resourceDir, entry.getValue(), entry.getKey());
@@ -139,4 +142,15 @@ public class SamplerCollectionResource extends AbstractCollectionResource {
 		}
 		super.visit(visitor);
 	}
+
+    private void createResourcePath(Path resourcePath) {
+        if (!Files.exists(resourcePath)) {
+            LOG.info("Resource path {} does not exist. Try to create it.", resourcePath);
+            try {
+                Files.createDirectories(resourcePath);
+            } catch (IOException e) {
+                LOG.error("Could not create resource path {}. Error: {}", resourcePath, e);
+            }
+        }
+    }
 }

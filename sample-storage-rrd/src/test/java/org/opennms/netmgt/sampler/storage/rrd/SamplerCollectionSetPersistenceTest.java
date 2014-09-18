@@ -159,7 +159,7 @@ public class SamplerCollectionSetPersistenceTest {
 
         SnmpCollectionSet collectionSet = new SnmpCollectionSet(agent, collection);
 
-        SnmpAttributeType attributeType = new StringAttributeType(resourceType, "some-collection", mibObject, new AttributeGroupType("mibGroup", AttributeGroupType.IF_TYPE_IGNORE));
+        SnmpAttribueType attributeType = new StringAttributeType(resourceType, "some-collection", mibObject, new AttributeGroupType("mibGroup", AttributeGroupType.IF_TYPE_IGNORE));
         attributeType.storeResult(collectionSet, null, new SnmpResult(mibObject.getSnmpObjId(), new SnmpInstId(mibObject.getInstance()), SnmpUtils.getValueFactory().getOctetString("hello".getBytes())));
 
         PersistOperationBuilder builder = new PersistOperationBuilder(repository, resource, "rrdName");
