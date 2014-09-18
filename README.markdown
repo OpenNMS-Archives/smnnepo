@@ -241,7 +241,7 @@ You should get a list similar to this:
 Ensure that <code>sample-receiver-activemq</code> and <code>sample-storage-rrd</code> is installed.
 If it is not, install it manually:
 
-    $ feature:install sample-storage-rrd
+    $ features:install sample-storage-rrd
     
 After this you should see rrd files at <code>$OPENNMS\_HOME/share/rrd/snmp</code>.
 

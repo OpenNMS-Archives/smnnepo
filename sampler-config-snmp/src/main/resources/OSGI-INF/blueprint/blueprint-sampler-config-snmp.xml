@@ -49,7 +49,7 @@
     <argument value="${datacollectionGroupUrls}"/>
     <property name="username" value="[[username]]" />
     <property name="password" value="[[password]]" />
-    </bean>
+  </bean>
 
   <!-- Camel EIP helper beans -->
   <bean id="urlNormalizer" class="org.opennms.netmgt.api.sample.support.UrlNormalizer"/>
@@ -78,16 +78,6 @@
     </service-properties>
   </service>
 
-  <!--
-  <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
-    <command  name="snmp:add-agent">
-      <action class="org.opennms.netmgt.sampler.config.snmp.SnmpAddAgentCommand">
-        <property name="snmpAgentRepository" ref="snmpAgentRepository" />
-      </action>
-    </command>
-  </command-bundle>
-  -->
-
   <bean id="customHttpClientConfigurer" class="org.opennms.core.camel.CustomHttpClientConfigurer">
     <property name="username" value="[[username]]" />
     <property name="password" value="[[password]]" />
@@ -101,11 +91,6 @@
       <!-- .logStackTrace(true) -->
       <stop/>
     </onException>
-
-    <!--
-    <propertyPlaceholder location="blueprint:globalProperties" />
-    <propertyPlaceholder location="blueprint:properties" />
-    -->
 
     <!-- Call this to retrieve a URL in string form or URL form into the JAXB objects they represent. -->
     <route id="parseSnmpXml">
@@ -128,6 +113,7 @@
       <bean ref="snmpConfigFactory" method="getInstance"/>
     </route>
 
+    <!-- start hook -->
     <route id="fireStartSamplerConfigSnmp">
       <from uri="timer://runOnce?repeatCount=1&amp;delay=5000" />
       <log loggingLevel="INFO" message="blueprint-sampler-config-snmp.xml: Triggering Startup" />
