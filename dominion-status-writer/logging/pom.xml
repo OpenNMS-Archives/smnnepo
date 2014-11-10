@@ -9,7 +9,7 @@
   <parent>
     <groupId>org.opennms.minion</groupId>
     <artifactId>minion-parent</artifactId>
-    <version>1.13.5-PJSM-SNAPSHOT</version>
+    <version>15.0.0-PJSM-SNAPSHOT</version>
     <relativePath>../../minion-parent</relativePath>
   </parent>
 
