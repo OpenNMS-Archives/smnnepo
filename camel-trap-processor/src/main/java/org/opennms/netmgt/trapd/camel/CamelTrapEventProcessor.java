@@ -57,7 +57,7 @@ public class CamelTrapEventProcessor implements Processor {
 
 	private static final Logger LOG = LoggerFactory.getLogger(CamelTrapEventProcessor.class);
 
-	private final ExecutorService m_executor = Executors.newFixedThreadPool(5, new LogPreservingThreadFactory(getClass().getSimpleName(), 5, false));
+	private final ExecutorService m_executor = Executors.newFixedThreadPool(5, new LogPreservingThreadFactory(getClass().getSimpleName(), 5));
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
