@@ -35,7 +35,7 @@ config:propset brokerUri "tcp://127.0.0.1:61616"
 config:update
 
 # Add the required features URLs
-features:addurl mvn:org.apache.activemq/activemq-karaf/5.9.0/xml/features
+features:addurl mvn:org.apache.activemq/activemq-karaf/${activemqVersion}/xml/features
 features:addurl mvn:org.opennms.netmgt.sample/karaf/15.0.0-PJSM-SNAPSHOT/xml
 
 # Install all required features

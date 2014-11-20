@@ -21,6 +21,15 @@
   
   <build>
     <finalName>smnnepo</finalName>
+    <resources>
+      <!-- we do not want the karaf files to be copied to target/classes -->
+      <resource>
+        <directory>src/main/resources</directory>
+        <excludes>
+          <exclude>**/*.karaf</exclude>
+        </excludes>
+      </resource>
+    </resources>
     <plugins>
       <!-- Call the clean plugin during initialize to make sure that any old repo tar.gz contents are deleted before building -->
       <plugin>
@@ -74,6 +83,19 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
+        <!-- We need the *.karaf files to be in the generated war file -->
+        <configuration>
+          <webResources>
+            <resource>
+              <directory>src/main/resources</directory>
+              <filtering>true</filtering>
+              <targetPath>/</targetPath>
+              <includes>
+                <include>**/*.karaf</include>
+              </includes>
+            </resource>
+          </webResources>
+        </configuration>
       </plugin>
     </plugins>
     <pluginManagement>
