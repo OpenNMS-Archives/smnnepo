@@ -23,7 +23,7 @@ Terms
   controller.</dd>
 </dl>
 
-Requirements {#requirements}
+<a name="requirements"></a>Requirements
 ============
 
 The Dominion controller (the OpenNMS side) has the same requirements of OpenNMS, since
@@ -131,14 +131,15 @@ Ensure that the pc running the <code>Minion Client</code> meets the [requirement
    version 2.3.4 or higher.
 2. Run Karaf (<code>bin/karaf</code>)
 3. Run the configuration script:
-   <code>source http://opennms-root:8980/smnnepo/smnnepo-setup.karaf [username] [password] [opennms-root] [location-name]</code>
+   <code>source http://opennms-root:8980/smnnepo/smnnepo-setup.karaf instance username password opennms-root location-name</code>
 
+    * instance: possible values are +root+, +activemq+, +minion+, +sampler+
 	* username: The OpenNMS username allowed to make ReST calls
 	* password: The password for the ReST user
 	* opennms-root: The root URL of the OpenNMS server, _not_ including the
 	  <code>/opennms</code> part of the URL.  For example, if you normally connect to your
 	  OpenNMS web UI at <code>http://www.example.com:8980/opennms/</code>, you would use
-	  "<code>http://www.example.com:8980/</code>" as the OpenNMS root.
+	  "<code>http://www.example.com:8980/</code>" as the OpenNMS root. **Note: Do not forget the protocol http or https, otherwise the installation will fail!**
 	* location-name: The name of the location the Minion is running at.  This should match
 	  a location in the <code>monitoring-locations.xml</code> file on your OpenNMS server.
 
@@ -245,29 +246,16 @@ If it is not, install it manually:
     
 After this you should see rrd files at <code>$OPENNMS\_HOME/share/rrd/snmp</code>.
 
-ADVANCED: Running in Fabric8
-============================
+Error executing command: Unable to add repositories
+--------------------------------------
 
-Root
-----
+If you encounter an error like this:
 
-	mq-create default
+    Error executing command: Unable to add repositories:
+	    Error resolving artifact org.apache.activemq:activemq-karaf:xml:features:5.10.0: Could not find artifact org.apache.activemq:activemq-karaf:xml:features:5.10.0
 
-Dominion Side
--------------
+You have very likely not set up the `org.ops4j.pax.url.mvn.cfg` config file correctly.
 
-	container-create-child --jvm-opts "-Xmx1g -XX:MaxPermSize=1g" --jmx-user admin --jmx-password admin root dominion
-	profile-create --parents default dominion
-	profile-edit --repositories mvn:org.opennms.netmgt.sample/karaf/15.0.0-PJSM-SNAPSHOT/xml/minion dominion
-	profile-edit --features camel-amq --features minion-base --features dominion-controller-statuswriter-logging --features dominion-controller dominion
-	container-add-profile dominion mq-broker-default.default dominion
-
-Minion Side
------------
-
-	container-create-child --jvm-opts "-Xmx1g -XX:MaxPermSize=1g" --jmx-user admin --jmx-password admin root minion
-	profile-create --parents default minion
-	profile-edit --repositories mvn:org.opennms.netmgt.sample/karaf/15.0.0-PJSM-SNAPSHOT/xml/minion minion
-	profile-edit --features fabric-configadmin --features camel-amq --features minion-base --features minion-controller minion
-	profile-edit -p org.opennms.minion.controller/location="Red Hat" minion
-	container-add-profile minion mq-broker-default.default minion
+Check the logs of your karaf and look for something like `java.net.MalformedURLException: no protocol: 192.168.0.2:8980/smnnepo/`.
+This indicates that you have forgotten to set the protocol of the URL (`http` or `https`).
+Please invoke the original installation script with the `http|https` protocol.
