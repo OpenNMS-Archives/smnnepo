@@ -20,7 +20,7 @@
       We have to set it here again because the root paxExamVersion is
       completely different and we do not want to mess with that property.
     -->
-    <pax.exam.version>4.1.0</pax.exam.version>
+    <pax.exam.version>4.3.0</pax.exam.version>
   </properties>
 
   <build>
@@ -165,21 +165,39 @@
       to get the exam stuff working inside the karaf container
     -->
     <dependency>
+      <groupId>org.ops4j.base</groupId>
+      <artifactId>ops4j-base-monitors</artifactId>
+      <version>1.5.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.ops4j.base</groupId>
+      <artifactId>ops4j-base-io</artifactId>
+      <version>1.5.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.ops4j.base</groupId>
+      <artifactId>ops4j-base-net</artifactId>
+      <version>1.5.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.ops4j.pax.swissbox</groupId>
       <artifactId>pax-swissbox-core</artifactId>
-      <version>1.7.1</version>
+      <version>1.8.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.ops4j.pax.swissbox</groupId>
       <artifactId>pax-swissbox-framework</artifactId>
-      <version>1.7.1</version>
+      <version>1.8.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.ops4j.pax.swissbox</groupId>
       <artifactId>pax-swissbox-extender</artifactId>
-      <version>1.7.1</version>
+      <version>1.8.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
