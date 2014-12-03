@@ -1,4 +1,4 @@
-package org.opennms.minion.test;
+package org.opennms.minion.test.core;
 
 import org.apache.felix.service.command.CommandProcessor;
 import org.apache.felix.service.command.CommandSession;
@@ -27,7 +27,7 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.karafDist
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.logLevel;
 
-public class KarafTestCase {
+public abstract class KarafTestCase {
 
     private static Logger LOG = LoggerFactory.getLogger(KarafTestCase.class);
 

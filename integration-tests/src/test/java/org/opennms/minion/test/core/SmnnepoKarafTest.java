@@ -1,10 +1,10 @@
-package org.opennms.minion.test;
+package org.opennms.minion.test.core;
 
 import org.junit.Before;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
 
-public class SmnnepoKarafTest extends KarafTestCase {
+public abstract class SmnnepoKarafTest extends KarafTestCase {
     @Before
     public void registerOpenNMSFeatuers() {
         // TODO remove fix version and use versionAsInProject instead (see PJSM-244)

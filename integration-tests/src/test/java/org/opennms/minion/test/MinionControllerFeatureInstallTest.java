@@ -2,6 +2,7 @@ package org.opennms.minion.test;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.opennms.minion.test.core.SmnnepoKarafTest;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
