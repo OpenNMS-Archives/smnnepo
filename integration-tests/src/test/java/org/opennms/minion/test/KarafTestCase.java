@@ -31,8 +31,6 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.karafDist
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.logLevel;
 
-// TODO mvr there is already a KarafTestSupport class provided by apache karaf. Somehow that did not work for me, but it
-// might be a wise choice to use that instead our own version
 public class KarafTestCase {
 
     private static Logger LOG = LoggerFactory.getLogger(KarafTestCase.class);

@@ -25,9 +25,6 @@ import static org.ops4j.pax.exam.CoreOptions.maven;
  */
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerMethod.class)
-// TODO mvr run as IT (skip by default?)
-// TODO mvr fix logging (is currently not working)
-// TODO mvr make installFeature verbose
 public class FeatureInstallKarafTest extends KarafTestCase {
 
     @Before
