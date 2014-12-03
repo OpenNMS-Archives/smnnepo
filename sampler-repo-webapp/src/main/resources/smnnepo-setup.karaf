@@ -31,7 +31,7 @@ config:propset org.ops4j.pax.url.mvn.repositories $ONMS/smnnepo@snapshots@id=ope
 config:update
 
 # Add the required features URLs
-features:addurl mvn:org.apache.activemq/activemq-karaf/5.9.0/xml/features
+features:addurl mvn:org.apache.activemq/activemq-karaf/${activemqVersion}/xml/features
 features:addurl mvn:org.opennms.netmgt.sample/karaf/15.0.0-PJSM-SNAPSHOT/xml
 
 # Since the root instance runs on port 8201 (as configured in the RPM spec) then increment

@@ -45,6 +45,7 @@
     <module>sampler-repo-webapp</module>
     <module>dist</module>
     <module>docs</module>
+    <module>integration-tests</module>
   </modules>
 
   <properties>
@@ -53,7 +54,7 @@
     <camelVersion>2.13.2</camelVersion>
     <springVersion>3.2.4.RELEASE</springVersion>
     <fabric8Version>1.1.0.CR5</fabric8Version>
-    <!--<fabric8Version>[1.0.99,1.2.0)</fabric8Version>-->
+    <activemqVersion>5.10.0</activemqVersion>
   </properties>
 
   <build>
@@ -67,7 +68,6 @@
           <target>1.7</target>
         </configuration>
       </plugin>
-
       <plugin>
         <!-- | the following instructions build a simple set of public/private
              classes into an OSGi bundle -->
@@ -104,8 +104,16 @@
         </dependencies>
       </plugin>
     </plugins>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.karaf.tooling</groupId>
+          <artifactId>karaf-maven-plugin</artifactId>
+          <version>3.0.2</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
   </build>
-
   <pluginRepositories>
     <pluginRepository>
       <snapshots><enabled>false</enabled></snapshots>
