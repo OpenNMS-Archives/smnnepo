@@ -8,7 +8,6 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.karaf.options.LogLevelOption;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-import org.osgi.service.log.LogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,13 +16,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Objects;
 
-import static org.ops4j.pax.exam.CoreOptions.bootClasspathLibraries;
-import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.maven;
-import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
-import static org.ops4j.pax.exam.CoreOptions.repositories;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.debugConfiguration;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFileExtend;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
@@ -49,7 +45,7 @@ public class KarafTestCase {
 
     @Configuration
     public Option[] config() {
-        return new Option[]{
+        Option[] options = new Option[]{
                 karafDistributionConfiguration().frameworkUrl(
                         maven()
                                 .groupId("org.apache.karaf")
@@ -67,8 +63,13 @@ public class KarafTestCase {
                 editConfigurationFilePut("etc/org.ops4j.pax.url.mvn.cfg", "org.ops4j.pax.url.mvn.defaultRepositories", "file:${karaf.home}/${karaf.default.repository}@snapshots@id=karaf.${karaf.default.repository}"),
                 editConfigurationFileExtend("etc/org.ops4j.pax.url.mvn.cfg", "org.ops4j.pax.url.mvn.defaultRepositories", "file:${karaf.home}/../test-repo@snapshots@id=default-repo"),
                 editConfigurationFileExtend("etc/org.ops4j.pax.url.mvn.cfg", "org.ops4j.pax.url.mvn.localRepository", "file:${karaf.home}/../opennms-repo@snapshots@id=opennms-repo"),
-//                debugConfiguration("8889", true),
         };
+
+        if (Boolean.valueOf(System.getProperty("debug"))) {
+            options = Arrays.copyOf(options, options.length + 1);
+            options[options.length -1] = debugConfiguration("8889", true);
+        }
+        return options;
     }
 
     protected void addFeaturesUrl(String url) {
