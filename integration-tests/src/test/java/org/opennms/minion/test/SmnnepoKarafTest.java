@@ -1,7 +1,13 @@
 package org.opennms.minion.test;
 
-/**
- * Created by mvrueden on 03.12.14.
- */
-public class SmnnepoKarafTest {
+import org.junit.Before;
+
+import static org.ops4j.pax.exam.CoreOptions.maven;
+
+public class SmnnepoKarafTest extends KarafTestCase {
+    @Before
+    public void registerOpenNMSFeatuers() {
+        // TODO remove fix version and use versionAsInProject instead (see PJSM-244)
+        addFeaturesUrl(maven().groupId("org.opennms.netmgt.sample").artifactId("karaf").version("15.0.0-PJSM-SNAPSHOT").type("xml").getURL());
+    }
 }

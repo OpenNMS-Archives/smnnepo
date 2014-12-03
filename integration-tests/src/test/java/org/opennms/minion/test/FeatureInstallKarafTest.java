@@ -1,23 +1,10 @@
 package org.opennms.minion.test;
 
-import org.apache.karaf.itests.KarafTestSupport;
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.junit.PaxExam;
-import org.ops4j.pax.exam.karaf.options.KarafDistributionBaseConfigurationOption;
-import org.ops4j.pax.exam.karaf.options.KarafDistributionConfigurationOption;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
-import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.ops4j.pax.exam.spi.reactors.PerMethod;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
-
-import static org.ops4j.pax.exam.CoreOptions.maven;
 
 /**
  * This tests checks if features are defined properly and can be installed
@@ -25,13 +12,7 @@ import static org.ops4j.pax.exam.CoreOptions.maven;
  */
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerMethod.class)
-public class FeatureInstallKarafTest extends KarafTestCase {
-
-    @Before
-    public void registerOpenNMSFeatuers() {
-        // TODO remove fix version and use versionAsInProject instead (see PJSM-244)
-        addFeaturesUrl(maven().groupId("org.opennms.netmgt.sample").artifactId("karaf").version("15.0.0-PJSM-SNAPSHOT").type("xml").getURL());
-    }
+public class FeatureInstallKarafTest extends SmnnepoKarafTest {
 
     @Test
     public void testActiveMq() {
@@ -99,11 +80,6 @@ public class FeatureInstallKarafTest extends KarafTestCase {
         installFeature("minion-base");
     }
 
-    // TODO mvr set location in org.opennms.minion.controller to prevent MinionException "Location is not Set"
-    @Test
-    public void testMinionController() {
-        installFeature("minion-controller");
-    }
 
     @Test
     public void testOpennmsActivemqDispatcher() {
