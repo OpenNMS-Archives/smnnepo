@@ -14,7 +14,7 @@
 
 %{!?jdk:%define jdk jdk >= 2000:1.7}
 
-%{!?karaf_version:%define karaf_version 2.3.5}
+%{!?karaf_version:%define karaf_version 2.4.0}
 
 %{!?extrainfo:%define extrainfo }
 %{!?extrainfo2:%define extrainfo2 }
