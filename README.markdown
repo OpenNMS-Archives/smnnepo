@@ -127,8 +127,7 @@ Configuring a Minion Client
 
 Ensure that the pc running the <code>Minion Client</code> meets the [requirements](#requirements)
 
-1. Download and unpack [Karaf 2.3](http://karaf.apache.org/index/community/download.html),
-   version 2.3.4 or higher.
+1. Download and unpack [Karaf 2.4](http://karaf.apache.org/index/community/download.html).
 2. Run Karaf (<code>bin/karaf</code>)
 3. Run the configuration script:
    <code>source http://opennms-root:8980/smnnepo/smnnepo-setup.karaf instance username password opennms-root location-name</code>
