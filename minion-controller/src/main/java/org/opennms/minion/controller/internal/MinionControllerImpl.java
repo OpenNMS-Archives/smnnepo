@@ -171,10 +171,10 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
                     .shutdownRunningTask(ShutdownRunningTask.CompleteAllTasks)
                     .log(LoggingLevel.DEBUG, "minion-controller: sendMinionMessage: ${body.toString()}")
                     .marshal(df)
-                    .to("amq:queue:" + m_sendQueueName + "?disableReplyTo=true");
+                    .to("activemq:queue:" + m_sendQueueName + "?disableReplyTo=true");
 
                     assertMessageReceiverExists();
-                    from("amq:queue:control-" + m_id)
+                    from("activemq:queue:control-" + m_id)
                     .routeId("receiveMinionMessage")
                     .shutdownRunningTask(ShutdownRunningTask.CompleteAllTasks)
                     .log(LoggingLevel.DEBUG, "minion-controller: receiveMinionMessage: ${body}")
