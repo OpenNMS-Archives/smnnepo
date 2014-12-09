@@ -1,12 +1,22 @@
 BROKERNAME=opennms
 
-# Configure the local ActiveMQ broker
-config:edit org.apache.activemq.server-default
-# Needs to be globally unique
-config:propset broker-name "$BROKERNAME"
-config:propset config ${karaf.base}/etc/activemq-receiver.xml
-config:propset data ${karaf.data}/activemq
-config:update
+## Workaround: Since karaf 2.3.x substitution of system properties no longer works
+## so we use java.lang.System.getProperty(...) instead!
+#addcommand system (($.context bundle) loadClass java.lang.System)
+#KARAF_BASE = system:getproperty karaf.base
+#KARAF_DATA = system:getproperty karaf.data
+
+echo "Broker Name: ${BROKERNAME}"
+#echo "Karaf Base:  ${KARAF_BASE}"
+#echo "Karaf Data:  ${KARAF_DATA}"
+
+## Configure the local ActiveMQ broker
+#config:edit org.apache.activemq.server-default
+## Needs to be globally unique
+#config:propset broker-name "$BROKERNAME"
+#config:propset config ${KARAF_BASE}/etc/activemq-receiver.xml
+#config:propset data ${KARAF_DATA}/activemq
+#config:update
 
 # Configure the ActiveMQ web UI
 # Don't use this for now because it conflicts with the OpenNMS MX4J HTTP interface
