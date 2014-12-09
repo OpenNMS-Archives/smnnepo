@@ -53,7 +53,6 @@
 
     <camelVersion>2.13.2</camelVersion>
     <springVersion>3.2.4.RELEASE</springVersion>
-    <fabric8Version>1.1.0.CR5</fabric8Version>
     <activemqVersion>5.10.0</activemqVersion>
   </properties>
 
