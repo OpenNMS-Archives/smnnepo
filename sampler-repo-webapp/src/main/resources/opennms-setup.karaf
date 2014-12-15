@@ -1,12 +1,14 @@
 BROKERNAME=opennms
 
-## Workaround: Since karaf 2.3.x substitution of system properties no longer works
-## so we use java.lang.System.getProperty(...) instead!
-#addcommand system (($.context bundle) loadClass java.lang.System)
+# Workaround: Since karaf 2.3.x substitution of system properties no longer works
+# so we use java.lang.System.getProperty(...) instead!
+addcommand system (($.context bundle) loadClass java.lang.System)
+OPENNMS_HOME = system:getproperty opennms.home
 #KARAF_BASE = system:getproperty karaf.base
 #KARAF_DATA = system:getproperty karaf.data
 
 echo "Broker Name: ${BROKERNAME}"
+echo "OpenNMS Home: ${OPENNMS_HOME}"
 #echo "Karaf Base:  ${KARAF_BASE}"
 #echo "Karaf Data:  ${KARAF_DATA}"
 
@@ -36,7 +38,7 @@ config:update
 
 # Configure the local RRD storage directory
 config:edit org.opennms.netmgt.sampler.storage.rrd
-config:propset rrdStorageDirectory ${opennms.home}/share/rrd/snmp
+config:propset rrdStorageDirectory ${OPENNMS_HOME}/share/rrd/snmp
 config:update
 
 # Configure the Dominion controller to find the right ActiveMQ broker
