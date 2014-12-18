@@ -10,8 +10,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.apache.camel.builder.xml.TimeUnitAdapter;
-
 @XmlRootElement(name="timestamp")
 @XmlAccessorType(XmlAccessType.NONE)
 public class Timestamp implements Comparable<Timestamp>, Serializable {
