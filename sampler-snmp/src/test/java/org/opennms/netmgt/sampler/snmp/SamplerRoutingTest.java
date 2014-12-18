@@ -48,7 +48,13 @@ public class SamplerRoutingTest extends CamelTestSupport {
     public static class DataFormatUtils {
         public static JaxbDataFormat jaxbXml() {
             try {
-                final JAXBContext context = JAXBContext.newInstance(CollectdConfiguration.class, SnmpConfig.class, AgentList.class);
+                /*
+                 * The order is important.
+                 * It first loads bundle sample-api (AgentList.class).
+                 * The bundle sample-api has a dependency on opennms-config-jaxb, and therefore this works.
+                 * If the first parameter would be "JmxDataCollectionConfig.class" this no longer works.
+                 */
+                final JAXBContext context = JAXBContext.newInstance(SnmpConfig.class, AgentList.class, CollectdConfiguration.class);
                 return new JaxbDataFormat(context);
             } catch (final JAXBException e) {
                 throw new IllegalStateException("Cannot initialize JAXB context: " + e.getMessage(), e);

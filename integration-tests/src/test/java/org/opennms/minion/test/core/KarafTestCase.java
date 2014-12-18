@@ -3,11 +3,14 @@ package org.opennms.minion.test.core;
 import org.apache.felix.service.command.CommandProcessor;
 import org.apache.felix.service.command.CommandSession;
 import org.apache.karaf.features.FeaturesService;
+import org.apache.karaf.shell.osgi.Util;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.karaf.options.LogLevelOption;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.wiring.BundleWiring;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +19,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
@@ -31,10 +37,40 @@ public abstract class KarafTestCase {
 
     private static Logger LOG = LoggerFactory.getLogger(KarafTestCase.class);
 
+    public static class ResultInfo {
+
+        private String bundleName;
+        private List<String> resources = new ArrayList<>();
+
+        public void setBundleName(String bundleName) {
+            this.bundleName = bundleName;
+        }
+
+        public String getBundleName() {
+            return bundleName;
+        }
+
+        public void addResource(String resource) {
+            resources.add(resource);
+        }
+
+        public List<String> getResources() {
+            return resources;
+        }
+    }
+
     public static String getKarafVersion() {
         final String karafVersion = System.getProperty("karafVersion");
         Objects.requireNonNull(karafVersion, "Please define a system property 'karafVersion'.");
         return karafVersion;
+    }
+
+    private static boolean isDebug() {
+        String debugString = System.getProperty("debug");
+        if ("".equals(debugString)) {
+            return true;
+        }
+        return Boolean.valueOf(System.getProperty("debug")).booleanValue();
     }
 
     @Inject
@@ -65,7 +101,7 @@ public abstract class KarafTestCase {
                 editConfigurationFileExtend("etc/org.ops4j.pax.url.mvn.cfg", "org.ops4j.pax.url.mvn.localRepository", "file:${karaf.home}/../opennms-repo@snapshots@id=opennms-repo"),
         };
 
-        if (Boolean.valueOf(System.getProperty("debug"))) {
+        if (isDebug()) {
             options = Arrays.copyOf(options, options.length + 1);
             options[options.length -1] = debugConfiguration("8889", true);
         }
@@ -81,12 +117,46 @@ public abstract class KarafTestCase {
 
     }
 
+    protected void installFeature(final String featureName, final String version) {
+        try {
+            featuresService.installFeature(featureName, version);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     protected void installFeature(String featureName) {
         try {
             featuresService.installFeature(featureName);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    protected List<ResultInfo> findResource(final String resourceName) {
+        final Bundle[] bundles = bundleContext.getBundles();
+        final String filter = "*" + resourceName + "*";
+        List<ResultInfo> resultInfoList = new ArrayList<>();
+        LOG.info("Find resources '{}' in all bundles.", filter);
+        for (Bundle bundle : bundles) {
+            final BundleWiring wiring = bundle.adapt(BundleWiring.class);
+            if (wiring != null) {
+                final Collection<String> resources = wiring.listResources("/", filter, BundleWiring.LISTRESOURCES_RECURSE);
+                final String bundleName = Util.getBundleName(bundle);
+                if (resources.size() > 0) {
+                    LOG.info("{} results in bundle {} fetched.", resources.size(), bundleName);
+                    final ResultInfo resultInfo = new ResultInfo();
+                    resultInfo.setBundleName(Util.getBundleName(bundle));
+                    for (String eachResource : resources) {
+                        resultInfo.addResource(eachResource);
+                    }
+                    resultInfoList.add(resultInfo);
+                }
+            } else {
+                LOG.warn("Bundle " + bundle.getBundleId() + " is not resolved.");
+            }
+        }
+        return resultInfoList;
     }
 
     /**

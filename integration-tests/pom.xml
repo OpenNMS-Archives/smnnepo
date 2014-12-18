@@ -59,9 +59,28 @@
             <configuration>
               <useRepositoryLayout>true</useRepositoryLayout>
               <excludeTypes>tar.gz</excludeTypes>
-              <excludeGroupIds>org.opennms</excludeGroupIds>
               <outputDirectory>target/paxexam/test-repo</outputDirectory>
             </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- We have to copy target/test-classes/features.xml to the test repository -->
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>process-test-classes</phase>
+            <configuration>
+              <tasks>
+                <!-- do not copy src/test/resources/features.xml because we need filtering -->
+                <copy
+                    file="target/test-classes/features.xml"
+                    tofile="target/paxexam/test-repo/org/opennms/netmgt/sample/integration-tests/${project.version}/${project.artifactId}-${project.version}.xml"/>
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
           </execution>
         </executions>
       </plugin>
@@ -88,16 +107,66 @@
           </systemPropertyVariables>
         </configuration>
       </plugin>
+      <!-- Copy the features.xml to the target folder (to attach it to your maven repository later on) -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-resources</id>
+            <phase>generate-resources</phase>
+            <goals><goal>copy-resources</goal></goals>
+            <configuration>
+              <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>src/test/resources</directory>
+                  <filtering>true</filtering>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Attach the features.xml as a dependency to your maven repository -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-artifacts</id>
+            <phase>package</phase>
+            <goals>
+              <goal>attach-artifact</goal>
+            </goals>
+            <configuration>
+              <artifacts>
+                <artifact>
+                  <file>${project.build.outputDirectory}/features.xml</file>
+                  <type>xml</type>
+                </artifact>
+              </artifacts>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
   <dependencies>
-    <!--<dependency>-->
-    <!--<groupId>org.opennms.netmgt.sample</groupId>-->
-    <!--<artifactId>karaf</artifactId>-->
-    <!--<version>${project.version}</version>-->
-    <!--<type>xml</type>-->
-    <!--<scope>test</scope>-->
-    <!--</dependency>-->
+    <!-- Actual project dependencies -->
+    <dependency>
+      <groupId>org.opennms.netmgt.sample</groupId>
+      <artifactId>sample-api</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.opennms.core.test-api</groupId>
+      <artifactId>org.opennms.core.test-api.xml</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- Dependencies for Karaf and Pax-Exam -->
     <dependency>
       <groupId>org.apache.karaf.itests</groupId>
       <artifactId>itests</artifactId>
@@ -159,7 +228,6 @@
       <version>1</version>
       <scope>test</scope>
     </dependency>
-
     <!--
       These dependencies are required to fake the test-repo
       to get the exam stuff working inside the karaf container

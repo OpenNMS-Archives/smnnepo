@@ -1,0 +1,21 @@
+<features xmlns="http://karaf.apache.org/xmlns/features/v1.0.0" name="opennms-sampler-test-${project.version}">
+
+  <!-- OpenNMS features -->
+  <repository>mvn:org.opennms.karaf/opennms/${project.version}/xml/features</repository>
+
+  <feature name="opennms-test-api-xml" description="OpenNMS :: Test API :: XML" version="${project.version}">
+    <feature>opennms-core</feature>
+    <bundle>mvn:com.google.guava/guava/17.0</bundle>
+    <bundle>mvn:org.javassist/javassist/3.18.2-GA</bundle>
+    <bundle>wrap:mvn:xmlunit/xmlunit/1.5</bundle>
+    <bundle>wrap:mvn:org.skyscreamer/jsonassert/1.2.3</bundle>
+    <bundle>wrap:mvn:org.json/json/20090211</bundle>
+    <bundle>wrap:mvn:org.reflections/reflections/0.9.9</bundle>
+    <bundle>mvn:org.codehaus.jackson/jackson-core-asl/${jacksonVersion}</bundle>
+    <bundle>mvn:org.codehaus.jackson/jackson-mapper-asl/${jacksonVersion}</bundle>
+    <bundle>mvn:org.codehaus.jackson/jackson-xc/${jacksonVersion}</bundle>
+    <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.spring-test/3.2.9.RELEASE_1</bundle>
+    <bundle>mvn:org.opennms.core.test-api/org.opennms.core.test-api.lib/${project.version}</bundle>
+    <bundle>mvn:org.opennms.core.test-api/org.opennms.core.test-api.xml/${project.version}</bundle>
+  </feature>
+</features>

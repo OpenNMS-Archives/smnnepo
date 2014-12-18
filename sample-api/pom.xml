@@ -83,11 +83,33 @@
     <dependency>
       <groupId>org.opennms.core.test-api</groupId>
       <artifactId>org.opennms.core.test-api.xml</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
-  
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Bundle-SymbolicName>${bundle.symbolicName}</Bundle-SymbolicName>
+            <Bundle-Namespace>${bundle.namespace}</Bundle-Namespace>
+            <Import-Package>*,org.eclipse.persistence.internal.jaxb;version="${eclipselinkVersion}",
+              org.eclipse.persistence.internal.jaxb.many;version="${eclipselinkVersion}",org.eclips
+              e.persistence.jaxb;version="${eclipselinkVersion}",org.eclipse.persistence.jaxb.attac
+              hment;version="${eclipselinkVersion}",org.eclipse.persistence.jaxb.compiler;version="
+              ${eclipselinkVersion}",org.eclipse.persistence.jaxb.dynamic;version="${eclipselinkVersion}",org.eclip
+              se.persistence.jaxb.dynamic.metadata;version="${eclipselinkVersion}",org.eclipse.pers
+              istence.jaxb.javamodel;version="${eclipselinkVersion}",org.eclipse.persistence.jaxb.j
+              avamodel.oxm;version="${eclipselinkVersion}",org.eclipse.persistence.jaxb.javamodel.r
+              eflection;version="${eclipselinkVersion}",org.eclipse.persistence.jaxb.metadata;versi
+              on="${eclipselinkVersion}",org.eclipse.persistence.jaxb.rs;version="${eclipselinkVersion}",org.eclips
+              e.persistence.jaxb.xmlmodel;version="${eclipselinkVersion}"</Import-Package>
+          </instructions>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
