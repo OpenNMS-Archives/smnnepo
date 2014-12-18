@@ -72,7 +72,6 @@
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-jms</artifactId>
-      <version>${camelVersion}</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>

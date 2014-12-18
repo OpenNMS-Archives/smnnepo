@@ -62,15 +62,15 @@ public class JmxCollectionRequest implements CollectionRequest<JmxAgent> {
                 sampleSet.addMeasurement(resource, getMetric(compositeSample), getSampleValue(compositeSample));
             }
 
-            private SampleValue getSampleValue(JmxCompositeSample sample) {
+            private SampleValue<?> getSampleValue(JmxCompositeSample sample) {
                 return getSampleValue(sample.getCompositeMember().toAttrib(), sample.getCollectedValueAsString());
             }
 
-            private SampleValue getSampleValue(JmxAttributeSample sample) {
+            private SampleValue<?> getSampleValue(JmxAttributeSample sample) {
                 return getSampleValue(sample.getAttrib(), sample.getCollectedValueAsString());
             }
 
-            private SampleValue getSampleValue(Attrib attrib, String value) {
+            private SampleValue<?> getSampleValue(Attrib attrib, String value) {
                 MetricType metricType = getMetricType(attrib);
                 switch(metricType) {
                     case ABSOLUTE:

@@ -1,7 +1,6 @@
 package org.opennms.minion.api;
 
 import java.util.Date;
-import java.util.Map;
 
 public interface MinionStatusMessage extends MinionMessage {
     public String getId();

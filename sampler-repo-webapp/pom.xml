@@ -34,7 +34,6 @@
       <!-- Call the clean plugin during initialize to make sure that any old repo tar.gz contents are deleted before building -->
       <plugin>
         <artifactId>maven-clean-plugin</artifactId>
-        <version>2.4.1</version>
         <executions>
           <execution>
             <id>clean-existing-repo</id>
