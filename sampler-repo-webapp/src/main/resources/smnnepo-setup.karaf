@@ -41,14 +41,14 @@ features:addurl mvn:org.opennms.netmgt.sample/karaf/${project.version}/xml
 # Install the ActiveMQ                   #
 ##########################################
 
-## Configure the local ActiveMQ dispatcher broker
-#config:edit org.apache.activemq.server-default
-## Needs to be globally unique
-#config:propset broker-name "$BROKERNAME"
-#config:propset config ${KARAF_BASE}/etc/activemq-dispatcher.xml
-#config:propset brokerUri "$BROKER"
-#config:propset data ${KARAF_BASE}/data/activemq
-#config:update
+# Configure the local ActiveMQ dispatcher broker
+config:edit org.apache.activemq.server-dispatcher
+# Needs to be globally unique
+config:propset broker-name "$BROKERNAME"
+config:propset config ${KARAF_BASE}/etc/activemq-dispatcher.xml
+config:propset brokerUri "$BROKER"
+config:propset data ${KARAF_BASE}/data/activemq
+config:update
 
 # Install the ActiveMQ config file and feature
 features:install -v opennms-activemq-dispatcher
