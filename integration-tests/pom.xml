@@ -37,7 +37,7 @@
             </goals>
             <configuration>
               <artifactItems>
-                This is our SMNNEPO repository
+                <!-- This is our SMNNEPO repository -->
                 <artifactItem>
                   <groupId>org.opennms.netmgt.sample</groupId>
                   <artifactId>sampler-repo</artifactId>
