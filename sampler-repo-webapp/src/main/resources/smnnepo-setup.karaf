@@ -12,16 +12,10 @@ if { $5 } {
 }
 BROKERNAME=($LOCATION replaceAll "[^A-z0-9]" "-")
 
-# Workaround: Since karaf 2.3.x substitution of system properties no longer works
-# so we use java.lang.System.getProperty(...) instead!
-addcommand system (($.context bundle) loadClass java.lang.System)
-KARAF_BASE = system:getproperty karaf.base
-
 echo "OpenNMS REST Root:   	${ONMS}"
 echo "OpenNMS Broker URI:  	${BROKER}"
 echo "Monitoring Location: 	${LOCATION}"
 echo "Broker Name:         	${BROKERNAME}"
-echo "Karaf Base:			${KARAF_BASE}"
 
 ##########################################
 # Install the root                       #
@@ -45,9 +39,9 @@ features:addurl mvn:org.opennms.netmgt.sample/karaf/${project.version}/xml
 config:edit org.apache.activemq.server-dispatcher
 # Needs to be globally unique
 config:propset broker-name "$BROKERNAME"
-config:propset config ${KARAF_BASE}/etc/activemq-dispatcher.xml
+config:propset config ${karaf.base}/etc/activemq-dispatcher.xml
 config:propset brokerUri "$BROKER"
-config:propset data ${KARAF_BASE}/data/activemq
+config:propset data ${karaf.base}/data/activemq
 config:update
 
 # Install the ActiveMQ config file and feature
