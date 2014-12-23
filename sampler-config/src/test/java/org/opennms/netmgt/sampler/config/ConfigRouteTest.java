@@ -265,13 +265,13 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
         // Wait for one call to the scheduler service in a mock OSGi service
         m_schedulerServiceCalls = new CountDownLatch(1);
 
-        MockEndpoint result = getMockEndpoint("mock:direct:schedulerStart", false);
+        MockEndpoint result = getMockEndpoint("mock:direct:loadCollectionPackages", false);
         result.expectedMessageCount(1);
 
         MockEndpoint scheduled = getMockEndpoint("mock:seda:scheduleAgents", false);
         scheduled.expectedMessageCount(1);
 
-        template.sendBody("direct:start", null);
+        template.sendBody("direct:loadConfigurations", null);
         result.await();
 
         @SuppressWarnings("unchecked")

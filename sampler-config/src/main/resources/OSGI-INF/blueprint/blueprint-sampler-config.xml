@@ -15,7 +15,7 @@
 		http://aries.apache.org/schemas/blueprint-ext/blueprint-ext-1.1.xsd
 
 		http://camel.apache.org/schema/blueprint
-		http://camel.apache.org/schema/blueprint/camel-blueprint-2.12.2.xsd
+		http://camel.apache.org/schema/blueprint/camel-blueprint-2.14.1.xsd
 ">
 
   <!-- Configuration properties -->
@@ -114,7 +114,7 @@
     <route id="triggerStartSamplerConfig">
       <from uri="timer://runOnce?repeatCount=1&amp;delay=30000" />
       <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Triggering Startup" />
-      <to uri="direct:start" />
+      <to uri="direct:loadConfigurations" />
     </route>
 
     <route id="triggerReloadConfiguration">
@@ -123,20 +123,20 @@
       <to uri="direct:loadCollectdConfiguration"/>
     </route>
 
-    <route id="startLoadConfigurations">
-      <from uri="direct:start"/>
+    <route id="loadConfigurations">
+      <from uri="direct:loadConfigurations"/>
       <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Loading Configuration Files" />
       <!-- Load all of the configs -->
       <multicast parallelProcessing="true">
         <to uri="direct:loadCollectdConfiguration"/>
       </multicast>
       <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Configuration Files Loaded" />
-      <!-- Launch the scheduler -->
-      <to uri="direct:schedulerStart"/>
+      <!-- Load the collection packages -->
+      <to uri="direct:loadCollectionPackages"/>
     </route>
 
 	<!-- TODO: Create a reload timer that will check for changes to the config -->
-    <route id="initializeCollectdConfigurationInstance">
+    <route id="loadCollectdConfiguration">
       <from uri="direct:loadCollectdConfiguration"/>
       <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Loading Collectd Configuration" />
       <transform><constant>{{collectdConfigUrl}}</constant></transform>
@@ -146,12 +146,6 @@
         <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Collectd Configuration parsed, setting instance" />
         <bean ref="collectdConfiguration" method="setInstance"/>
       </filter>
-    </route>
-
-    <!-- We could invoke direct:loadCollectionPackages directly, but we need this for test purposes -->
-    <route id="schedulerStart">
-      <from uri="direct:schedulerStart"/>
-      <to uri="direct:loadCollectionPackages"/>
     </route>
 
     <!-- Get all of the collection packages that are associated with the current config -->

@@ -16,7 +16,7 @@
   <groupId>org.opennms.netmgt.sample</groupId>
   <artifactId>sample-parent</artifactId>
 
-  <name>SMNnepO - Sample Collection and Storage</name>
+  <name>Minion</name>
 
   <packaging>pom</packaging>
 
@@ -51,8 +51,8 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <camelVersion>2.13.2</camelVersion>
-    <springVersion>3.2.4.RELEASE</springVersion>
+    <camelVersion>2.14.1</camelVersion>
+    <springVersion>3.2.9.RELEASE_1</springVersion>
     <fabric8Version>1.1.0.CR5</fabric8Version>
     <activemqVersion>5.10.0</activemqVersion>
   </properties>
@@ -174,6 +174,16 @@
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-jms</artifactId>
         <version>${camelVersion}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.camel</groupId>
@@ -181,18 +191,18 @@
         <version>${camelVersion}</version>
       </dependency>
       <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-aop</artifactId>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.spring-aop</artifactId>
         <version>${springVersion}</version>
       </dependency>
       <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-jms</artifactId>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.spring-jms</artifactId>
         <version>${springVersion}</version>
       </dependency>
       <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-tx</artifactId>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.spring-tx</artifactId>
         <version>${springVersion}</version>
       </dependency>
     </dependencies>
