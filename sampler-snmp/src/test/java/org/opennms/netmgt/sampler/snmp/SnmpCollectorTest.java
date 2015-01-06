@@ -207,7 +207,7 @@ public class SnmpCollectorTest extends CamelBlueprintTestSupport implements Test
 		// We should get one call to {@link SampleRepository#save(SampleSet)}
 		m_latch = new CountDownLatch(1);
 
-		MockEndpoint sampleSaved = getMockEndpoint("mock:seda:saveToRepository");
+		MockEndpoint sampleSaved = getMockEndpoint("mock:seda:saveToRepository", false);
 		sampleSaved.expectedMessageCount(1);
 
 		for(int i = 1; i <= AGENT_COUNT; i++) {
