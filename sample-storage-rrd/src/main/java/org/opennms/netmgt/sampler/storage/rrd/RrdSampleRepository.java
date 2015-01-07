@@ -49,12 +49,10 @@ import org.opennms.netmgt.collection.sampler.SamplerCollectionAttributeType;
 import org.opennms.netmgt.collection.sampler.SamplerCollectionResource;
 import org.opennms.netmgt.collection.sampler.SamplerCollectionSet;
 import org.opennms.netmgt.rrd.RrdRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class RrdSampleRepository implements SampleRepository {
 
-	private static final Logger LOG = LoggerFactory.getLogger(RrdSampleRepository.class);
+	//private static final Logger LOG = LoggerFactory.getLogger(RrdSampleRepository.class);
 
 	private RrdRepository m_repo;
 

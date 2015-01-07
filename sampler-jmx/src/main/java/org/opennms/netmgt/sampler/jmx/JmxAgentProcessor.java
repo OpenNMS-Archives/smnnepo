@@ -22,11 +22,11 @@ public class JmxAgentProcessor implements Processor {
 
     private SingletonBeanFactory<CollectdConfiguration> collectdConfigFactory;
 
-    public void setJmxConfigFactory(final SingletonBeanFactory factory) {
+    public void setJmxConfigFactory(final SingletonBeanFactory<JmxDatacollectionConfig> factory) {
         jmxConfigFactory = factory;
     }
 
-    public void setCollectdConfigFactory(final SingletonBeanFactory factory) {
+    public void setCollectdConfigFactory(final SingletonBeanFactory<CollectdConfiguration> factory) {
         collectdConfigFactory = factory;
     }
 
