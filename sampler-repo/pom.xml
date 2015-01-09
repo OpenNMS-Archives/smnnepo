@@ -46,7 +46,6 @@
               -->
               <features>
                 <!-- ActiveMQ broker implementation -->
-                <feature>opennms-activemq-wrapper</feature>
                 <feature>activemq</feature>
 
                 <!-- Sampler features -->
