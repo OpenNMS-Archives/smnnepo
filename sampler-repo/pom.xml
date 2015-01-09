@@ -46,6 +46,14 @@
               -->
               <features>
                 <!-- ActiveMQ broker implementation -->
+                <!--
+                  The maven plugin is having trouble tracing all of the feature
+                  dependencies for 'activemq' so add them in here manually.
+                -->
+                <feature>pax-jetty</feature>
+                <feature>pax-http</feature>
+                <feature>http</feature>
+                <feature>activemq-client</feature>
                 <feature>activemq</feature>
 
                 <!-- Sampler features -->
@@ -69,7 +77,7 @@
                 <!-- Minion management features -->
                 <feature>minion-controller</feature>
                 <feature>dominion-controller</feature>
-                </features>
+              </features>
               <repository>target/maven-repo</repository>
             </configuration>
           </execution>
@@ -163,8 +171,8 @@
       <classifier>activemq-receiver</classifier>
     </dependency>
     <dependency>
-        <groupId>org.apache.activemq</groupId>
-        <artifactId>activemq-all</artifactId>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-all</artifactId>
       <version>${activemqVersion}</version>
     </dependency>
   </dependencies>

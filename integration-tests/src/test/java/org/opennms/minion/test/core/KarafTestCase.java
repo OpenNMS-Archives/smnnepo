@@ -32,7 +32,7 @@ public abstract class KarafTestCase {
     private static Logger LOG = LoggerFactory.getLogger(KarafTestCase.class);
 
     public static String getKarafVersion() {
-        final String karafVersion = System.getProperty("karafVersion");
+        final String karafVersion = System.getProperty("karafVersion", "2.4.0");
         Objects.requireNonNull(karafVersion, "Please define a system property 'karafVersion'.");
         return karafVersion;
     }
