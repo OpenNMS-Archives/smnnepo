@@ -22,21 +22,22 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.karaf.tooling</groupId>
-        <artifactId>karaf-maven-plugin</artifactId>
+        <groupId>org.opennms.maven.plugins</groupId>
+        <artifactId>features-maven-plugin</artifactId>
+
         <executions>
           <execution>
             <id>features.xml</id>
             <phase>none</phase>
           </execution>
           <execution>
-            <id>features-add-to-repository</id>
+            <id>features-add-to-repo</id>
             <phase>generate-resources</phase>
             <goals>
-              <goal>features-add-to-repository</goal>
+              <goal>generate-features-maven-repo</goal>
             </goals>
             <configuration>
-              <descriptors>
+              <descriptors> 
                 <descriptor>mvn:org.opennms.netmgt.sample/karaf/${project.version}/xml</descriptor>
               </descriptors>
               <!--
