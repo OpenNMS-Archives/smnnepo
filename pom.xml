@@ -9,7 +9,7 @@
   <parent>
     <groupId>org.opennms</groupId>
     <artifactId>opennms</artifactId>
-    <version>15.0.0-PJSM-SNAPSHOT</version>
+    <version>16.0.0-PJSM-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -52,7 +52,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <camelVersion>2.14.1</camelVersion>
-    <springVersion>3.2.9.RELEASE_1</springVersion>
+    <springVersion>4.0.5.RELEASE_1</springVersion>
     <fabric8Version>1.1.0.CR5</fabric8Version>
     <activemqVersion>5.10.0</activemqVersion>
   </properties>

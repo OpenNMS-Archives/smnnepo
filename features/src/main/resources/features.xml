@@ -1,15 +1,18 @@
 <features xmlns="http://karaf.apache.org/xmlns/features/v1.0.0" name="opennms-sampler-${project.version}">    
+
     <!-- Apache Camel features -->
     <repository>mvn:org.apache.camel.karaf/apache-camel/${camelVersion}/xml/features</repository>
-    
+
     <!-- Apache ActiveMQ features -->
     <repository>mvn:org.apache.activemq/activemq-karaf/${activemqVersion}/xml/features</repository>
 
     <!-- OpenNMS features -->
     <repository>mvn:org.opennms.karaf/opennms/${project.version}/xml/features</repository>
+
     <!-- Newts features -->
     <repository>mvn:org.opennms.newts/karaf/1.0.0-SNAPSHOT/xml/features</repository>
-    <!-- minion features -->
+
+    <!-- Minion features -->
     <repository>mvn:org.opennms.netmgt.sample/karaf/${project.version}/xml/minion</repository>
 
     <!-- Sampler features -->

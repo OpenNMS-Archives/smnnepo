@@ -8,6 +8,6 @@ public abstract class SmnnepoKarafTest extends KarafTestCase {
     @Before
     public void registerOpenNMSFeatuers() {
         // TODO remove constant version and use versionAsInProject instead (see PJSM-244)
-        addFeaturesUrl(maven().groupId("org.opennms.netmgt.sample").artifactId("karaf").version("15.0.0-PJSM-SNAPSHOT").type("xml").getURL());
+        addFeaturesUrl(maven().groupId("org.opennms.netmgt.sample").artifactId("karaf").version("16.0.0-PJSM-SNAPSHOT").type("xml").getURL());
     }
 }

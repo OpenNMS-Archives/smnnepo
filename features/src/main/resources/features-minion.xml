@@ -1,4 +1,11 @@
-<features xmlns="http://karaf.apache.org/xmlns/features/v1.0.0" name="opennms-sampler-${project.version}">    
+<features xmlns="http://karaf.apache.org/xmlns/features/v1.0.0" name="opennms-minion-${project.version}">
+
+    <!-- Apache ActiveMQ features -->
+    <repository>mvn:org.apache.activemq/activemq-karaf/${activemqVersion}/xml/features</repository>
+
+    <!-- Apache Camel features -->
+    <repository>mvn:org.apache.camel.karaf/apache-camel/${camelVersion}/xml/features</repository>
+
     <feature name="commons-codec" description="Apache :: commons-codec" version="${commonsCodecVersion}">
       <bundle>mvn:commons-codec/commons-codec/${commonsCodecVersion}</bundle>
     </feature>

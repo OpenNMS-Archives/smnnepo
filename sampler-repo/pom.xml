@@ -9,7 +9,7 @@
   <parent>
     <groupId>org.opennms.netmgt.sample</groupId>
     <artifactId>sample-parent</artifactId>
-    <version>15.0.0-PJSM-SNAPSHOT</version>
+    <version>16.0.0-PJSM-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -38,6 +38,11 @@
             </goals>
             <configuration>
               <descriptors> 
+                <!-- Put all standard Karaf features into the repository -->
+                <descriptor>mvn:org.apache.karaf.assemblies.features/standard/${karafVersion}/xml/features</descriptor>
+                <descriptor>mvn:org.apache.karaf.assemblies.features/spring/${karafVersion}/xml/features</descriptor>
+                <descriptor>mvn:org.apache.karaf.assemblies.features/enterprise/${karafVersion}/xml/features</descriptor>
+                <!-- Add Minion features -->
                 <descriptor>mvn:org.opennms.netmgt.sample/karaf/${project.version}/xml</descriptor>
               </descriptors>
               <!--
@@ -45,6 +50,19 @@
                 add the feature to this list.
               -->
               <features>
+                <!-- Make sure that all of the features from the default Karaf are in the repo -->
+                <feature>karaf-framework</feature>
+                <feature>shell</feature>
+                <feature>features</feature>
+                <feature>service-security</feature>
+                <feature>admin</feature>
+                <feature>config</feature>
+                <feature>ssh</feature>
+                <feature>management</feature>
+                <feature>kar</feature>
+                <feature>deployer</feature>
+                <feature>diagnostic</feature>
+
                 <!-- ActiveMQ broker implementation -->
                 <!--
                   The maven plugin is having trouble tracing all of the feature
