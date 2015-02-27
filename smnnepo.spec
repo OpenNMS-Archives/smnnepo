@@ -153,7 +153,10 @@ find "${RPM_BUILD_ROOT}%{webappdir}/smnnepo" ! -type d \
 	> "%{_tmppath}"/files.webapp
 
 %clean
-rm -rf "$RPM_BUILD_ROOT" "%{repodir}"
+# SL 2015-02-27 - Why are we deleting the user's .m2/repository directory? I'm 
+# commenting this out.
+#rm -rf "$RPM_BUILD_ROOT" "%{repodir}"
+rm -rf "$RPM_BUILD_ROOT"
 
 ##############################################################################
 # file setup
