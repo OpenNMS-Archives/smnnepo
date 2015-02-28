@@ -42,7 +42,7 @@ Installing the Minion Client RPM
 
 On the system that should be doing collection, download the "smnnepo" RPM
 from http://yum.opennms.org/branches/pjsm-2.0/common/opennms/ and install
-it, like so: <code>rpm -Uvh smnnepo-1.13\*.rpm</code>
+it, like so: <code>rpm -Uvh smnnepo-\*.rpm</code>
 
 
 Installing the Minion Server Components

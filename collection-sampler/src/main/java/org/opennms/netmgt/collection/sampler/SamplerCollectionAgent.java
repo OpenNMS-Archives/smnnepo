@@ -186,6 +186,7 @@ public class SamplerCollectionAgent implements CollectionAgent {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public <V> V getAttribute(String property) {
 		return (V)m_agent.getParameter(property);
 	}

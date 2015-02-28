@@ -38,7 +38,7 @@
     <dependency>
       <groupId>org.opennms.newts</groupId>
       <artifactId>newts-api</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>${newtsVersion}</version>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
@@ -47,7 +47,7 @@
     <dependency>
       <groupId>org.opennms.newts</groupId>
       <artifactId>newts-cassandra</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>${newtsVersion}</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>

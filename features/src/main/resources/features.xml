@@ -10,7 +10,7 @@
     <repository>mvn:org.opennms.karaf/opennms/${project.version}/xml/features</repository>
 
     <!-- Newts features -->
-    <repository>mvn:org.opennms.newts/karaf/1.0.0-SNAPSHOT/xml/features</repository>
+    <repository>mvn:org.opennms.newts/newts-karaf/${newtsVersion}/xml/features</repository>
 
     <!-- Minion features -->
     <repository>mvn:org.opennms.netmgt.sample/karaf/${project.version}/xml/minion</repository>

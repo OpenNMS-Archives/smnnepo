@@ -52,6 +52,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <camelVersion>2.14.1</camelVersion>
+    <newtsVersion>1.1.0</newtsVersion>
     <springVersion>4.0.5.RELEASE_1</springVersion>
     <fabric8Version>1.1.0.CR5</fabric8Version>
     <activemqVersion>5.10.0</activemqVersion>
