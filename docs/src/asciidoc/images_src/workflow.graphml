@@ -147,10 +147,10 @@ DAO<y:LabelModel>
       <data key="d5"/>
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="30.0" width="103.0" x="691.0" y="78.0"/>
+          <y:Geometry height="42.566352479195075" width="103.0" x="691.0" y="78.0"/>
           <y:Fill color="#729FCF" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.1328125" modelName="custom" textColor="#000000" visible="true" width="89.470703125" x="6.7646484375" y="5.93359375">Sampler group<y:LabelModel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.1328125" modelName="custom" textColor="#000000" visible="true" width="89.470703125" x="6.7646484375" y="12.216769989597537">Sampler group<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
             <y:ModelParameter>
@@ -165,10 +165,10 @@ DAO<y:LabelModel>
       <data key="d5"/>
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="30.0" width="103.0" x="691.0" y="138.0"/>
+          <y:Geometry height="42.566352479195075" width="103.0" x="691.0" y="138.0"/>
           <y:Fill color="#729FCF" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.1328125" modelName="custom" textColor="#000000" visible="true" width="79.720703125" x="11.6396484375" y="5.93359375">sampler-jmx<y:LabelModel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.1328125" modelName="custom" textColor="#000000" visible="true" width="79.720703125" x="11.6396484375" y="12.216769989597537">sampler-jmx<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
             <y:ModelParameter>
@@ -183,10 +183,10 @@ DAO<y:LabelModel>
       <data key="d5"/>
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="30.0" width="103.0" x="691.0" y="198.0"/>
+          <y:Geometry height="42.566352479195075" width="103.0" x="691.0" y="198.0"/>
           <y:Fill color="#729FCF" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.1328125" modelName="custom" textColor="#000000" visible="true" width="33.6953125" x="34.65234375" y="5.93359375">traps<y:LabelModel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.1328125" modelName="custom" textColor="#000000" visible="true" width="33.6953125" x="34.65234375" y="12.216769989597537">traps<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
             <y:ModelParameter>
@@ -201,10 +201,10 @@ DAO<y:LabelModel>
       <data key="d5"/>
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="30.0" width="103.0" x="691.0" y="258.0"/>
+          <y:Geometry height="42.566352479195075" width="103.0" x="691.0" y="258.0"/>
           <y:Fill color="#729FCF" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.1328125" modelName="custom" textColor="#000000" visible="true" width="40.826171875" x="31.0869140625" y="5.93359375">syslog<y:LabelModel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.1328125" modelName="custom" textColor="#000000" visible="true" width="40.826171875" x="31.0869140625" y="12.216769989597537">syslog<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
             <y:ModelParameter>
@@ -368,9 +368,9 @@ Collection<y:LabelModel>
       <data key="d9"/>
       <data key="d10">
         <y:BezierEdge>
-          <y:Path sx="0.0" sy="0.0" tx="-51.51008102861033" ty="6.463737658277921">
+          <y:Path sx="0.0" sy="0.0" tx="-51.48996749648825" ty="13.68388316582896">
             <y:Point x="636.0" y="426.0"/>
-            <y:Point x="393.0" y="95.0"/>
+            <y:Point x="432.0769237698736" y="112.9670594054265"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
@@ -404,7 +404,7 @@ Collection<y:LabelModel>
       <data key="d9"/>
       <data key="d10">
         <y:BezierEdge>
-          <y:Path sx="41.993797587610516" sy="-10.098402697623243" tx="-51.5234375" ty="-10.098402697623243"/>
+          <y:Path sx="41.993797587610516" sy="-10.098402697623243" tx="-51.5234375" ty="-14.328405623462842"/>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
         </y:BezierEdge>
@@ -434,8 +434,8 @@ Collection<y:LabelModel>
       <data key="d9"/>
       <data key="d10">
         <y:BezierEdge>
-          <y:Path sx="-51.52823373128547" sy="-1.8465577974732241" tx="41.96882540228813" ty="-10.221460316287136">
-            <y:Point x="493.0" y="88.0"/>
+          <y:Path sx="-51.51622134604622" sy="5.342433241586207" tx="41.96882540228813" ty="-10.221460316287136">
+            <y:Point x="493.0" y="98.01972404355729"/>
             <y:Point x="571.0" y="222.77853968371286"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
@@ -448,6 +448,19 @@ Collection<y:LabelModel>
       <data key="d10">
         <y:BezierEdge>
           <y:Path sx="33.01539042883206" sy="13.255823673318332" tx="0.0" ty="0.0"/>
+          <y:LineStyle color="#000000" type="line" width="1.0"/>
+          <y:Arrows source="none" target="standard"/>
+        </y:BezierEdge>
+      </data>
+    </edge>
+    <edge id="e10" source="n17" target="n7">
+      <data key="d9"/>
+      <data key="d10">
+        <y:BezierEdge>
+          <y:Path sx="0.0" sy="0.0" tx="-51.52467767546716" ty="-3.5726200013594536">
+            <y:Point x="472.5505420005641" y="144.90367169775428"/>
+            <y:Point x="529.4321180266883" y="90.70069421645938"/>
+          </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
         </y:BezierEdge>
