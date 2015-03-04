@@ -74,7 +74,7 @@ admin:start sampler
 if { "activemq" equals "$INSTANCE" } {
 
 # Configure the local ActiveMQ dispatcher broker
-config:edit org.apache.activemq.server-default
+config:edit org.apache.activemq.server-dispatcher
 # Needs to be globally unique
 config:propset broker-name "$BROKERNAME"
 config:propset config ${karaf.base}/etc/activemq-dispatcher.xml
