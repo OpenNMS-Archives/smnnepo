@@ -41,15 +41,15 @@ Installing the Minion Client RPM
 --------------------------------
 
 On the system that should be doing collection, download the "smnnepo" RPM
-from http://yum.opennms.org/branches/pjsm-2.0/common/opennms/ and install
+from http://yum.opennms.org/branches/develop/common/opennms/ and install
 it, like so: <code>rpm -Uvh smnnepo-\*.rpm</code>
 
 
 Installing the Minion Server Components
 ---------------------------------------
 
-First, you should be running OpenNMS from the <code>pjsm/2.0</code> branch for now.
-RPMs are available at http://yum.opennms.org/branches/pjsm-2.0/common/opennms/
+First, you should be running OpenNMS from the <code>develop</code> branch for now.
+RPMs are available at http://yum.opennms.org/branches/develop/common/opennms/
 
 You'll need OpenNMS (at least <code>opennms-core</code> and
 <code>opennms-webapp-jetty</code>), as well as the Minion webapp from the
@@ -84,7 +84,7 @@ Starting the SMNnepO Client
 Installing from Source
 ======================
 
-1. Build [OpenNMS pjsm/2.0](https://github.com/OpenNMS/opennms/tree/pjsm/2.0)
+1. Build [OpenNMS develop](https://github.com/OpenNMS/opennms/tree/develop)
 2. Build [Minion](http://github.com/OpenNMS/smnnepo.git)
 3. From the Minion source build, copy <code>sampler-repo-webapp/target/smnnepo.war</code>
    to your OpenNMS <code>jetty-webapps/</code> directory.
