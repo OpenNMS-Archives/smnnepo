@@ -10,7 +10,7 @@
     <groupId>org.opennms.minion</groupId>
     <artifactId>minion-parent</artifactId>
     <version>16.0.0-SNAPSHOT</version>
-    <relativePath></relativePath>
+    <relativePath>../minion-parent/pom.xml</relativePath>
   </parent>
 
   <properties>
