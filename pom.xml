@@ -29,8 +29,9 @@
     <module>sample-storage-rrd</module>
     <module>sample-storage-newts</module>
     <module>minion-api</module>
-    <module>minion-impl</module>
     <module>minion-controller</module>
+    <module>minion-impl</module>
+    <module>minion-parent</module>
     <module>dominion-status-writer/dao</module>
     <module>dominion-status-writer/logging</module>
     <module>dominion-controller</module>
@@ -133,13 +134,6 @@
   </pluginRepositories>
 
   <repositories>
-    <repository>
-      <snapshots><enabled>true</enabled></snapshots>
-      <releases><enabled>false</enabled></releases>
-      <id>jboss-snapshots</id>
-      <name>JBoss Snapshot Repository</name>
-      <url>http://repository.jboss.org/nexus/content/groups/m2-proxy</url>
-    </repository>
     <repository>
       <snapshots><enabled>false</enabled></snapshots>
       <releases><enabled>true</enabled></releases>
