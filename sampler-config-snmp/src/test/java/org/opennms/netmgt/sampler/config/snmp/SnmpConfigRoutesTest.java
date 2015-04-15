@@ -3,8 +3,10 @@ package org.opennms.netmgt.sampler.config.snmp;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Dictionary;
+import java.util.Map;
 import java.util.Properties;
 
+import org.apache.aries.blueprint.ext.PropertyPlaceholder;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -82,14 +84,26 @@ public class SnmpConfigRoutesTest extends CamelBlueprintTestSupport {
     /**
      * Override 'opennms.home' with the test resource directory.
      */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     protected String useOverridePropertiesWithConfigAdmin(Dictionary props) throws Exception {
         props.put("opennms.home", OPENNMS_HOME);
         props.put("snmpConfigUrl", REST_ROOT + "/etc/snmp-config.xml");
         props.put("datacollectionFileUrl", REST_ROOT + "/etc/datacollection-config.xml");
         props.put("datacollectionGroupUrls", REST_ROOT + "/etc/datacollection/mib2.xml," + REST_ROOT + "/etc/datacollection/netsnmp.xml," + REST_ROOT + "/etc/datacollection/dell.xml");
         return "org.opennms.netmgt.sampler.config.snmp";
+    }
+
+    @Override
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public void doPostSetup() throws Exception {
+        final PropertyPlaceholder placeholder = bean("properties", PropertyPlaceholder.class);
+        final Map props = placeholder.getDefaultProperties();
+        props.put("opennms.home", OPENNMS_HOME);
+        props.put("snmpConfigUrl", REST_ROOT + "/etc/snmp-config.xml");
+        props.put("datacollectionFileUrl", REST_ROOT + "/etc/datacollection-config.xml");
+        props.put("datacollectionGroupUrls", REST_ROOT + "/etc/datacollection/mib2.xml," + REST_ROOT + "/etc/datacollection/netsnmp.xml," + REST_ROOT + "/etc/datacollection/dell.xml");
+        placeholder.setDefaultProperties(props);
     }
 
     @Test

@@ -60,14 +60,25 @@ public class TrapReceiverContextTest extends CamelBlueprintTestSupport {
 		return true;
 	}
 
+	/**
+	 * Override 'opennms.home' with the test resource directory.
+	 */
 	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	protected String useOverridePropertiesWithConfigAdmin(Dictionary props) throws Exception {
+		props.put("trapListenAddress", "127.0.0.1");
+		props.put("trapListenPort", "9162");
+		return "org.opennms.netmgt.sampler.trapReceiver";
+	}
+
+	@Override
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void doPostSetup() throws Exception {
-		final PropertyPlaceholder properties = context().getRegistry().lookupByNameAndType("properties", PropertyPlaceholder.class);
-		final Map defaultProperties = properties.getDefaultProperties();
-		defaultProperties.put("trapListenAddress", "127.0.0.1");
-		defaultProperties.put("trapListenPort", "9162");
-		properties.setDefaultProperties(defaultProperties);
+		final PropertyPlaceholder placeholder = context().getRegistry().lookupByNameAndType("properties", PropertyPlaceholder.class);
+		final Map props = placeholder.getDefaultProperties();
+		props.put("trapListenAddress", "127.0.0.1");
+		props.put("trapListenPort", "9162");
+		placeholder.setDefaultProperties(props);
 	}
 
 	// The location of our Blueprint XML file to be used for testing

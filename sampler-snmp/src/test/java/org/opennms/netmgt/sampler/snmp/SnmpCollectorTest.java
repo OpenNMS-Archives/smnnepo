@@ -8,7 +8,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Dictionary;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -121,16 +120,6 @@ public class SnmpCollectorTest extends CamelBlueprintTestSupport implements Test
 	}
 
 	/**
-	 * Override 'opennms.home' with the test resource directory.
-	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@Override
-	protected String useOverridePropertiesWithConfigAdmin(Dictionary props) throws Exception {
-		props.put("opennms.home", "../sampler-config-snmp/src/test/resources");
-		return "org.opennms.netmgt.sampler.config.snmp";
-	}
-
-	/**
 	 * This class will use a countdown latch every time save() is called.
 	 */
 	private class CountDownLatchSimpleFileRepository extends SimpleFileRepository {
@@ -214,7 +203,7 @@ public class SnmpCollectorTest extends CamelBlueprintTestSupport implements Test
 			Agent agent = new Agent(
 				new InetSocketAddress(
 					(InetAddress)m_testContext.getAttribute(JUnitSnmpAgentExecutionListener.IPADDRESS_KEY),
-                                        (Integer)m_testContext.getAttribute(JUnitSnmpAgentExecutionListener.PORT_KEY)
+					(Integer)m_testContext.getAttribute(JUnitSnmpAgentExecutionListener.PORT_KEY)
 				),
 				"SNMP",
 				String.valueOf(i)
@@ -256,15 +245,26 @@ public class SnmpCollectorTest extends CamelBlueprintTestSupport implements Test
 		assertEquals(1, rows.size());
 		
 		// Check to make sure that the collected values match the mock SNMP values
-		Iterator<Sample> samples = rows.iterator().next().iterator();
-		Sample sample = samples.next();
-		assertEquals("loadavg1", sample.getMetric().getName());
-		assertEquals(122, sample.getValue().intValue());
-		sample = samples.next();
-		assertEquals("loadavg5", sample.getMetric().getName());
-		assertEquals(97, sample.getValue().intValue());
-		sample = samples.next();
-		assertEquals("loadavg15", sample.getMetric().getName());
-		assertEquals(76, sample.getValue().intValue());
+		boolean found1 = false, found5 = false, found15 = false;
+		for (Sample sample : rows.iterator().next()) {
+			if ("loadavg1".equals(sample.getMetric().getName())) {
+				assertFalse(found1);
+				assertEquals(122, sample.getValue().intValue());
+				found1 = true;
+			} else if ("loadavg5".equals(sample.getMetric().getName())) {
+				assertFalse(found5);
+				assertEquals(97, sample.getValue().intValue());
+				found5 = true;
+			} else if ("loadavg15".equals(sample.getMetric().getName())) {
+				assertFalse(found15);
+				assertEquals(76, sample.getValue().intValue());
+				found15 = true;
+			} else {
+				fail("Unexpected metric name: " + sample.getMetric().getName());
+			}
+		}
+		assertTrue(found1);
+		assertTrue(found5);
+		assertTrue(found15);
 	}
 }

@@ -59,17 +59,6 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
     }
 
     @Override
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public void doPostSetup() throws Exception {
-        final PropertyPlaceholder properties = bean("samplerProperties", PropertyPlaceholder.class);
-        final Map defaultProperties = properties.getDefaultProperties();
-        defaultProperties.put("opennms.home", "target/test-classes");
-        defaultProperties.put("collectdConfigUrl", "http://localhost:9162/etc/collectd-configuration.xml");
-        defaultProperties.put("agentListUrl", "http://localhost:9162/agents");
-        properties.setDefaultProperties(defaultProperties);
-    }
-
-    @Override
     public boolean isUseAdviceWith() {
         return true;
     }
@@ -107,11 +96,24 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
     /**
      * Override 'opennms.home' with the test resource directory.
      */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     protected String useOverridePropertiesWithConfigAdmin(Dictionary props) throws Exception {
         props.put("opennms.home", OPENNMS_HOME);
+        props.put("collectdConfigUrl", REST_ROOT + "/etc/collectd-configuration.xml");
+        props.put("agentListUrl", REST_ROOT + "/agents");
         return "org.opennms.netmgt.sampler.config";
+    }
+
+    @Override
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public void doPostSetup() throws Exception {
+        final PropertyPlaceholder placeholder = bean("samplerProperties", PropertyPlaceholder.class);
+        final Map props = placeholder.getDefaultProperties();
+        props.put("opennms.home", OPENNMS_HOME);
+        props.put("collectdConfigUrl", REST_ROOT + "/etc/collectd-configuration.xml");
+        props.put("agentListUrl", REST_ROOT + "/agents");
+        placeholder.setDefaultProperties(props);
     }
 
     @Test

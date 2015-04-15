@@ -17,7 +17,7 @@
 		http://camel.apache.org/schema/blueprint/camel-blueprint-2.14.1.xsd
 ">
 
-  <!-- Override with an etc/org.opennms.netmgt.sample.config.configuration.snmp.cfg -->
+  <!-- Override with an etc/org.opennms.netmgt.sampler.config.cfg -->
   <!-- Configuration properties -->
   <cm:property-placeholder id="globalProperties" persistent-id="org.opennms.netmgt.sampler.config" update-strategy="none" placeholder-prefix="[[" placeholder-suffix="]]">
     <cm:default-properties>
@@ -29,6 +29,7 @@
     </cm:default-properties>
   </cm:property-placeholder>
 
+  <!-- Override with an etc/org.opennms.netmgt.sampler.config.snmp.cfg -->
   <cm:property-placeholder id="properties" persistent-id="org.opennms.netmgt.sampler.config.snmp" update-strategy="none">
     <cm:default-properties>
       <!-- TODO: Figure out how to use the same type of token replacement in these strings -->
