@@ -45,7 +45,14 @@
 
   <!-- Beans that hold a copy of a configuration object -->
   <bean id="snmpConfigFactory" class="org.opennms.netmgt.api.sample.support.SingletonBeanFactoryImpl"/>
-  <bean id="snmpMetricRepository" class="org.opennms.netmgt.sampler.config.snmp.SnmpMetricRepository">
+
+  <!--
+    TODO: This configuration should be loaded with Camel in similar fashion to the snmpConfigFactory.
+    It is marked with activation="lazy" so that it is initialized in unit tests after the PropertyPlaceholders
+    have been updated with test context properties. It should be loaded shortly after the Camel context
+    is started.
+  -->
+  <bean id="snmpMetricRepository" class="org.opennms.netmgt.sampler.config.snmp.SnmpMetricRepository" activation="lazy">
     <argument value="${datacollectionFileUrl}"/>
     <argument value="${datacollectionGroupUrls}"/>
     <property name="username" value="[[username]]" />

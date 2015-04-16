@@ -81,15 +81,16 @@ public class SnmpConfigRoutesTest extends CamelBlueprintTestSupport {
         return "file:src/main/resources/OSGI-INF/blueprint/blueprint-sampler-config-snmp.xml";
     }
 
+    /*
     @Override
     protected String[] loadConfigAdminConfigurationFile() {
         return new String[]{"src/test/resources/snmpConfigRoutesTest.cfg", "org.opennms.netmgt.sampler.config.snmp"};
     }
+    */
 
     /**
      * Override 'opennms.home' with the test resource directory.
      */
-    /*
     @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected String useOverridePropertiesWithConfigAdmin(Dictionary props) throws Exception {
@@ -100,6 +101,7 @@ public class SnmpConfigRoutesTest extends CamelBlueprintTestSupport {
         return "org.opennms.netmgt.sampler.config.snmp";
     }
 
+    /*
     @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void doPostSetup() throws Exception {
