@@ -2,11 +2,8 @@ package org.opennms.netmgt.sampler.config.snmp;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Dictionary;
-import java.util.Map;
 import java.util.Properties;
 
-import org.apache.aries.blueprint.ext.PropertyPlaceholder;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -25,12 +22,15 @@ import org.springframework.test.context.ContextConfiguration;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 
+/**
+ * This test relies on the src/test/resources/etc/org.opennms.netmgt.sampler.config.cfg
+ * file to override cm:properties so that we connect to the @JUnitHttpServer for tests.
+ */
 @RunWith(OpenNMSJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath:/META-INF/opennms/emptyContext.xml"})
 @JUnitHttpServer(port=9162)
 public class SnmpConfigRoutesTest extends CamelBlueprintTestSupport {
     private static final String REST_ROOT = "http://localhost:9162";
-    private static final String OPENNMS_HOME = "src/test/resources";
 
     /**
      * Use Aries Blueprint synchronous mode to avoid a blueprint
@@ -80,40 +80,6 @@ public class SnmpConfigRoutesTest extends CamelBlueprintTestSupport {
     protected String getBlueprintDescriptor() {
         return "file:src/main/resources/OSGI-INF/blueprint/blueprint-sampler-config-snmp.xml";
     }
-
-    /*
-    @Override
-    protected String[] loadConfigAdminConfigurationFile() {
-        return new String[]{"src/test/resources/snmpConfigRoutesTest.cfg", "org.opennms.netmgt.sampler.config.snmp"};
-    }
-    */
-
-    /**
-     * Override 'opennms.home' with the test resource directory.
-     */
-    @Override
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected String useOverridePropertiesWithConfigAdmin(Dictionary props) throws Exception {
-        props.put("opennms.home", OPENNMS_HOME);
-        props.put("snmpConfigUrl", REST_ROOT + "/etc/snmp-config.xml");
-        props.put("datacollectionFileUrl", REST_ROOT + "/etc/datacollection-config.xml");
-        props.put("datacollectionGroupUrls", REST_ROOT + "/etc/datacollection/mib2.xml," + REST_ROOT + "/etc/datacollection/netsnmp.xml," + REST_ROOT + "/etc/datacollection/dell.xml");
-        return "org.opennms.netmgt.sampler.config.snmp";
-    }
-
-    /*
-    @Override
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public void doPostSetup() throws Exception {
-        final PropertyPlaceholder placeholder = bean("properties", PropertyPlaceholder.class);
-        final Map props = placeholder.getDefaultProperties();
-        props.put("opennms.home", OPENNMS_HOME);
-        props.put("snmpConfigUrl", REST_ROOT + "/etc/snmp-config.xml");
-        props.put("datacollectionFileUrl", REST_ROOT + "/etc/datacollection-config.xml");
-        props.put("datacollectionGroupUrls", REST_ROOT + "/etc/datacollection/mib2.xml," + REST_ROOT + "/etc/datacollection/netsnmp.xml," + REST_ROOT + "/etc/datacollection/dell.xml");
-        placeholder.setDefaultProperties(props);
-    }
-    */
 
     @Test
     public void testParseSnmpXml() throws Exception {
