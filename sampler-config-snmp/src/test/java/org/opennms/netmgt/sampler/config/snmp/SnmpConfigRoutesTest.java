@@ -2,6 +2,7 @@ package org.opennms.netmgt.sampler.config.snmp;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Dictionary;
 import java.util.Properties;
 
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
@@ -79,6 +80,15 @@ public class SnmpConfigRoutesTest extends CamelBlueprintTestSupport {
     @Override
     protected String getBlueprintDescriptor() {
         return "file:src/main/resources/OSGI-INF/blueprint/blueprint-sampler-config-snmp.xml";
+    }
+
+    @Override
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    protected String useOverridePropertiesWithConfigAdmin(Dictionary props) throws Exception {
+        props.put("snmpConfigUrl", REST_ROOT + "/etc/snmp-config.xml");
+        props.put("datacollectionFileUrl", REST_ROOT + "/etc/datacollection-config.xml");
+        props.put("datacollectionGroupUrls", REST_ROOT + "/etc/datacollection/mib2.xml," + REST_ROOT + "/etc/datacollection/netsnmp.xml," + REST_ROOT + "/etc/datacollection/dell.xml");
+        return "org.opennms.netmgt.sampler.config.snmp";
     }
 
     @Test

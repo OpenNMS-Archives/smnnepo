@@ -5,6 +5,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Set;
@@ -15,14 +16,16 @@ import org.opennms.netmgt.api.sample.CollectionConfiguration;
 import org.opennms.netmgt.api.sample.Metric;
 import org.opennms.netmgt.api.sample.MetricRepository;
 import org.osgi.framework.Bundle;
+import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SnmpMetricRepository implements MetricRepository, CollectionConfiguration<SnmpAgent, SnmpCollectionRequest> {
+public class SnmpMetricRepository implements MetricRepository, CollectionConfiguration<SnmpAgent, SnmpCollectionRequest>, ManagedService {
     private static Logger LOG = LoggerFactory.getLogger(SnmpMetricRepository.class); 
 
-    private final URL m_dataCollectionConfigURL;
-    private final URL[] m_dataCollectionGroupURLs;
+    private URL m_dataCollectionConfigURL;
+    private URL[] m_dataCollectionGroupURLs;
     private String m_username = "admin";
     private String m_password = "admin";
 
@@ -64,17 +67,7 @@ public class SnmpMetricRepository implements MetricRepository, CollectionConfigu
      */
     public SnmpMetricRepository(URL dataCollectionConfigURL, String groupURLs) throws Exception {
         m_dataCollectionConfigURL = dataCollectionConfigURL;
-        List<URL> urls = new ArrayList<URL>();
-        if (groupURLs != null && !"".equals(groupURLs)) {
-            for (String url : groupURLs.split(",")) {
-                try {
-                    urls.add(new URL(url.trim()));
-                } catch (MalformedURLException e) {
-                    LOG.warn("Invalid URL specified in {} configuration: {}", getClass().getSimpleName(), url);
-                }
-            }
-        }
-        m_dataCollectionGroupURLs = urls.toArray(new URL[0]);
+        m_dataCollectionGroupURLs = parseUrlArray(groupURLs);
         refresh();
     }
 
@@ -154,5 +147,53 @@ public class SnmpMetricRepository implements MetricRepository, CollectionConfigu
     }
     public void setPassword(final String password) {
         m_password = password;
+    }
+
+    private static URL[] parseUrlArray(String groupURLs) {
+        List<URL> urls = new ArrayList<URL>();
+        if (groupURLs != null && !"".equals(groupURLs)) {
+            for (String url : groupURLs.split(",")) {
+                try {
+                    urls.add(new URL(url.trim()));
+                } catch (MalformedURLException e) {
+                    LOG.warn("Invalid URL specified in {} configuration: {}", SnmpMetricRepository.class.getSimpleName(), url);
+                }
+            }
+        }
+        return urls.toArray(new URL[0]);
+    }
+
+    @Override
+    public void updated(Dictionary<String, ?> properties) throws ConfigurationException {
+        if (properties == null) {
+            return;
+        }
+
+        boolean refresh = false;
+
+        String property = (String)properties.get("datacollectionFileUrl");
+        if (property != null && !m_dataCollectionConfigURL.toString().equals(property)) {
+            try {
+                m_dataCollectionConfigURL = new URL(property);
+            } catch (MalformedURLException e) {
+                throw new ConfigurationException("datacollectionFileUrl", "Malformed URL", e);
+            }
+            refresh = true;
+        }
+
+        property = (String)properties.get("datacollectionGroupUrls"); 
+        if (property != null) {
+            m_dataCollectionGroupURLs = parseUrlArray(property);
+            refresh = true;
+        }
+        if (refresh) {
+            try {
+                refresh();
+            } catch (JAXBException e) {
+                throw new ConfigurationException("datacollectionFileUrl", "Could not load new configuration", e);
+            } catch (IOException e) {
+                throw new ConfigurationException("datacollectionFileUrl", "Could not load new configuration", e);
+            }
+        }
     }
 }

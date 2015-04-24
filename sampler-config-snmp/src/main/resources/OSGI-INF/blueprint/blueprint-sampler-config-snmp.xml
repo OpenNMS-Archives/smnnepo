@@ -52,7 +52,7 @@
     have been updated with test context properties. It should be loaded shortly after the Camel context
     is started.
   -->
-  <bean id="snmpMetricRepository" class="org.opennms.netmgt.sampler.config.snmp.SnmpMetricRepository" activation="lazy">
+  <bean id="snmpMetricRepository" class="org.opennms.netmgt.sampler.config.snmp.SnmpMetricRepository">
     <argument value="${datacollectionFileUrl}"/>
     <argument value="${datacollectionGroupUrls}"/>
     <property name="username" value="[[username]]" />
@@ -72,9 +72,11 @@
     <interfaces>
      <value>org.opennms.netmgt.api.sample.CollectionConfiguration</value>
      <value>org.opennms.netmgt.api.sample.MetricRepository</value>
+     <value>org.osgi.service.cm.ManagedService</value>
     </interfaces>
     <service-properties>
       <entry key="protocol" value="SNMP"/>
+      <entry key="service.pid" value="org.opennms.netmgt.sampler.config.snmp"/>
     </service-properties>
   </service>
 
