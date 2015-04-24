@@ -8,8 +8,10 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import org.opennms.core.xml.JaxbMapAdapter;
 
 @XmlRootElement(name="resource")
 @XmlAccessorType(XmlAccessType.NONE)
@@ -27,9 +29,9 @@ public class Resource implements Comparable<Resource>, Serializable {
     
     @XmlAttribute(name="type")
     private final String m_type;
-    
-    @XmlElementWrapper(name="attributes")
-    @XmlElement(name="attribute")
+
+    @XmlElement(name = "attributes")
+    @XmlJavaTypeAdapter(JaxbMapAdapter.class)
     private final Map<String, String> m_attributes = new HashMap<String, String>();
 
     public Resource() {
