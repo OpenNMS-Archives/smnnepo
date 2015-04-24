@@ -17,6 +17,13 @@
 		http://camel.apache.org/schema/blueprint/camel-blueprint-2.14.1.xsd
 ">
 
+  <!-- 
+    update-strategy="reload" causes unit test failures because the Blueprint context
+    can be destroyed and recreated by CM properties updates while the Camel context
+    is initializing:
+
+    https://issues.apache.org/jira/browse/ARIES-961
+  -->
   <cm:property-placeholder id="jmxProperties" persistent-id="org.opennms.netmgt.sampler.config.jmx" update-strategy="none">
     <cm:default-properties>
       <cm:property name="rest.root" value="http://localhost:8980/opennms/rest"/>

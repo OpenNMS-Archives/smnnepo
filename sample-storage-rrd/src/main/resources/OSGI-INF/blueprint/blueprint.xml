@@ -15,6 +15,13 @@
 ">
 
   <!-- Configuration properties -->
+  <!-- 
+    update-strategy="reload" causes unit test failures because the Blueprint context
+    can be destroyed and recreated by CM properties updates while the Camel context
+    is initializing:
+
+    https://issues.apache.org/jira/browse/ARIES-961
+  -->
   <cm:property-placeholder id="properties" persistent-id="org.opennms.netmgt.sampler.storage.rrd" update-strategy="none">
     <cm:default-properties>
       <cm:property name="rrd.base.dir" value="/opt/opennms/share/rrd"/>
