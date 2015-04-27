@@ -20,7 +20,9 @@
       We have to set it here again because the root paxExamVersion is
       completely different and we do not want to mess with that property.
     -->
-    <pax.exam.version>4.3.0</pax.exam.version>
+    <pax.exam.version>4.5.0</pax.exam.version>
+    <pax.swissbox.version>1.8.1</pax.swissbox.version>
+    <org.ops4j.base.version>1.5.0</org.ops4j.base.version>
   </properties>
 
   <build>
@@ -90,23 +92,28 @@
     </plugins>
   </build>
   <dependencies>
-    <!--<dependency>-->
-    <!--<groupId>org.opennms.netmgt.sample</groupId>-->
-    <!--<artifactId>karaf</artifactId>-->
-    <!--<version>${project.version}</version>-->
-    <!--<type>xml</type>-->
-    <!--<scope>test</scope>-->
-    <!--</dependency>-->
+    <!-- The Karaf features artifact for the Minion project -->
     <dependency>
-      <groupId>org.apache.karaf.itests</groupId>
-      <artifactId>itests</artifactId>
-      <version>${karafVersion}</version>
-      <type>test-jar</type>
+      <groupId>org.opennms.netmgt.sample</groupId>
+      <artifactId>karaf</artifactId>
+      <version>${project.version}</version>
+      <type>xml</type>
+      <scope>test</scope>
+    </dependency>
+
+    <!--
+      PAX Exam Karaf Container dependencies
+      @see https://ops4j1.jira.com/wiki/display/PAXEXAM4/Karaf+Container
+    -->
+    <dependency>
+      <groupId>org.ops4j.pax.exam</groupId>
+      <artifactId>pax-exam-container-karaf</artifactId>
+      <version>${pax.exam.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.ops4j.pax.exam</groupId>
-      <artifactId>pax-exam-container-karaf</artifactId>
+      <artifactId>pax-exam-junit4</artifactId>
       <version>${pax.exam.version}</version>
       <scope>test</scope>
     </dependency>
@@ -117,11 +124,30 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.ops4j.pax.exam</groupId>
-      <artifactId>pax-exam-junit4</artifactId>
-      <version>${pax.exam.version}</version>
+      <groupId>org.ops4j.pax.url</groupId>
+      <artifactId>pax-url-aether</artifactId>
+      <version>1.6.0</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+      <version>1</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Apache Karaf container tar.gz -->
     <dependency>
       <groupId>org.apache.karaf</groupId>
       <artifactId>apache-karaf</artifactId>
@@ -165,29 +191,6 @@
       <type>pom</type>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.ops4j.pax.url</groupId>
-      <artifactId>pax-url-aether</artifactId>
-      <version>1.6.0</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>javax.inject</groupId>
-      <artifactId>javax.inject</artifactId>
-      <version>1</version>
-      <scope>test</scope>
-    </dependency>
 
     <!--
       These dependencies are required to fake the test-repo
@@ -196,37 +199,37 @@
     <dependency>
       <groupId>org.ops4j.base</groupId>
       <artifactId>ops4j-base-monitors</artifactId>
-      <version>1.5.0</version>
+      <version>${org.ops4j.base.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.ops4j.base</groupId>
       <artifactId>ops4j-base-io</artifactId>
-      <version>1.5.0</version>
+      <version>${org.ops4j.base.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.ops4j.base</groupId>
       <artifactId>ops4j-base-net</artifactId>
-      <version>1.5.0</version>
+      <version>${org.ops4j.base.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.ops4j.pax.swissbox</groupId>
       <artifactId>pax-swissbox-core</artifactId>
-      <version>1.8.0</version>
+      <version>${pax.swissbox.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.ops4j.pax.swissbox</groupId>
       <artifactId>pax-swissbox-framework</artifactId>
-      <version>1.8.0</version>
+      <version>${pax.swissbox.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.ops4j.pax.swissbox</groupId>
       <artifactId>pax-swissbox-extender</artifactId>
-      <version>1.8.0</version>
+      <version>${pax.swissbox.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -238,7 +241,7 @@
     <dependency>
       <groupId>org.ops4j.pax.tipi</groupId>
       <artifactId>org.ops4j.pax.tipi.junit</artifactId>
-      <version>4.11.0.1</version>
+      <version>4.12.0.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -264,6 +267,12 @@
       <groupId>org.ops4j.pax.exam</groupId>
       <artifactId>pax-exam-inject</artifactId>
       <version>${pax.exam.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-atinject_1.0_spec</artifactId>
+      <version>1.0</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
