@@ -23,10 +23,6 @@ import org.springframework.test.context.ContextConfiguration;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 
-/**
- * This test relies on the src/test/resources/etc/org.opennms.netmgt.sampler.config.cfg
- * file to override cm:properties so that we connect to the @JUnitHttpServer for tests.
- */
 @RunWith(OpenNMSJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath:/META-INF/opennms/emptyContext.xml"})
 @JUnitHttpServer(port=9162)
@@ -61,11 +57,6 @@ public class SnmpConfigRoutesTest extends CamelBlueprintTestSupport {
     }
 
     @Override
-    public boolean isCreateCamelContextPerClass() {
-        return true;
-    }
-
-    @Override
     public boolean isUseAdviceWith() {
         return true;
     }
@@ -82,6 +73,20 @@ public class SnmpConfigRoutesTest extends CamelBlueprintTestSupport {
         return "file:src/main/resources/OSGI-INF/blueprint/blueprint-sampler-config-snmp.xml";
     }
 
+    @Override
+    protected Properties useOverridePropertiesWithPropertiesComponent() {
+        Properties props = new Properties();
+        props.put("snmpConfigUrl", REST_ROOT + "/etc/snmp-config.xml");
+        props.put("datacollectionFileUrl", REST_ROOT + "/etc/datacollection-config.xml");
+        props.put("datacollectionGroupUrls", REST_ROOT + "/etc/datacollection/mib2.xml," + REST_ROOT + "/etc/datacollection/netsnmp.xml," + REST_ROOT + "/etc/datacollection/dell.xml");
+        return props;
+    }
+
+    /**
+     * We have to use {@link #useOverridePropertiesWithPropertiesComponent()} and
+     * {@link #useOverridePropertiesWithConfigAdmin(Dictionary)} because there are
+     * beans outside of the Camel context that use CM properties.
+     */
     @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected String useOverridePropertiesWithConfigAdmin(Dictionary props) throws Exception {

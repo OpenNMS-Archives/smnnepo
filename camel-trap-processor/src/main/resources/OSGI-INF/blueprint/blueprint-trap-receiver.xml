@@ -22,7 +22,7 @@
 
     https://issues.apache.org/jira/browse/ARIES-961
   -->
-  <cm:property-placeholder id="properties" persistent-id="org.opennms.netmgt.sampler.trapReceiver" update-strategy="none">
+  <cm:property-placeholder id="trapReceiverProperties" persistent-id="org.opennms.netmgt.sampler.trapReceiver" update-strategy="none">
     <cm:default-properties>
       <cm:property name="trapListenAddress" value="0.0.0.0" />
       <cm:property name="trapListenPort" value="162" />
@@ -34,6 +34,7 @@
   <bean id="snmpTrapProcessor" class="org.opennms.netmgt.trapd.camel.CamelTrapEventProcessor"/>
 
   <camelContext id="trapReceiverCamelContext" xmlns="http://camel.apache.org/schema/blueprint">
+    <propertyPlaceholder id="properties" location="blueprint:trapReceiverProperties" />
 
     <!-- Receive SNMP traps via Camel and forward them over ActiveMQ-->
     <route id="receiveSampleSet">

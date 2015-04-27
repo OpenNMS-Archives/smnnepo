@@ -2,16 +2,13 @@ package org.opennms.netmgt.sampler.routes;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
 
-import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.apache.camel.util.KeyValueHolder;
 import org.junit.BeforeClass;
@@ -62,6 +59,11 @@ public class XmlStorageContextTest extends CamelBlueprintTestSupport {
 		return true;
 	}
 
+	@Override
+	public String isMockEndpoints() {
+		return "*";
+	}
+
 	// The location of our Blueprint XML file to be used for testing
 	@Override
 	protected String getBlueprintDescriptor() {
@@ -83,16 +85,6 @@ public class XmlStorageContextTest extends CamelBlueprintTestSupport {
 	@Test(timeout=60000)
 	@Ignore // Only used to sanity check the XML context filename Camel code
 	public void test() throws Exception {
-		// Add mock endpoints to the route context
-		for (RouteDefinition route : new ArrayList<RouteDefinition>(context.getRouteDefinitions())) {
-			route.adviceWith(context, new AdviceWithRouteBuilder() {
-				@Override
-				public void configure() throws Exception {
-					mockEndpoints();
-				}
-			});
-		}
-		context.start();
 
 		assertTrue(context.hasEndpoint("mock:file:xml") != null);
 		MockEndpoint endpoint = getMockEndpoint("mock:file:xml", false);

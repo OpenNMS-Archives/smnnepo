@@ -51,11 +51,6 @@ public class SchedulerTest extends CamelBlueprintTestSupport {
     };
 
     @Override
-    public boolean isCreateCamelContextPerClass() {
-        return false;
-    }
-
-    @Override
     @SuppressWarnings("rawtypes")
     protected void addServicesOnStartup(final Map<String, KeyValueHolder<Object, Dictionary>> services) {
         final Properties props = new Properties();
