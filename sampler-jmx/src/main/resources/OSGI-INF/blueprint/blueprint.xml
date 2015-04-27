@@ -17,6 +17,7 @@
 		http://camel.apache.org/schema/blueprint/camel-blueprint-2.14.1.xsd
 ">
 
+  <!-- Configuration properties -->
   <!-- 
     update-strategy="reload" causes unit test failures because the Blueprint context
     can be destroyed and recreated by CM properties updates while the Camel context
@@ -24,18 +25,33 @@
 
     https://issues.apache.org/jira/browse/ARIES-961
   -->
-  <cm:property-placeholder id="jmxProperties" persistent-id="org.opennms.netmgt.sampler.config.jmx" update-strategy="none">
+  <!-- Override with an etc/org.opennms.netmgt.sampler.config.cfg -->
+  <cm:property-placeholder id="globalProperties" persistent-id="org.opennms.netmgt.sampler.config" update-strategy="none" placeholder-prefix="[[" placeholder-suffix="]]">
     <cm:default-properties>
       <cm:property name="rest.root" value="http://localhost:8980/opennms/rest"/>
-      <cm:property name="location.name" value="remote" />
       <cm:property name="username" value="admin"/>
       <cm:property name="password" value="admin"/>
       <cm:property name="refreshInterval" value="300000"/> <!-- milliseconds -->
-      <cm:property name="jmxDatacollectionConfigUrl" value="{{rest.root}}/config/jmx"/>
+    </cm:default-properties>
+  </cm:property-placeholder>
+
+  <!-- 
+    update-strategy="reload" causes unit test failures because the Blueprint context
+    can be destroyed and recreated by CM properties updates while the Camel context
+    is initializing:
+
+    https://issues.apache.org/jira/browse/ARIES-961
+  -->
+  <!-- Override with an etc/org.opennms.netmgt.sampler.config.snmp.cfg -->
+  <cm:property-placeholder id="properties" persistent-id="org.opennms.netmgt.sampler.config.jmx" update-strategy="none">
+    <cm:default-properties>
+      <cm:property name="jmxDatacollectionConfigUrl" value="[[rest.root]]/config/jmx"/>
     </cm:default-properties>
   </cm:property-placeholder>
 
   <reference id="collectdConfiguration" interface="org.opennms.netmgt.api.sample.support.SingletonBeanFactory"/>
+
+  <reference id="jmxConfigFactoryRef" interface="org.opennms.netmgt.api.sample.support.SingletonBeanFactory"/>
 
   <bean id="jmxCollectionConfiguration" class="org.opennms.netmgt.sampler.jmx.internal.JmxCollectionConfiguration"/>
 
@@ -50,8 +66,8 @@
   </bean>
 
   <bean id="customHttpClientConfigurer" class="org.opennms.core.camel.CustomHttpClientConfigurer">
-    <property name="username" value="${username}" />
-    <property name="password" value="${password}" />
+    <property name="username" value="[[username]]" />
+    <property name="password" value="[[password]]" />
   </bean>
 
   <!-- Camel unmarshalling DataFormats -->
@@ -69,7 +85,8 @@
   </service>
 
   <!-- Beans that hold a copy of a configuration object -->
-  <bean id="jmxConfigFactory" class="org.opennms.netmgt.api.sample.support.SingletonBeanFactoryImpl"/>
+  <bean id="jmxConfigFactory" class="org.opennms.netmgt.api.sample.support.SingletonBeanFactoryImpl" />
+
   <service ref="jmxConfigFactory" interface="org.opennms.netmgt.api.sample.support.SingletonBeanFactory">
     <service-properties>
       <entry key="beanClass" value="org.opennms.netmgt.config.collectd.jmx.JmxDatacollectionConfig" />
@@ -77,15 +94,13 @@
   </service>
 
   <bean id="jmxAgentProcessor" class="org.opennms.netmgt.sampler.jmx.JmxAgentProcessor">
-    <property name="jmxConfigFactory" ref="jmxConfigFactory"/>
+    <property name="jmxConfigFactory" ref="jmxConfigFactoryRef"/>
     <property name="collectdConfigFactory" ref="collectdConfiguration"/>
   </bean>
 
   <bean id="jmxCollector" class="org.opennms.netmgt.sampler.jmx.internal.DefaultJmxCollector"/>
 
   <camelContext id="samplerJmxCamelContext" xmlns="http://camel.apache.org/schema/blueprint">
-    <propertyPlaceholder id="properties" location="blueprint:jmxProperties" />
-
     <route id="triggerReloadConfiguration">
       <!--<from uri="timer://reloadConfigs?delay=3000&amp;period={{refreshInterval}}" />-->
       <from uri="timer://reloadConfigs?delay=2000&amp;period=300000" />
