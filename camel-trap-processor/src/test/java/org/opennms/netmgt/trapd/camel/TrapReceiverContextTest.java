@@ -2,14 +2,11 @@ package org.opennms.netmgt.trapd.camel;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Map;
+import java.util.Properties;
 
-import org.apache.aries.blueprint.ext.PropertyPlaceholder;
-import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.apache.camel.util.KeyValueHolder;
 import org.junit.BeforeClass;
@@ -61,42 +58,47 @@ public class TrapReceiverContextTest extends CamelBlueprintTestSupport {
 	}
 
 	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void doPostSetup() throws Exception {
-		final PropertyPlaceholder properties = context().getRegistry().lookupByNameAndType("properties", PropertyPlaceholder.class);
-		final Map defaultProperties = properties.getDefaultProperties();
-		defaultProperties.put("trapListenAddress", "127.0.0.1");
-		defaultProperties.put("trapListenPort", "9162");
-		properties.setDefaultProperties(defaultProperties);
+	public String isMockEndpoints() {
+		return "*";
 	}
 
-	// The location of our Blueprint XML file to be used for testing
+	@Override
+	protected Properties useOverridePropertiesWithPropertiesComponent() {
+		Properties props = new Properties();
+		props.put("trapListenAddress", "127.0.0.1");
+		props.put("trapListenPort", "9162");
+		return props;
+	}
+
+	/**
+	 * We have to use {@link #useOverridePropertiesWithPropertiesComponent()} and
+	 * {@link #useOverridePropertiesWithConfigAdmin(Dictionary)} because there are
+	 * beans outside of the Camel context that use CM properties.
+	 */
+	@Override
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	protected String useOverridePropertiesWithConfigAdmin(Dictionary props) throws Exception {
+		props.put("trapListenAddress", "127.0.0.1");
+		props.put("trapListenPort", "9162");
+		return "org.opennms.netmgt.sampler.trapReceiver";
+	}
+
+	/**
+	 * The location of our Blueprint XML file to be used for testing.
+	 */
 	@Override
 	protected String getBlueprintDescriptor() {
 		return "file:src/main/resources/OSGI-INF/blueprint/blueprint-trap-receiver.xml";
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
+	@SuppressWarnings("rawtypes")
 	protected void addServicesOnStartup(Map<String, KeyValueHolder<Object, Dictionary>> services) {
-		try {
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		// Don't need any OSGi services yet
 	}
 
 	@Test(timeout=60000)
 	public void test() throws Exception {
-		// Add mock endpoints to the route context
-		for (RouteDefinition route : new ArrayList<RouteDefinition>(context.getRouteDefinitions())) {
-			route.adviceWith(context, new AdviceWithRouteBuilder() {
-				@Override
-				public void configure() throws Exception {
-					mockEndpoints();
-				}
-			});
-		}
-		context.start();
 
 		assertTrue(context.hasEndpoint("mock:activemq:snmpTrap") != null);
 		MockEndpoint endpoint = getMockEndpoint("mock:activemq:snmpTrap", false);

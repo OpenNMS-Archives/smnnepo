@@ -49,12 +49,10 @@ import org.opennms.netmgt.collection.sampler.SamplerCollectionAttributeType;
 import org.opennms.netmgt.collection.sampler.SamplerCollectionResource;
 import org.opennms.netmgt.collection.sampler.SamplerCollectionSet;
 import org.opennms.netmgt.rrd.RrdRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class RrdSampleRepository implements SampleRepository {
 
-	private static final Logger LOG = LoggerFactory.getLogger(RrdSampleRepository.class);
+	//private static final Logger LOG = LoggerFactory.getLogger(RrdSampleRepository.class);
 
 	private RrdRepository m_repo;
 
@@ -92,39 +90,6 @@ public class RrdSampleRepository implements SampleRepository {
 
 	public RrdRepository getRrdRepository() {
 		return m_repo;
-		
-		//m_repo = RrdRepository repo = new RrdRepository();
-		// TODO Make these parameters configurable
-		/*
-		<rrd step="300">
-			<rra>RRA:AVERAGE:0.5:1:2016</rra>
-			<rra>RRA:AVERAGE:0.5:12:1488</rra>
-			<rra>RRA:AVERAGE:0.5:288:366</rra>
-			<rra>RRA:MAX:0.5:288:366</rra>
-			<rra>RRA:MIN:0.5:288:366</rra>
-		</rrd>
-		*/
-
-		/*
-		repo.setRrdBaseDir(new File(getRrdPath()));
-		repo.setRraList(getRRAList(collectionName));
-		repo.setStep(getStep(collectionName));
-		repo.setHeartBeat((2 * getStep(collectionName)));
-		*/
-
-		/**
-		repo.setRrdBaseDir(new File("/var/opennms/rrd/sampler"));
-		repo.setRraList(Arrays.asList(
-			"RRA:AVERAGE:0.5:1:2016",
-			"RRA:AVERAGE:0.5:12:1488",
-			"RRA:AVERAGE:0.5:288:366",
-			"RRA:MAX:0.5:288:366",
-			"RRA:MIN:0.5:288:366"
-		));
-		repo.setStep(300);
-		repo.setHeartBeat((2 * 300));
-		return repo;
-		**/
 	}
 
 	public void setRrdRepository(RrdRepository repo) {

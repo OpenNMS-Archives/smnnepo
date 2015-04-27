@@ -1,0 +1,147 @@
+// Global settings
+:ascii-ids:
+:encoding: UTF-8
+:lang: en
+:icons: font
+:toc: left
+:toclevels: 8
+:numbered:
+:imagesdir: images
+
+
+= Setup distributed data collection using JMX
+
+This document should help you understand how to configure OpenNMS to setup distributed data collection using JMX.
+
+WARNING: This document is still work in progress and not yet production ready
+
+In general the configuration is more or less the same than with the original OpenNMS:
+
+  * Configure a remote package in `collectd-configuration.xml`
+  * Configure the JMX data collection appropriately
+  * Configure a monitor location
+  * Create a node, interface and service in OpenNMS
+  * Let the minion do it's thing.
+
+== Configure a remote package in `collectd-configuration.xml`
+
+You have to define a package with a JMX service.
+By default `collectd` would automatically trigger a collection for these services.
+To avoid this you have to remote enable it. Simply add `remote="true"` to the package definition.
+This tells `collectd` to ignore all nodes in this package.
+
+.Example of collectd-configuration.xml
+[source, xml]
+----
+ <package name="jmx-services" remote="true"> <1>
+   <filter>IPADDR IPLIKE *.*.*.*</filter> <2>
+   <include-range begin="192.168.1.101" end="192.168.1.106"/> <3>
+   <service name="JVM-Example" interval="300000" user-defined="false" status="on"> <4>
+     <parameter key="port" value="9003"/>
+     <parameter key="retry" value="2"/>
+     <parameter key="timeout" value="3000"/>
+     <parameter key="protocol" value="rmi"/>
+     <parameter key="urlPath" value="/jmxrmi"/>
+     <parameter key="ds-name" value="jmx"/>
+     <parameter key="friendly-name" value="jvm-example"/>
+     <!-- This must match the collection name in the jmx-datacollection.xml that defines the set of mbeans you want -->
+     <parameter key="collection" value="jsr160"/> <5>
+   </service>
+ </package>
+----
+<1> The package with a name and `remote="true"` to tell `collectd` to ignore all interfaces in this package.
+<2> A filter to match all ip addresses
+<3> Only include interfaces with IP in range 192.168.1.101 to 192.168.1.106
+<4> The JMX Collector definition. It is enabled (`status="on"`) and is executed every 5 minutes (`300000 ms`)
+<5> The name of the collection. The value must exist as a `jmx-collection` in the `jmx-datacollection.xml`.
+
+== Configure the JMX data collection in `jmx-datacollection.xml`
+
+In the `jmx-datacollection.xml` we define the MBeans, Attributes and Composites which should be collected.
+
+A `jmx-collection` with the same name as in the `collectd-configuration.xml` must exist, otherwise no data is collected.
+
+.Example of jmx-datacollection.xml
+[source,xml]
+----
+<jmx-datacollection-config rrdRepository="..."> <1>
+    <jmx-collection name="jsr160"> <2>
+        <rrd step = "300">
+            <rra>RRA:AVERAGE:0.5:1:8928</rra>
+            <rra>RRA:AVERAGE:0.5:12:8784</rra>
+            <rra>RRA:MIN:0.5:12:8784</rra>
+            <rra>RRA:MAX:0.5:12:8784</rra>
+        </rrd>
+        <mbeans> <3>
+            <mbean name="JVM Memory" objectname="java.lang:type=OperatingSystem">
+                <attrib name="FreePhysicalMemorySize"  alias="FreeMemory"     type="gauge"/>
+                <attrib name="TotalPhysicalMemorySize" alias="TotalMemory"    type="gauge"/>
+                <attrib name="FreeSwapSpaceSize"       alias="FreeSwapSpace"  type="gauge"/>
+                <attrib name="TotalSwapSpaceSize"      alias="TotalSwapSpace" type="gauge"/>
+            </mbean>
+            <mbean name="JVM Threading" objectname="java.lang:type=Threading">
+                <attrib name="ThreadCount"          alias="ThreadCount"       type="gauge"/>
+                <attrib name="PeakThreadCount"      alias="PeakThreadCount"   type="gauge"/>
+                <attrib name="DaemonThreadCount"    alias="DaemonThreadCount" type="gauge"/>
+                <attrib name="CurrentThreadCpuTime" alias="CurThreadCpuTime"  type="gauge"/>
+            </mbean>
+            <mbean name="JVM ClassLoading" objectname="java.lang:type=ClassLoading">
+                <attrib name="TotalLoadedClassCount" alias="TotLoadedClasses" type="gauge"/>
+                <attrib name="LoadedClassCount"      alias="LoadedClasses"    type="gauge"/>
+                <attrib name="UnloadedClassCount"    alias="UnloadedClass"    type="gauge"/>
+            </mbean>
+       </mbeans>
+    </jmx-collection>
+</jmx-datacollection-config>
+----
+<1> The root element of the configuration file.
+The rrdRepository attribute points to the location where the data will be stored, but is ignored by the minion.
+
+<2> The definiotion of the jmx-collection. The name must match the `collection` entry in `collectd-configuration.xml`.
+
+<3> Example mbean definitions.
+
+== Configure a monitor location
+
+The monitor location associates a given collector configuration with a remote location.
+
+This allows multiple remote locations to use the same collector configuration.
+
+.Example of monitor-locations.xml
+[source, xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<monitoring-locations-configuration
+  xmlns="http://www.opennms.org/xsd/config/monitoring-locations"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://xmlns.opennms.org/xsd/config/monitoring-locations
+    http://www.opennms.org/xsd/config/monitoring-locations.xsd ">
+  <locations>
+    <location-def location-name="OpenNMS-HQ" <1>
+        monitoring-area="raleigh" <2>
+        collection-package-name="jmx-services" <3>
+        geolocation="The OpenNMS Group, Pittsboro, NC" <4>
+        coordinates="35.7174,-79.1619" priority="50"> <5>
+    </location-def>
+  </locations>
+</monitoring-locations-configuration>
+----
+<1> The name of the location. The mininon should have the same location name defined.
+<2> Used to group multiple locations together.
+<3> The package in `collectd-configuration.xml` that the monitor will use.
+<4> The geographical location of the monitor.
+This should be a street address or similar.
+If none is specified or Google can't resolve the address to a latitude and longitude, the marker will be placed on the map at OpenNMS World HQ in Pittsboro, NC.
+<5> The geographical location of the monitor in the format "latitude,longitude".
+
+
+For more details have a look at http://www.opennms.org/wiki/Remote_Polling#monitoring-locations.xml
+
+
+== Limitations
+
+The limitations are:
+
+* NRTG is not supported, because the meta files are not written accordingly
+* By default the minion stores the collectd jmx data to `/opt/opennms/share/rrd` and this is at this point not configurable.
+

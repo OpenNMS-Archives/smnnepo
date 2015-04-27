@@ -16,6 +16,8 @@ echo "OpenNMS Broker URI:  $BROKER"
 echo "Monitoring Location: $LOCATION"
 echo "Broker Name:         $BROKERNAME"
 
+addcommand system (($.context bundle) loadClass java.lang.System)
+KARAF_BASE=system:getproperty karaf.base
 
 ##########################################
 # Set up the root instance               #
@@ -32,9 +34,9 @@ config:propset opennmsRestRoot "$ONMS"
 config:update
 
 # Add the required features URLs
-features:addurl mvn:org.apache.activemq/activemq-karaf/5.9.0/xml/features
-features:addurl mvn:org.opennms.netmgt.sample/karaf/1.13.5-PJSM-SNAPSHOT/xml
-features:addurl mvn:org.opennms.netmgt.sample/karaf/1.13.5-PJSM-SNAPSHOT/xml/minion
+features:addurl mvn:org.apache.activemq/activemq-karaf/5.10.0/xml/features
+features:addurl mvn:org.opennms.netmgt.sample/karaf/16.0.0-SNAPSHOT/xml
+features:addurl mvn:org.opennms.netmgt.sample/karaf/16.0.0-SNAPSHOT/xml/minion
 
 FINDBOOTSTRAP = (features:list | grep minion-bootstrap | grep -v uninstalled | tac)
 if { ($FINDBOOTSTRAP isEmpty) } {

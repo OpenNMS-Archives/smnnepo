@@ -23,7 +23,7 @@ Terms
   controller.</dd>
 </dl>
 
-Requirements {#requirements}
+<a name="requirements"></a>Requirements
 ============
 
 The Dominion controller (the OpenNMS side) has the same requirements of OpenNMS, since
@@ -41,15 +41,15 @@ Installing the Minion Client RPM
 --------------------------------
 
 On the system that should be doing collection, download the "smnnepo" RPM
-from http://yum.opennms.org/branches/pjsm-2.0/common/opennms/ and install
-it, like so: <code>rpm -Uvh smnnepo-1.13\*.rpm</code>
+from http://yum.opennms.org/branches/develop/common/opennms/ and install
+it, like so: <code>rpm -Uvh smnnepo-\*.rpm</code>
 
 
 Installing the Minion Server Components
 ---------------------------------------
 
-First, you should be running OpenNMS from the <code>pjsm/2.0</code> branch for now.
-RPMs are available at http://yum.opennms.org/branches/pjsm-2.0/common/opennms/
+First, you should be running OpenNMS from the <code>develop</code> branch for now.
+RPMs are available at http://yum.opennms.org/branches/develop/common/opennms/
 
 You'll need OpenNMS (at least <code>opennms-core</code> and
 <code>opennms-webapp-jetty</code>), as well as the Minion webapp from the
@@ -84,7 +84,7 @@ Starting the SMNnepO Client
 Installing from Source
 ======================
 
-1. Build [OpenNMS pjsm/2.0](https://github.com/OpenNMS/opennms/tree/pjsm/2.0)
+1. Build [OpenNMS develop](https://github.com/OpenNMS/opennms/tree/develop)
 2. Build [Minion](http://github.com/OpenNMS/smnnepo.git)
 3. From the Minion source build, copy <code>sampler-repo-webapp/target/smnnepo.war</code>
    to your OpenNMS <code>jetty-webapps/</code> directory.
@@ -127,18 +127,18 @@ Configuring a Minion Client
 
 Ensure that the pc running the <code>Minion Client</code> meets the [requirements](#requirements)
 
-1. Download and unpack [Karaf 2.3](http://karaf.apache.org/index/community/download.html),
-   version 2.3.4 or higher.
+1. Download and unpack [Karaf 2.4](http://karaf.apache.org/index/community/download.html).
 2. Run Karaf (<code>bin/karaf</code>)
 3. Run the configuration script:
-   <code>source http://opennms-root:8980/smnnepo/smnnepo-setup.karaf [username] [password] [opennms-root] [location-name]</code>
+   <code>source http://opennms-root:8980/smnnepo/smnnepo-setup.karaf instance username password opennms-root location-name</code>
 
+    * instance: possible values are +root+, +activemq+, +minion+, +sampler+
 	* username: The OpenNMS username allowed to make ReST calls
 	* password: The password for the ReST user
 	* opennms-root: The root URL of the OpenNMS server, _not_ including the
 	  <code>/opennms</code> part of the URL.  For example, if you normally connect to your
 	  OpenNMS web UI at <code>http://www.example.com:8980/opennms/</code>, you would use
-	  "<code>http://www.example.com:8980/</code>" as the OpenNMS root.
+	  "<code>http://www.example.com:8980/</code>" as the OpenNMS root. **Note: Do not forget the protocol http or https, otherwise the installation will fail!**
 	* location-name: The name of the location the Minion is running at.  This should match
 	  a location in the <code>monitoring-locations.xml</code> file on your OpenNMS server.
 
@@ -219,55 +219,42 @@ List all installed features:
    
 You should get a list similar to this:
 
-    [installed  ] [1.13.5] sample-api                              opennms-sampler-1.13.5     Sample Collection and Storage :: API
-    [uninstalled] [1.13.5] minion-controller                       opennms-sampler-1.13.5     Minion :: Controller
-    [installed  ] [1.13.5] dominion-controller                     opennms-sampler-1.13.5     Dominion :: Controller
-    [uninstalled] [1.13.5] sampler-config                          opennms-sampler-1.13.5     Sample Collection and Storage :: Configuration
-    [uninstalled] [1.13.5] sampler-config-snmp                     opennms-sampler-1.13.5     Sample Collection and Storage :: SNMP Configuration
-    [uninstalled] [1.13.5] sampler-scheduler                       opennms-sampler-1.13.5     Sample Collection and Storage :: Scheduler
-    [uninstalled] [1.13.5] sampler-snmp                            opennms-sampler-1.13.5     Sample Collection and Storage :: SNMP Collector
-    [uninstalled] [1.13.5] sample-graphs                           opennms-sampler-1.13.5     Sample Collection and Storage :: Graphing
-    [installed  ] [1.13.5] sample-storage-rrd                      opennms-sampler-1.13.5     Sample Collection and Storage :: RRD
-    [uninstalled] [1.13.5] sample-storage-newts                    opennms-sampler-1.13.5     Sample Collection and Storage :: Newts
-    [uninstalled] [1.13.5] sample-storage-file                     opennms-sampler-1.13.5     Sample Collection and Storage :: File Storage
-    [uninstalled] [1.13.5] sample-storage-xml                      opennms-sampler-1.13.5     Sample Collection and Storage :: XML Storage
-    [uninstalled] [1.13.5] sample-dispatch-activemq                opennms-sampler-1.13.5     Sample Collection and Storage :: ActiveMQ Dispatcher
-    [installed  ] [1.13.5] sample-receiver-activemq                opennms-sampler-1.13.5     Sample Collection and Storage :: ActiveMQ Receiver
-    [uninstalled] [1.13.5] sampler-with-file-storage               opennms-sampler-1.13.5     Sample Collection and Storage :: Integration :: Sampler with file storage
-    [uninstalled] [1.13.5] sampler-with-xml-storage                opennms-sampler-1.13.5     Sample Collection and Storage :: Integration :: Sampler with XML storage
-    [uninstalled] [1.13.5] sampler-with-rrd-storage                opennms-sampler-1.13.5     Sample Collection and Storage :: Integration :: Sampler with RRD storage
-    [uninstalled] [1.13.5] sampler-with-activemq-export            opennms-sampler-1.13.5     Sample Collection and Storage :: Integration :: Sampler with ActiveMQ export
+    [installed  ] [15.0.0] sample-api                              opennms-sampler-15.0.0     Sample Collection and Storage :: API
+    [uninstalled] [15.0.0] minion-controller                       opennms-sampler-15.0.0     Minion :: Controller
+    [installed  ] [15.0.0] dominion-controller                     opennms-sampler-15.0.0     Dominion :: Controller
+    [uninstalled] [15.0.0] sampler-config                          opennms-sampler-15.0.0     Sample Collection and Storage :: Configuration
+    [uninstalled] [15.0.0] sampler-config-snmp                     opennms-sampler-15.0.0     Sample Collection and Storage :: SNMP Configuration
+    [uninstalled] [15.0.0] sampler-scheduler                       opennms-sampler-15.0.0     Sample Collection and Storage :: Scheduler
+    [uninstalled] [15.0.0] sampler-snmp                            opennms-sampler-15.0.0     Sample Collection and Storage :: SNMP Collector
+    [uninstalled] [15.0.0] sample-graphs                           opennms-sampler-15.0.0     Sample Collection and Storage :: Graphing
+    [installed  ] [15.0.0] sample-storage-rrd                      opennms-sampler-15.0.0     Sample Collection and Storage :: RRD
+    [uninstalled] [15.0.0] sample-storage-newts                    opennms-sampler-15.0.0     Sample Collection and Storage :: Newts
+    [uninstalled] [15.0.0] sample-storage-file                     opennms-sampler-15.0.0     Sample Collection and Storage :: File Storage
+    [uninstalled] [15.0.0] sample-storage-xml                      opennms-sampler-15.0.0     Sample Collection and Storage :: XML Storage
+    [uninstalled] [15.0.0] sample-dispatch-activemq                opennms-sampler-15.0.0     Sample Collection and Storage :: ActiveMQ Dispatcher
+    [installed  ] [15.0.0] sample-receiver-activemq                opennms-sampler-15.0.0     Sample Collection and Storage :: ActiveMQ Receiver
+    [uninstalled] [15.0.0] sampler-with-file-storage               opennms-sampler-15.0.0     Sample Collection and Storage :: Integration :: Sampler with file storage
+    [uninstalled] [15.0.0] sampler-with-xml-storage                opennms-sampler-15.0.0     Sample Collection and Storage :: Integration :: Sampler with XML storage
+    [uninstalled] [15.0.0] sampler-with-rrd-storage                opennms-sampler-15.0.0     Sample Collection and Storage :: Integration :: Sampler with RRD storage
+    [uninstalled] [15.0.0] sampler-with-activemq-export            opennms-sampler-15.0.0     Sample Collection and Storage :: Integration :: Sampler with ActiveMQ export
     
 Ensure that <code>sample-receiver-activemq</code> and <code>sample-storage-rrd</code> is installed.
 If it is not, install it manually:
 
-    $ feature:install sample-storage-rrd
+    $ features:install sample-storage-rrd
     
 After this you should see rrd files at <code>$OPENNMS\_HOME/share/rrd/snmp</code>.
 
-ADVANCED: Running in Fabric8
-============================
+Error executing command: Unable to add repositories
+--------------------------------------
 
-Root
-----
+If you encounter an error like this:
 
-	mq-create default
+    Error executing command: Unable to add repositories:
+	    Error resolving artifact org.apache.activemq:activemq-karaf:xml:features:5.10.0: Could not find artifact org.apache.activemq:activemq-karaf:xml:features:5.10.0
 
-Dominion Side
--------------
+You have very likely not set up the `org.ops4j.pax.url.mvn.cfg` config file correctly.
 
-	container-create-child --jvm-opts "-Xmx1g -XX:MaxPermSize=1g" --jmx-user admin --jmx-password admin root dominion
-	profile-create --parents default dominion
-	profile-edit --repositories mvn:org.opennms.netmgt.sample/karaf/1.13.5-PJSM-SNAPSHOT/xml/minion dominion
-	profile-edit --features camel-amq --features minion-base --features dominion-controller-statuswriter-logging --features dominion-controller dominion
-	container-add-profile dominion mq-broker-default.default dominion
-
-Minion Side
------------
-
-	container-create-child --jvm-opts "-Xmx1g -XX:MaxPermSize=1g" --jmx-user admin --jmx-password admin root minion
-	profile-create --parents default minion
-	profile-edit --repositories mvn:org.opennms.netmgt.sample/karaf/1.13.5-PJSM-SNAPSHOT/xml/minion minion
-	profile-edit --features fabric-configadmin --features camel-amq --features minion-base --features minion-controller minion
-	profile-edit -p org.opennms.minion.controller/location="Red Hat" minion
-	container-add-profile minion mq-broker-default.default minion
+Check the logs of your karaf and look for something like `java.net.MalformedURLException: no protocol: 192.168.0.2:8980/smnnepo/`.
+This indicates that you have forgotten to set the protocol of the URL (`http` or `https`).
+Please invoke the original installation script with the `http|https` protocol.

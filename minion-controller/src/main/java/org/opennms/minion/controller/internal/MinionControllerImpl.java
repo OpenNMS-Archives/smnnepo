@@ -98,7 +98,7 @@ public class MinionControllerImpl implements MinionController, MinionMessageRece
     @Override
     public void sendStartMessage() throws MinionException {
         assertMessageSenderExists();
-        m_messageSender.sendMessage(createStatusMessage(null));
+        m_messageSender.sendMessage(createStatusMessage(Instance.STARTED));
     }
 
     @Override

@@ -1,19 +1,15 @@
 package org.opennms.netmgt.sampler.routes;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.Map;
 
-import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.apache.camel.util.KeyValueHolder;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.opennms.netmgt.api.sample.SampleRepository;
 import org.opennms.netmgt.api.sample.SampleSet;
 import org.opennms.netmgt.api.sample.SampleSetDispatcher;
 import org.opennms.netmgt.api.sample.Timestamp;
@@ -59,44 +55,35 @@ public class ActiveMQStorageContextTest extends CamelBlueprintTestSupport {
 		return true;
 	}
 
+	@Override
+	public String isMockEndpoints() {
+		return "*";
+	}
+
 	// The location of our Blueprint XML file to be used for testing
 	@Override
 	protected String getBlueprintDescriptor() {
 		return "file:blueprint-activemq-dispatch.xml";
 	}
 
-	/**
-	 * Register a mock OSGi {@link SampleRepository}.
-	 */
-	@SuppressWarnings("rawtypes")
 	@Override
+	@SuppressWarnings("rawtypes")
 	protected void addServicesOnStartup(Map<String, KeyValueHolder<Object, Dictionary>> services) {
-		try {
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		// Don't need any OSGi services yet
 	}
 
 	@Test(timeout=60000)
 	public void test() throws Exception {
-		// Add mock endpoints to the route context
-		for (RouteDefinition route : new ArrayList<RouteDefinition>(context.getRouteDefinitions())) {
-			route.adviceWith(context, new AdviceWithRouteBuilder() {
-				@Override
-				public void configure() throws Exception {
-					mockEndpoints();
-				}
-			});
-		}
-		context.start();
 
 		assertTrue(context.hasEndpoint("mock:activemq:sampleSet") != null);
+		assertTrue(context.hasEndpoint("direct:sendSampleSet") != null);
+		assertTrue(context.hasEndpoint("mock:direct:sendSampleSet") != null);
 		MockEndpoint endpoint = getMockEndpoint("mock:activemq:sampleSet", false);
 		endpoint.setExpectedMessageCount(2);
 
 		SampleSetDispatcher dispatcher = getOsgiService(SampleSetDispatcher.class);
 		assertTrue(dispatcher != null);
-		
+
 		SampleSet set = new SampleSet(new Timestamp(new Date()));
 		dispatcher.save(set);
 		set = new SampleSet(new Timestamp(new Date()));

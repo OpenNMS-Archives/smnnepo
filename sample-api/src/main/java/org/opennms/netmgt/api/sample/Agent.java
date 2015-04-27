@@ -10,12 +10,12 @@ import java.util.Map;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.opennms.core.network.IPAddress;
 import org.opennms.core.network.InetAddressXmlAdapter;
+import org.opennms.core.xml.JaxbMapAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,8 +38,8 @@ public class Agent implements Serializable {
     @XmlElement(name="id")
     private final String m_agentId;
 
-    @XmlElementWrapper(name="parameters")
-    @XmlElement(name="parameter")
+    @XmlElement(name = "parameters")
+    @XmlJavaTypeAdapter(JaxbMapAdapter.class)
     protected final Map<String,String> m_parameters = new HashMap<String,String>();
 
     public Agent() {

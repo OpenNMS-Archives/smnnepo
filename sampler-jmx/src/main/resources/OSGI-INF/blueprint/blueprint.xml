@@ -1,0 +1,145 @@
+<blueprint
+    xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+    xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.1.0"
+    xsi:schemaLocation="
+		http://www.osgi.org/xmlns/blueprint/v1.0.0
+		http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+
+		http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
+		http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd
+
+		http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.1.0
+		http://aries.apache.org/schemas/blueprint-ext/blueprint-ext-1.1.xsd
+
+		http://camel.apache.org/schema/blueprint
+		http://camel.apache.org/schema/blueprint/camel-blueprint-2.14.1.xsd
+">
+
+  <!-- 
+    update-strategy="reload" causes unit test failures because the Blueprint context
+    can be destroyed and recreated by CM properties updates while the Camel context
+    is initializing:
+
+    https://issues.apache.org/jira/browse/ARIES-961
+  -->
+  <cm:property-placeholder id="jmxProperties" persistent-id="org.opennms.netmgt.sampler.config.jmx" update-strategy="none">
+    <cm:default-properties>
+      <cm:property name="rest.root" value="http://localhost:8980/opennms/rest"/>
+      <cm:property name="location.name" value="remote" />
+      <cm:property name="username" value="admin"/>
+      <cm:property name="password" value="admin"/>
+      <cm:property name="refreshInterval" value="300000"/> <!-- milliseconds -->
+      <cm:property name="jmxDatacollectionConfigUrl" value="{{rest.root}}/config/jmx"/>
+    </cm:default-properties>
+  </cm:property-placeholder>
+
+  <reference id="collectdConfiguration" interface="org.opennms.netmgt.api.sample.support.SingletonBeanFactory"/>
+
+  <bean id="jmxCollectionConfiguration" class="org.opennms.netmgt.sampler.jmx.internal.JmxCollectionConfiguration"/>
+
+  <!-- Register a whiteboard of sample repositories where samples will be saved -->
+  <bean id="sampleSetDispatcher" class="org.opennms.netmgt.api.sample.support.DispatcherWhiteboard">
+    <argument value="seda:saveToRepository"/>
+
+    <property name="context" ref="blueprintBundleContext"/>
+    <property name="messageClass" value="org.opennms.netmgt.api.sample.SampleSet"/>
+    <property name="serviceClass" value="org.opennms.netmgt.api.sample.SampleSetDispatcher"/>
+    <property name="methodName" value="save"/>
+  </bean>
+
+  <bean id="customHttpClientConfigurer" class="org.opennms.core.camel.CustomHttpClientConfigurer">
+    <property name="username" value="${username}" />
+    <property name="password" value="${password}" />
+  </bean>
+
+  <!-- Camel unmarshalling DataFormats -->
+  <bean id="jmxConfigXmlFormat" class="org.opennms.netmgt.api.sample.DataFormatUtils" factory-method="jaxbXml"/>
+
+  <!-- OSGi service that exposes this sampler as a scheduling target -->
+  <bean id="jmxSampler" class="org.opennms.netmgt.api.sample.support.DefaultAgentDispatcher">
+    <argument value="seda:collectAgent"/>
+  </bean>
+
+  <service ref="jmxSampler" interface="org.opennms.netmgt.api.sample.AgentDispatcher">
+    <service-properties>
+      <entry key="org.opennms.netmgt.sampler.scheduler.serviceName" value="OpenNMS-JVM"/>
+    </service-properties>
+  </service>
+
+  <!-- Beans that hold a copy of a configuration object -->
+  <bean id="jmxConfigFactory" class="org.opennms.netmgt.api.sample.support.SingletonBeanFactoryImpl"/>
+  <service ref="jmxConfigFactory" interface="org.opennms.netmgt.api.sample.support.SingletonBeanFactory">
+    <service-properties>
+      <entry key="beanClass" value="org.opennms.netmgt.config.collectd.jmx.JmxDatacollectionConfig" />
+    </service-properties>
+  </service>
+
+  <bean id="jmxAgentProcessor" class="org.opennms.netmgt.sampler.jmx.JmxAgentProcessor">
+    <property name="jmxConfigFactory" ref="jmxConfigFactory"/>
+    <property name="collectdConfigFactory" ref="collectdConfiguration"/>
+  </bean>
+
+  <bean id="jmxCollector" class="org.opennms.netmgt.sampler.jmx.internal.DefaultJmxCollector"/>
+
+  <camelContext id="samplerJmxCamelContext" xmlns="http://camel.apache.org/schema/blueprint">
+    <propertyPlaceholder id="properties" location="blueprint:jmxProperties" />
+
+    <route id="triggerReloadConfiguration">
+      <!--<from uri="timer://reloadConfigs?delay=3000&amp;period={{refreshInterval}}" />-->
+      <from uri="timer://reloadConfigs?delay=2000&amp;period=300000" />
+      <log loggingLevel="INFO" message="sampler-jmx: Reloading Configuration" />
+      <multicast parallelProcessing="true">
+        <to uri="direct:loadJmxDatacollectionConfig"/>
+      </multicast>
+    </route>
+
+    <route id="loadJmxDatacollectionConfig">
+      <from uri="direct:loadJmxDatacollectionConfig"/>
+      <log loggingLevel="INFO" message="sampler-jmx: Loading JMX Datacollection Configuration" />
+      <transform><constant>{{jmxDatacollectionConfigUrl}}</constant></transform>
+      <!--<transform><constant>http://localhost:8980/opennms/rest/config/jmx</constant></transform>-->
+      <to uri="direct:parseJmxXml"/>
+      <log loggingLevel="INFO" message="sampler-jmx: JMX DataCollection Configuration parsed, setting instance" />
+      <bean ref="jmxConfigFactory" method="setInstance"/>
+    </route>
+
+    <!-- Call this to retrieve a URL in string form or URL form into the JAXB objects they represent. -->
+    <route id="parseJmxXml">
+      <from uri="direct:parseJmxXml"/>
+      <log loggingLevel="INFO" message="sampler-jmx: Parsing JMX DataCollection Configuration XML: ${body.toString()}" />
+      <setHeader headerName="CamelHttpUri">
+        <simple>${body.toString()}</simple>
+      </setHeader>
+      <setHeader headerName="CamelHttpMethod">
+        <simple>GET</simple>
+      </setHeader>
+      <!--<to uri="http://dummyhost?httpClientConfigurer=customHttpClientConfigurer&amp;authUsername=admin&amp;authPassword=admin&amp;authMethod=Basic" />-->
+      <to uri="http://dummyhost?httpClientConfigurer=customHttpClientConfigurer&amp;authUsername={{username}}&amp;authPassword={{password}}&amp;authMethod=Basic" />
+      <unmarshal ref="jmxConfigXmlFormat"/>
+    </route>
+
+    <route id="collectAgent">
+      <from uri="seda:collectAgent"/>
+      <!-- Convert the generic Agent into a JmxAgent -->
+      <bean ref="jmxAgentProcessor"/>
+      <log loggingLevel="INFO" message="sampler-jmx: Collecting agent ${body.id}"/>
+      <!-- create a request for data collection for the agent -->
+      <bean ref="jmxCollectionConfiguration" method="createRequestForAgent"/>
+      <!-- collect the data for the agent -->
+      <bean ref="jmxCollector" method="collect"/>
+      <log loggingLevel="DEBUG" message="sampler-jmx blueprint.xml: ${body}"/>
+      <!-- forward the data to the listening queue -->
+      <to uri="seda:sampleSets"/>
+    </route>
+
+    <route id="sampleSet">
+      <from uri="seda:sampleSets"/>
+      <log loggingLevel="INFO" message="Received SampleSet with ${body.measurements.size} sample(s)"/>
+      <!-- send it the persister -->
+      <to uri="seda:saveToRepository"/>
+    </route>
+
+  </camelContext>
+</blueprint>

@@ -2,18 +2,14 @@ package org.opennms.netmgt.sampler.config;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.aries.blueprint.ext.PropertyPlaceholder;
 import org.apache.camel.Exchange;
-import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.apache.camel.util.KeyValueHolder;
 import org.junit.Test;
@@ -59,17 +55,6 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
     }
 
     @Override
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public void doPostSetup() throws Exception {
-        final PropertyPlaceholder properties = bean("samplerProperties", PropertyPlaceholder.class);
-        final Map defaultProperties = properties.getDefaultProperties();
-        defaultProperties.put("opennms.home", "target/test-classes");
-        defaultProperties.put("collectdConfigUrl", "http://localhost:9162/etc/collectd-configuration.xml");
-        defaultProperties.put("agentListUrl", "http://localhost:9162/agents");
-        properties.setDefaultProperties(defaultProperties);
-    }
-
-    @Override
     public boolean isUseAdviceWith() {
         return true;
     }
@@ -78,6 +63,11 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
     public boolean isUseDebugger() {
         // must enable debugger
         return true;
+    }
+
+    @Override
+    public String isMockEndpoints() {
+        return "*";
     }
 
     /**
@@ -104,19 +94,31 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
         return "file:src/main/resources/OSGI-INF/blueprint/blueprint-sampler-config.xml";
     }
 
-    /**
-     * Override 'opennms.home' with the test resource directory.
-     */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
+    protected Properties useOverridePropertiesWithPropertiesComponent() {
+        Properties props = new Properties();
+        props.put("opennms.home", OPENNMS_HOME);
+        props.put("collectdConfigUrl", REST_ROOT + "/etc/collectd-configuration.xml");
+        props.put("agentListUrl", REST_ROOT + "/agents");
+        return props;
+    }
+
+    /**
+     * We have to use {@link #useOverridePropertiesWithPropertiesComponent()} and
+     * {@link #useOverridePropertiesWithConfigAdmin(Dictionary)} because there are
+     * beans outside of the Camel context that use CM properties.
+     */
+    @Override
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     protected String useOverridePropertiesWithConfigAdmin(Dictionary props) throws Exception {
         props.put("opennms.home", OPENNMS_HOME);
+        props.put("collectdConfigUrl", REST_ROOT + "/etc/collectd-configuration.xml");
+        props.put("agentListUrl", REST_ROOT + "/agents");
         return "org.opennms.netmgt.sampler.config";
     }
 
     @Test
     public void testParseCollectdXml() throws Exception {
-        context.start();
 
         CollectdConfiguration resultsUsingURL = template.requestBody("direct:parseJaxbXml", new URL(REST_ROOT + "/etc/collectd-configuration.xml"), CollectdConfiguration.class);
 
@@ -140,7 +142,6 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
 
     @Test
     public void testParseAgentXml() throws Exception {
-        context.start();
 
         AgentList resultsUsingURL = template.requestBody("direct:parseJaxbXml", url("agents/example1/SNMP.xml"), AgentList.class);
 
@@ -160,7 +161,6 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
      */
     @Test
     public void testLoadCollectdConfiguration() throws Exception {
-        context.start();
 
         template.requestBody("direct:loadCollectdConfiguration", null, String.class);
 
@@ -178,16 +178,6 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
      */
     @Test
     public void testLoadServiceAgents() throws Exception {
-        // Add mock endpoints to the route context
-        for (RouteDefinition route : new ArrayList<RouteDefinition>(context.getRouteDefinitions())) {
-            route.adviceWith(context, new AdviceWithRouteBuilder() {
-                @Override
-                public void configure() throws Exception {
-                    mockEndpoints();
-                }
-            });
-        }
-        context.start();
 
         // We should get 1 call to the scheduler endpoint
         assertTrue(context.hasEndpoint("mock:seda:scheduleAgents") != null);
@@ -220,16 +210,6 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
 
     @Test
     public void testLoadPackageServiceList() throws Exception {
-        // Add mock endpoints to the route context
-        for (RouteDefinition route : new ArrayList<RouteDefinition>(context.getRouteDefinitions())) {
-            route.adviceWith(context, new AdviceWithRouteBuilder() {
-                @Override
-                public void configure() throws Exception {
-                    mockEndpoints();
-                }
-            });
-        }
-        context.start();
 
         MockEndpoint result = getMockEndpoint("mock:seda:scheduleAgents", false);
         result.expectedMessageCount(1);
@@ -252,26 +232,17 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
 
     @Test(timeout=15000)
     public void testStartup() throws Exception {
-        // Add mock endpoints to the route context
-        for (RouteDefinition route : new ArrayList<RouteDefinition>(context.getRouteDefinitions())) {
-            route.adviceWith(context, new AdviceWithRouteBuilder() {
-                @Override
-                public void configure() throws Exception {
-                    mockEndpoints();
-                }
-            });
-        }
-        context.start();
+
         // Wait for one call to the scheduler service in a mock OSGi service
         m_schedulerServiceCalls = new CountDownLatch(1);
 
-        MockEndpoint result = getMockEndpoint("mock:direct:schedulerStart", false);
+        MockEndpoint result = getMockEndpoint("mock:direct:loadCollectionPackages", false);
         result.expectedMessageCount(1);
 
         MockEndpoint scheduled = getMockEndpoint("mock:seda:scheduleAgents", false);
         scheduled.expectedMessageCount(1);
 
-        template.sendBody("direct:start", null);
+        template.sendBody("direct:loadConfigurations", null);
         result.await();
 
         @SuppressWarnings("unchecked")

@@ -28,6 +28,8 @@
 
 package org.opennms.netmgt.collection.sampler;
 
+import java.util.Objects;
+
 import org.opennms.netmgt.api.sample.Sample;
 import org.opennms.netmgt.collection.support.AbstractCollectionAttribute;
 
@@ -36,9 +38,7 @@ public class SamplerCollectionAttribute extends AbstractCollectionAttribute {
 
 	public SamplerCollectionAttribute(SamplerCollectionAttributeType attribType, SamplerCollectionResource resource, Sample sample) {
 		super(attribType, resource);
-		if (sample == null) {
-			throw new IllegalArgumentException("Sample cannot be null");
-		}
+        Objects.requireNonNull(sample, "Sample cannot be null");
 		m_sample = sample;
 	}
 
@@ -59,8 +59,13 @@ public class SamplerCollectionAttribute extends AbstractCollectionAttribute {
 
 	@Override
 	public String getMetricIdentifier() {
-		// TODO Figure out what to return for this value to eventually support NRTG
-		return null;
+        // TODO Figure out what to return for this value to eventually support NRTG
+        final String type = m_sample.getResource().getType(); // should be JMX or SNMP
+        final String group = m_sample.getMetric().getGroup();
+        final String name = m_sample.getMetric().getName();
+
+        final String metricIdentifier = String.format("%s_%s.%s=%s", type, group, name, name);
+        return metricIdentifier;
 	}
 
 }

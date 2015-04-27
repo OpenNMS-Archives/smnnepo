@@ -15,10 +15,17 @@
 		http://aries.apache.org/schemas/blueprint-ext/blueprint-ext-1.1.xsd
 
 		http://camel.apache.org/schema/blueprint
-		http://camel.apache.org/schema/blueprint/camel-blueprint-2.12.2.xsd
+		http://camel.apache.org/schema/blueprint/camel-blueprint-2.14.1.xsd
 ">
 
   <!-- Configuration properties -->
+  <!-- 
+    update-strategy="reload" causes unit test failures because the Blueprint context
+    can be destroyed and recreated by CM properties updates while the Camel context
+    is initializing:
+
+    https://issues.apache.org/jira/browse/ARIES-961
+  -->
   <cm:property-placeholder id="samplerProperties" persistent-id="org.opennms.netmgt.sampler.config" update-strategy="none">
     <cm:default-properties>
       <cm:property name="rest.root" value="http://localhost:8980/opennms/rest"/>
@@ -37,6 +44,12 @@
   <!-- Beans that hold a copy of a configuration object -->
   <bean id="collectdConfiguration" class="org.opennms.netmgt.api.sample.support.SingletonBeanFactoryImpl"/>
   <bean id="snmpConfiguration" class="org.opennms.netmgt.api.sample.support.SingletonBeanFactoryImpl"/>
+
+  <service ref="collectdConfiguration" interface="org.opennms.netmgt.api.sample.support.SingletonBeanFactory">
+    <service-properties>
+      <entry key="beanClass" value="org.opennms.netmgt.config.collectd.CollectdConfiguration" />
+    </service-properties>
+  </service>
 
   <!-- Camel EIP helper beans -->
   <bean id="urlNormalizer" class="org.opennms.netmgt.api.sample.support.UrlNormalizer"/>
@@ -104,10 +117,11 @@
       <bean ref="collectdConfiguration" method="getInstance"/>
     </route>
 
+    <!-- start hook -->
     <route id="triggerStartSamplerConfig">
       <from uri="timer://runOnce?repeatCount=1&amp;delay=30000" />
       <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Triggering Startup" />
-      <to uri="direct:start" />
+      <to uri="direct:loadConfigurations" />
     </route>
 
     <route id="triggerReloadConfiguration">
@@ -116,19 +130,20 @@
       <to uri="direct:loadCollectdConfiguration"/>
     </route>
 
-    <route id="startLoadConfigurations">
-      <from uri="direct:start"/>
+    <route id="loadConfigurations">
+      <from uri="direct:loadConfigurations"/>
       <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Loading Configuration Files" />
       <!-- Load all of the configs -->
       <multicast parallelProcessing="true">
         <to uri="direct:loadCollectdConfiguration"/>
       </multicast>
       <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Configuration Files Loaded" />
+      <!-- Load the collection packages -->
       <to uri="direct:loadCollectionPackages"/>
     </route>
 
 	<!-- TODO: Create a reload timer that will check for changes to the config -->
-    <route id="initializeCollectdConfigurationInstance">
+    <route id="loadCollectdConfiguration">
       <from uri="direct:loadCollectdConfiguration"/>
       <log loggingLevel="INFO" message="blueprint-sampler-config.xml: Loading Collectd Configuration" />
       <transform><constant>{{collectdConfigUrl}}</constant></transform>

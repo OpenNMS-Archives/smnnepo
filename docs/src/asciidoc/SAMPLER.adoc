@@ -123,7 +123,18 @@ These services are defined in class link:https://github.com/OpenNMS/opennms/blob
                       You can find the code in class `PollerConfigurationResource.java`.
 |===
 
-=== TODO describe the JMX resource
+=== /config/jmx
+
+|===
+| *Method*          | GET
+| *Description*     | Loads the link:http://www.opennms.org/wiki/Data_Collection_Configuration_How-To#JMX[jmx-datacollection-config.xml].
+
+| *Produces*        | application/xml, application/json, application/atom+xml
+| *Status*          | 200
+| *Request*         |
+| *Response*        | The result is the `jmx-datacollection-config.xml` (`JmxDatacollectionConfig` object).
+|===
+
 
 [[dispatcher-whiteboard]]
 == Dispatcher Whiteboard ==

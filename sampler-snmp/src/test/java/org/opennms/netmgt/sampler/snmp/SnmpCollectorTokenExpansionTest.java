@@ -124,16 +124,6 @@ public class SnmpCollectorTokenExpansionTest extends CamelBlueprintTestSupport i
 	}
 
 	/**
-	 * Override 'opennms.home' with the test resource directory.
-	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@Override
-	protected String useOverridePropertiesWithConfigAdmin(Dictionary props) throws Exception {
-		props.put("opennms.home", "../sampler-config-snmp/src/test/resources");
-		return "org.opennms.netmgt.sampler.config.snmp";
-	}
-
-	/**
 	 * This class will use a countdown latch every time save() is called.
 	 */
 	private class CountDownLatchSimpleFileRepository extends SimpleFileRepository {
@@ -189,7 +179,7 @@ public class SnmpCollectorTokenExpansionTest extends CamelBlueprintTestSupport i
 			services.put(SingletonBeanFactory.class.getName(), new KeyValueHolder<Object,Dictionary>(new SingletonBeanFactoryImpl<SnmpConfig>(snmpConfig), props));
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			fail(e.getMessage());
 		}
 	}
 
@@ -213,7 +203,7 @@ public class SnmpCollectorTokenExpansionTest extends CamelBlueprintTestSupport i
 		// We should get one call to {@link SampleRepository#save(SampleSet)}
 		m_latch = new CountDownLatch(1);
 
-		MockEndpoint sampleSaved = getMockEndpoint("mock:seda:saveToRepository");
+		MockEndpoint sampleSaved = getMockEndpoint("mock:seda:saveToRepository", false);
 		sampleSaved.expectedMessageCount(1);
 
 		// Make some constants to reuse in the regex below

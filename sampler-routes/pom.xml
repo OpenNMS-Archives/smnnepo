@@ -9,7 +9,7 @@
   <parent>
     <groupId>org.opennms.netmgt.sample</groupId>
     <artifactId>sample-parent</artifactId>
-    <version>1.13.5-PJSM-SNAPSHOT</version>
+    <version>16.0.0-SNAPSHOT</version>
   </parent>
 
   <properties>
@@ -134,7 +134,7 @@
     <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-camel</artifactId>
-      <version>5.9.0</version>
+      <version>${activemqVersion}</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -158,7 +158,6 @@
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-jms</artifactId>
-      <version>${camelVersion}</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -230,7 +229,6 @@
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-spring</artifactId>
-      <version>${camelVersion}</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>

@@ -15,7 +15,7 @@
 ">
 
   <!-- Configuration properties -->
-  <cm:property-placeholder id="properties" persistent-id="org.opennms.netmgt.sampler.persister.activemq" update-strategy="none">
+  <cm:property-placeholder id="persisterActivemqProperties" persistent-id="org.opennms.netmgt.sampler.persister.activemq" update-strategy="none">
     <cm:default-properties>
       <cm:property name="brokerName" value="persisterBroker"/>
 
@@ -46,6 +46,7 @@
   </service>
 
   <camelContext id="activemqDispatcherCamelContext" xmlns="http://camel.apache.org/schema/blueprint">
+    <propertyPlaceholder id="properties" location="blueprint:persisterActivemqProperties" />
 
     <!-- Send SampleSets over ActiveMQ -->
     <route id="sendSampleSet">

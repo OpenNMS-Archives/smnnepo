@@ -14,7 +14,7 @@
 
 %{!?jdk:%define jdk jdk >= 2000:1.7}
 
-%{!?karaf_version:%define karaf_version 2.3.5}
+%{!?karaf_version:%define karaf_version 2.4.0}
 
 %{!?extrainfo:%define extrainfo }
 %{!?extrainfo2:%define extrainfo2 }
@@ -153,7 +153,10 @@ find "${RPM_BUILD_ROOT}%{webappdir}/smnnepo" ! -type d \
 	> "%{_tmppath}"/files.webapp
 
 %clean
-rm -rf "$RPM_BUILD_ROOT" "%{repodir}"
+# SL 2015-02-27 - Why are we deleting the user's .m2/repository directory? I'm 
+# commenting this out.
+#rm -rf "$RPM_BUILD_ROOT" "%{repodir}"
+rm -rf "$RPM_BUILD_ROOT"
 
 ##############################################################################
 # file setup

@@ -9,14 +9,14 @@
   <parent>
     <groupId>org.opennms</groupId>
     <artifactId>opennms</artifactId>
-    <version>1.13.5-PJSM-SNAPSHOT</version>
+    <version>16.0.0-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.opennms.netmgt.sample</groupId>
   <artifactId>sample-parent</artifactId>
 
-  <name>SMNnepO - Sample Collection and Storage</name>
+  <name>Minion</name>
 
   <packaging>pom</packaging>
 
@@ -29,15 +29,17 @@
     <module>sample-storage-rrd</module>
     <module>sample-storage-newts</module>
     <module>minion-api</module>
-    <module>minion-impl</module>
     <module>minion-bootstrap</module>
     <module>minion-controller</module>
+    <module>minion-impl</module>
+    <module>minion-parent</module>
     <module>dominion-status-writer/dao</module>
     <module>dominion-status-writer/logging</module>
     <module>dominion-controller</module>
     <module>sampler-config</module>
     <module>sampler-config-snmp</module>
     <module>sampler-snmp</module>
+    <module>sampler-jmx</module>
     <module>sampler-routes</module>
     <module>sampler-scheduler</module>
     <module>sample-graphs</module>
@@ -45,15 +47,17 @@
     <module>sampler-repo-webapp</module>
     <module>dist</module>
     <module>docs</module>
+    <module>integration-tests</module>
   </modules>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <camelVersion>2.13.2</camelVersion>
-    <springVersion>3.2.4.RELEASE</springVersion>
+    <camelVersion>2.14.1</camelVersion>
+    <newtsVersion>1.1.0</newtsVersion>
+    <springVersion>4.0.5.RELEASE_1</springVersion>
     <fabric8Version>1.1.0.CR5</fabric8Version>
-    <!--<fabric8Version>[1.0.99,1.2.0)</fabric8Version>-->
+    <activemqVersion>5.10.0</activemqVersion>
   </properties>
 
   <build>
@@ -63,8 +67,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.1</version>
         <configuration>
-          <source>1.7</source>
-          <target>1.7</target>
+          <source>1.8</source>
+          <target>1.8</target>
         </configuration>
       </plugin>
 
@@ -132,13 +136,6 @@
 
   <repositories>
     <repository>
-      <snapshots><enabled>true</enabled></snapshots>
-      <releases><enabled>false</enabled></releases>
-      <id>jboss-snapshots</id>
-      <name>JBoss Snapshot Repository</name>
-      <url>http://repository.jboss.org/nexus/content/groups/m2-proxy</url>
-    </repository>
-    <repository>
       <snapshots><enabled>false</enabled></snapshots>
       <releases><enabled>true</enabled></releases>
       <id>opennms-repo</id>
@@ -166,6 +163,16 @@
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-jms</artifactId>
         <version>${camelVersion}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.camel</groupId>
@@ -173,18 +180,18 @@
         <version>${camelVersion}</version>
       </dependency>
       <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-aop</artifactId>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.spring-aop</artifactId>
         <version>${springVersion}</version>
       </dependency>
       <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-jms</artifactId>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.spring-jms</artifactId>
         <version>${springVersion}</version>
       </dependency>
       <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-tx</artifactId>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.spring-tx</artifactId>
         <version>${springVersion}</version>
       </dependency>
     </dependencies>

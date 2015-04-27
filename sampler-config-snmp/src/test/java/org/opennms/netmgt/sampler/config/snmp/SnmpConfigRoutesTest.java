@@ -28,7 +28,6 @@ import ch.qos.logback.classic.LoggerContext;
 @JUnitHttpServer(port=9162)
 public class SnmpConfigRoutesTest extends CamelBlueprintTestSupport {
     private static final String REST_ROOT = "http://localhost:9162";
-    private static final String OPENNMS_HOME = "src/test/resources";
 
     /**
      * Use Aries Blueprint synchronous mode to avoid a blueprint
@@ -58,11 +57,6 @@ public class SnmpConfigRoutesTest extends CamelBlueprintTestSupport {
     }
 
     @Override
-    public boolean isCreateCamelContextPerClass() {
-        return true;
-    }
-
-    @Override
     public boolean isUseAdviceWith() {
         return true;
     }
@@ -79,13 +73,23 @@ public class SnmpConfigRoutesTest extends CamelBlueprintTestSupport {
         return "file:src/main/resources/OSGI-INF/blueprint/blueprint-sampler-config-snmp.xml";
     }
 
-    /**
-     * Override 'opennms.home' with the test resource directory.
-     */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
+    protected Properties useOverridePropertiesWithPropertiesComponent() {
+        Properties props = new Properties();
+        props.put("snmpConfigUrl", REST_ROOT + "/etc/snmp-config.xml");
+        props.put("datacollectionFileUrl", REST_ROOT + "/etc/datacollection-config.xml");
+        props.put("datacollectionGroupUrls", REST_ROOT + "/etc/datacollection/mib2.xml," + REST_ROOT + "/etc/datacollection/netsnmp.xml," + REST_ROOT + "/etc/datacollection/dell.xml");
+        return props;
+    }
+
+    /**
+     * We have to use {@link #useOverridePropertiesWithPropertiesComponent()} and
+     * {@link #useOverridePropertiesWithConfigAdmin(Dictionary)} because there are
+     * beans outside of the Camel context that use CM properties.
+     */
+    @Override
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     protected String useOverridePropertiesWithConfigAdmin(Dictionary props) throws Exception {
-        props.put("opennms.home", OPENNMS_HOME);
         props.put("snmpConfigUrl", REST_ROOT + "/etc/snmp-config.xml");
         props.put("datacollectionFileUrl", REST_ROOT + "/etc/datacollection-config.xml");
         props.put("datacollectionGroupUrls", REST_ROOT + "/etc/datacollection/mib2.xml," + REST_ROOT + "/etc/datacollection/netsnmp.xml," + REST_ROOT + "/etc/datacollection/dell.xml");
