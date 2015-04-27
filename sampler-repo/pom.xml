@@ -88,6 +88,7 @@
                 <feature>sampler-with-activemq-export</feature>
                 <feature>sampler-with-file-storage</feature>
                 <feature>sampler-with-rrd-storage</feature>
+                <feature>sampler-jmx</feature>
 
                 <!-- Newts storage -->
                 <feature>newts-cassandra</feature>
@@ -151,6 +152,11 @@
     <dependency>
       <groupId>org.opennms.netmgt.sample</groupId>
       <artifactId>sampler-snmp</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opennms.netmgt.sample</groupId>
+      <artifactId>sampler-jmx</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

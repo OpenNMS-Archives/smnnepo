@@ -60,11 +60,10 @@ public class FeatureInstallKarafTest extends SmnnepoKarafTest {
         installFeature("sampler-snmp");
     }
 
-//    // TODO Test sampler jmx
-//    @Test
-//    public void testSamplerJmx() {
-//        installFeature("sampler-jmx");
-//    }
+    @Test
+    public void testSamplerJmx() {
+        installFeature("sampler-jmx");
+    }
 
     @Test
     public void testSampleDispatchActivemq() {
