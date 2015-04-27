@@ -175,7 +175,7 @@ public class SnmpCollectorTest extends CamelBlueprintTestSupport implements Test
 			services.put(SingletonBeanFactory.class.getName(), new KeyValueHolder<Object,Dictionary>(new SingletonBeanFactoryImpl<SnmpConfig>(snmpConfig), props));
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			fail(e.getMessage());
 		}
 	}
 

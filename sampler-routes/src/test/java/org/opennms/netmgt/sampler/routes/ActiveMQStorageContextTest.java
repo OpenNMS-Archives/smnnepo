@@ -10,7 +10,6 @@ import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.apache.camel.util.KeyValueHolder;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.opennms.netmgt.api.sample.SampleRepository;
 import org.opennms.netmgt.api.sample.SampleSet;
 import org.opennms.netmgt.api.sample.SampleSetDispatcher;
 import org.opennms.netmgt.api.sample.Timestamp;
@@ -67,16 +66,10 @@ public class ActiveMQStorageContextTest extends CamelBlueprintTestSupport {
 		return "file:blueprint-activemq-dispatch.xml";
 	}
 
-	/**
-	 * Register a mock OSGi {@link SampleRepository}.
-	 */
-	@SuppressWarnings("rawtypes")
 	@Override
+	@SuppressWarnings("rawtypes")
 	protected void addServicesOnStartup(Map<String, KeyValueHolder<Object, Dictionary>> services) {
-		try {
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		// Don't need any OSGi services yet
 	}
 
 	@Test(timeout=60000)

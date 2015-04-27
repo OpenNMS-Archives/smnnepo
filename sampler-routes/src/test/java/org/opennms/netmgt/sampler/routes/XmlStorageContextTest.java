@@ -14,7 +14,6 @@ import org.apache.camel.util.KeyValueHolder;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.opennms.netmgt.api.sample.SampleRepository;
 import org.opennms.netmgt.api.sample.SampleSet;
 import org.opennms.netmgt.api.sample.SampleSetDispatcher;
 import org.opennms.netmgt.api.sample.Timestamp;
@@ -70,16 +69,10 @@ public class XmlStorageContextTest extends CamelBlueprintTestSupport {
 		return "file:blueprint-xml-storage.xml";
 	}
 
-	/**
-	 * Register a mock OSGi {@link SampleRepository}.
-	 */
-	@SuppressWarnings("rawtypes")
 	@Override
+	@SuppressWarnings("rawtypes")
 	protected void addServicesOnStartup(Map<String, KeyValueHolder<Object, Dictionary>> services) {
-		try {
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		// Don't need any OSGi services yet
 	}
 
 	@Test(timeout=60000)

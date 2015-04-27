@@ -2,14 +2,11 @@ package org.opennms.netmgt.trapd.camel;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.apache.camel.util.KeyValueHolder;
 import org.junit.BeforeClass;
@@ -61,6 +58,11 @@ public class TrapReceiverContextTest extends CamelBlueprintTestSupport {
 	}
 
 	@Override
+	public String isMockEndpoints() {
+		return "*";
+	}
+
+	@Override
 	protected Properties useOverridePropertiesWithPropertiesComponent() {
 		Properties props = new Properties();
 		props.put("trapListenAddress", "127.0.0.1");
@@ -89,29 +91,14 @@ public class TrapReceiverContextTest extends CamelBlueprintTestSupport {
 		return "file:src/main/resources/OSGI-INF/blueprint/blueprint-trap-receiver.xml";
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
+	@SuppressWarnings("rawtypes")
 	protected void addServicesOnStartup(Map<String, KeyValueHolder<Object, Dictionary>> services) {
-		try {
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		// Don't need any OSGi services yet
 	}
 
 	@Test(timeout=60000)
 	public void test() throws Exception {
-
-		context.stop();
-		// Add mock endpoints to the route context
-		for (RouteDefinition route : new ArrayList<RouteDefinition>(context.getRouteDefinitions())) {
-			route.adviceWith(context, new AdviceWithRouteBuilder() {
-				@Override
-				public void configure() throws Exception {
-					mockEndpoints();
-				}
-			});
-		}
-		context.start();
 
 		assertTrue(context.hasEndpoint("mock:activemq:snmpTrap") != null);
 		MockEndpoint endpoint = getMockEndpoint("mock:activemq:snmpTrap", false);

@@ -23,8 +23,6 @@ import org.opennms.netmgt.api.sample.support.SingletonBeanFactory;
 import org.opennms.netmgt.config.collectd.CollectdConfiguration;
 import org.opennms.netmgt.config.collectd.Package;
 import org.opennms.netmgt.config.collectd.Service;
-import org.osgi.service.cm.ConfigurationException;
-import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
@@ -88,18 +86,6 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
                 }
             }
         }, new Properties()));
-
-        Properties props = new Properties();
-        props.put("service.id", "org.opennms.netmgt.sampler.config");
-        services.put(ManagedService.class.getName(), new KeyValueHolder<Object,Dictionary>(new ManagedService() {
-            @Override
-            public void updated(Dictionary<String, ?> properties) throws ConfigurationException {
-                System.err.println("WHOA MAMA");
-                if (properties != null && properties.get("collectdConfigUrl").equals(REST_ROOT + "/etc/collectd-configuration.xml")) {
-                    System.err.println("COUNT DOWN");
-                }
-            }
-        }, props));
     }
 
     // The location of our Blueprint XML file to be used for testing
