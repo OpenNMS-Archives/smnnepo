@@ -44,10 +44,20 @@ public class SampleSetXmlTest extends XmlTestNoCastor<SampleSet> {
                     "               <address>127.0.0.1</address>\n" + 
                     "               <port>80</port>\n" + 
                     "               <serviceName>snmp</serviceName>\n" + 
-                    "               <id>1</id>\n" + 
-                    "               <parameters/>\n" + 
+                    "               <id>1</id>\n" +
+                    "               <parameters>\n" +
+                    "                 <entry>\n" +
+                    "                   <key>param</key>\n" +
+                    "                   <value>parm-value</value>\n" +
+                    "                 </entry>\n" +
+                    "               </parameters>\n" +
                     "            </agent>\n" + 
-                    "            <attributes/>\n" + 
+                    "            <attributes>\n" +
+                    "              <entry>\n" +
+                    "                <key>attr</key>\n" +
+                    "                <value>attr-value</value>\n" +
+                    "              </entry>\n" +
+                    "           </attributes>\n" +
                     "         </resource>\n" + 
                     "         <metric name=\"metric\" metric-type=\"counter\" group=\"metrics\"/>\n" + 
                     "         <timestamp time=\"1398182585227\" unit=\"MILLISECONDS\"/>\n" + 
@@ -61,7 +71,10 @@ public class SampleSetXmlTest extends XmlTestNoCastor<SampleSet> {
 
     private static SampleSet getSampleSetXml() throws UnknownHostException {
         final Timestamp time = new Timestamp(1398182585227l, TimeUnit.MILLISECONDS);
-        final Resource resource = new Resource(new Agent(new IPAddress("127.0.0.1"), 80, "snmp", "1"), "resource_type", "resource_name", "resource_label");
+        final Agent agent = new Agent(new IPAddress("127.0.0.1"), 80, "snmp", "1");
+        agent.setParameter("param", "parm-value");
+        final Resource resource = new Resource(agent, "resource_type", "resource_name", "resource_label");
+        resource.setAttribute("attr", "attr-value");
         final Metric metric = new Metric("metric", MetricType.COUNTER, "metrics");
         final SampleSet samplesIn = new SampleSet(time);
         samplesIn.addMeasurement(resource, metric, new GaugeValue(1));
