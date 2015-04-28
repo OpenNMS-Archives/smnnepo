@@ -79,7 +79,7 @@
 
   <service ref="jmxSampler" interface="org.opennms.netmgt.api.sample.AgentDispatcher">
     <service-properties>
-      <entry key="org.opennms.netmgt.sampler.scheduler.serviceName" value="OpenNMS-JVM"/>
+      <entry key="org.opennms.netmgt.sampler.scheduler.serviceName" value="JMX"/>
     </service-properties>
   </service>
 
