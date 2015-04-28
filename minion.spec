@@ -49,7 +49,8 @@ URL:			http://www.opennms.org/
 BuildRoot:		%{_tmppath}/%{name}-%{version}-root
 
 # don't worry about buildrequires, the shell script will bomb quick  =)
-BuildRequires:		%{jdk}
+#BuildRequires:		%{jdk}
+Requires:		%{jdk}
 
 %description
 OpenNMS Minion is a container infrastructure for distributed, scalable network
