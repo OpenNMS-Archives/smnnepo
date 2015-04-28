@@ -49,9 +49,8 @@
     </cm:default-properties>
   </cm:property-placeholder>
 
-  <reference id="collectdConfiguration" interface="org.opennms.netmgt.api.sample.support.SingletonBeanFactory"/>
-
-  <reference id="jmxConfigFactoryRef" interface="org.opennms.netmgt.api.sample.support.SingletonBeanFactory"/>
+  <!-- Provided by sampler-config -->
+  <reference id="collectdConfiguration" interface="org.opennms.netmgt.api.sample.support.SingletonBeanFactory" filter="(beanClass=org.opennms.netmgt.config.collectd.CollectdConfiguration)"/>
 
   <bean id="jmxCollectionConfiguration" class="org.opennms.netmgt.sampler.jmx.internal.JmxCollectionConfiguration"/>
 
@@ -94,7 +93,7 @@
   </service>
 
   <bean id="jmxAgentProcessor" class="org.opennms.netmgt.sampler.jmx.JmxAgentProcessor">
-    <property name="jmxConfigFactory" ref="jmxConfigFactoryRef"/>
+    <property name="jmxConfigFactory" ref="jmxConfigFactory"/>
     <property name="collectdConfigFactory" ref="collectdConfiguration"/>
   </bean>
 
@@ -103,7 +102,7 @@
   <camelContext id="samplerJmxCamelContext" xmlns="http://camel.apache.org/schema/blueprint">
     <route id="triggerReloadConfiguration">
       <!--<from uri="timer://reloadConfigs?delay=3000&amp;period={{refreshInterval}}" />-->
-      <from uri="timer://reloadConfigs?delay=2000&amp;period=300000" />
+      <from uri="timer://reloadConfigs?delay=2000&amp;period={{refreshInterval}}" />
       <log loggingLevel="INFO" message="sampler-jmx: Reloading Configuration" />
       <multicast parallelProcessing="true">
         <to uri="direct:loadJmxDatacollectionConfig"/>

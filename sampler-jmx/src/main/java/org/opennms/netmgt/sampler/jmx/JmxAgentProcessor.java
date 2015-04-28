@@ -18,11 +18,18 @@ import org.opennms.netmgt.sampler.jmx.internal.JmxAgent;
 
 public class JmxAgentProcessor implements Processor {
 
-    private SingletonBeanFactory<JmxDatacollectionConfig> jmxConfigFactory;
+    /**
+     * TODO: This should be of type JmxDatacollectionConfig
+     *
+     * Currently, when the type is specified, the blueprint fails to load with:
+     *   Unable to convert value SingletonBeanFactory[ instance=null ] to type
+     *   org.opennms.netmgt.api.sample.support.SingletonBeanFactory<org.opennms.netmgt.config.collectd.jmx.JmxDatacollectionConfig>
+     */
+    private SingletonBeanFactory<?> jmxConfigFactory;
 
     private SingletonBeanFactory<CollectdConfiguration> collectdConfigFactory;
 
-    public void setJmxConfigFactory(final SingletonBeanFactory<JmxDatacollectionConfig> factory) {
+    public void setJmxConfigFactory(final SingletonBeanFactory<?> factory) {
         jmxConfigFactory = factory;
     }
 
@@ -40,13 +47,13 @@ public class JmxAgentProcessor implements Processor {
         final String collection = Objects.toString(jmxAgent.getParameter(ParameterName.COLLECTION.toString()), "jsr160");
         final String retry = Objects.toString(jmxAgent.getParameter(ParameterName.RETRY.toString()), "3");
         final String connectorName = Objects.toString(getJmxConnectorName(serviceClassName), JmxConnectors.JSR160);
-        final JmxCollection jmxCollection = jmxConfigFactory.getInstance().getJmxCollection(collection);
+        final JmxDatacollectionConfig jmxDatacollectionConfig = (JmxDatacollectionConfig)jmxConfigFactory.getInstance();
+        final JmxCollection jmxCollection = jmxDatacollectionConfig != null ? jmxDatacollectionConfig.getJmxCollection(collection) : null;
 
         jmxAgent.setParameter(ParameterName.COLLECTION.toString(), collection);
         jmxAgent.setParameter(ParameterName.RETRY.toString(), retry);
         jmxAgent.setConnectorName(connectorName);
         jmxAgent.setCollection(jmxCollection);
-
 
         exchange.getIn().setBody(jmxAgent);
     }
