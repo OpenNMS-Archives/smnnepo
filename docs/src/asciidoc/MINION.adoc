@@ -17,7 +17,7 @@ The operation of each _Minion_ is controlled from the _Dominion_ service running
 == Prerequisites
 
 === User Management
-User management of each _Minion_ instance is performed by editing the '/etc/sysconfig/smnnepo' file to provide credentials for accessing the public interfaces of the _OpenNMS_ system.
+User management of each _Minion_ instance is performed by editing the '/etc/sysconfig/minion' file to provide credentials for accessing the public interfaces of the _OpenNMS_ system.
 
 [source]
 ----
@@ -57,23 +57,23 @@ This is the default configuration for _Minion_ deployments.
 
 === Configuration
 The +sampler-repo-webapp+ on _OpenNMS_ provides _Karaf_ scripts that can be used to install the _Minion_ services on a remote machine.
-These scripts are invoked by the '/etc/init.d/smnnepo' init file and the contents of the '/etc/sysconfig/smnnepo' file are used as arguments to the script.
+These scripts are invoked by the '/etc/init.d/minion' init file and the contents of the '/etc/sysconfig/minion' file are used as arguments to the script.
 
 [source]
 ----
-./bin/client -r 30 -a 8201 "source" "\"$SCRIPTDIR/smnnepo-setup.karaf\"" root "\"$USERNAME\"" "\"$PASSWORD\"" "\"$OPENNMS\"" "\"$LOCATION\"" >/tmp/smnnepo.log 2>&1
+./bin/client -r 30 -a 8201 "source" "\"$SCRIPTDIR/minion-setup.karaf\"" root "\"$USERNAME\"" "\"$PASSWORD\"" "\"$OPENNMS\"" "\"$LOCATION\"" >/tmp/minion.log 2>&1
 ----
 
-The '/etc/init.d/smnnepo' script sets up the root _Karaf_ instance and if subinstances are created, the script is invoked again for each subinstance.
+The '/etc/init.d/minion' script sets up the root _Karaf_ instance and if subinstances are created, the script is invoked again for each subinstance.
 
 [source]
 ----
-./bin/client -r 10 -a $PORT "source" "\"$SCRIPTDIR/smnnepo-setup.karaf\"" $INSTANCE "\"$USERNAME\"" "\"$PASSWORD\"" "\"$OPENNMS\"" "\"$LOCATION\"" >/tmp/smnnepo.log 2>&1
+./bin/client -r 10 -a $PORT "source" "\"$SCRIPTDIR/minion-setup.karaf\"" $INSTANCE "\"$USERNAME\"" "\"$PASSWORD\"" "\"$OPENNMS\"" "\"$LOCATION\"" >/tmp/minion.log 2>&1
 ----
 
 == Runtime Operation
 
-The _Minion_ process is started by using the +smnnepo+ _init.d_ service script.
+The _Minion_ process is started by using the +minion+ _init.d_ service script.
 The startup procedure is the following:
 
  * Start _Karaf_.

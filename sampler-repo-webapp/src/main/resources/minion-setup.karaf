@@ -27,9 +27,9 @@ KARAF_BASE=system:getproperty karaf.base
 
 if { "root" equals "$INSTANCE" } {
 
-# Add the SMNnepO WAR as a PAX Maven repository URL
+# Add the Minion WAR as a PAX Maven repository URL
 config:edit org.ops4j.pax.url.mvn
-config:propset org.ops4j.pax.url.mvn.repositories $ONMS/smnnepo@snapshots@id=opennms-repo
+config:propset org.ops4j.pax.url.mvn.repositories $ONMS/minion@snapshots@id=opennms-repo
 config:update
 
 # Add the required features URLs

@@ -1,28 +1,28 @@
 #!/bin/sh -
 #
 # chkconfig:   345 99 01
-# description: Starts and stops the OpenNMS SMNnepO distributed client
+# description: Starts and stops the OpenNMS Minion distributed client
 # processname: java
 #
 ### BEGIN INIT INFO
-# Provides:          smnnepo
+# Provides:          minion
 # Required-Start:    $network
 # Required-Stop:     $network
 # Should-Start:      $local_fs
 # Should-Stop:       $local_fs
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: SMNnepO remote client
+# Short-Description: Minion remote client
 # Description:       Remote client for distributed collection.
 ### END INIT INFO
 
-NAME="smnnepo"
-DESC="SMNnepO Distributed Client"
+NAME="minion"
+DESC="Minion Distributed Client"
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-SMNNEPO_HOME="@INSTPREFIX@"
+MINION_HOME="@INSTPREFIX@"
 
 is_running() {
-	"$SMNNEPO_HOME"/bin/status >/dev/null 2>&1
+	"$MINION_HOME"/bin/status >/dev/null 2>&1
 }
 
 case "$1" in
@@ -33,14 +33,14 @@ case "$1" in
 			exit 0
 		fi
 
-		"$SMNNEPO_HOME"/bin/start-smnnepo
+		"$MINION_HOME"/bin/start-minion
 		exit $?
 		;;
 
 	stop)
 		echo -n "Stopping $DESC: "
 		if is_running; then
-			"$SMNNEPO_HOME"/bin/stop >/dev/null
+			"$MINION_HOME"/bin/stop >/dev/null
 			RETVAL="$?"
 			if [ $RETVAL -eq 0 ]; then
 				echo "OK"
@@ -51,11 +51,11 @@ case "$1" in
 
 			# Stop all subinstances
 			# Filter out all of the [, ], and / characters
-			"$SMNNEPO_HOME"/bin/admin list | grep '^\[' | sed 's#[][/]# #g' | while read LINE; do
+			"$MINION_HOME"/bin/admin list | grep '^\[' | sed 's#[][/]# #g' | while read LINE; do
 				INSTANCE=`echo "$LINE" | awk '{print $6}'`
 				if [ "$INSTANCE" != "root" ]; then
 					echo -n "Stopping subinstance $INSTANCE: "
-					"$SMNNEPO_HOME"/bin/admin stop $INSTANCE >/dev/null 2>&1
+					"$MINION_HOME"/bin/admin stop $INSTANCE >/dev/null 2>&1
 					RETVAL="$?"
 					if [ $RETVAL -eq 0 ]; then
 						echo "OK"
@@ -96,7 +96,7 @@ case "$1" in
 		;;
 
 	status)
-		"$SMNNEPO_HOME"/bin/status >/dev/null
+		"$MINION_HOME"/bin/status >/dev/null
 		RETVAL="$?"
 		if [ $RETVAL -eq 0 ]; then
 			echo "$DESC is running."

@@ -19,9 +19,9 @@ config:update
 #config:propset webconsole.jms.password manager
 #config:update
 
-# Add the SMNnepO WAR as a PAX Maven repository URL
+# Add the Minion WAR as a PAX Maven repository URL
 config:edit org.ops4j.pax.url.mvn
-config:propappend org.ops4j.pax.url.mvn.repositories ", http://localhost:8980/smnnepo@snapshots@id=opennms-repo"
+config:propappend org.ops4j.pax.url.mvn.repositories ", http://localhost:8980/minion@snapshots@id=opennms-repo"
 config:update
 
 # Configure the local RRD storage directory
