@@ -149,8 +149,8 @@
       <feature>sampler-scheduler</feature>
       <!-- Provide an SNMP sampler implementation -->
       <feature>sampler-snmp</feature>
-      <!-- TODO Provide a JMX sampler implementation -->
-      <!-- <feature>sampler-jmx</feature> -->
+      <!-- Provide a JMX sampler implementation -->
+      <feature>sampler-jmx</feature>
       <!-- Store samples in a file -->
       <feature>sample-storage-file</feature>
     </feature>
@@ -163,8 +163,8 @@
       <feature>sampler-scheduler</feature>
       <!-- Provide an SNMP sampler implementation -->
       <feature>sampler-snmp</feature>
-      <!-- TODO Provide a JMX sampler implementation -->
-      <!-- <feature>sampler-jmx</feature> -->
+      <!-- Provide a JMX sampler implementation -->
+      <feature>sampler-jmx</feature>
       <!-- Store samples in an XML file -->
       <feature>sample-storage-xml</feature>
     </feature>
@@ -177,8 +177,8 @@
       <feature>sampler-scheduler</feature>
       <!-- Provide an SNMP sampler implementation -->
       <feature>sampler-snmp</feature>
-      <!-- TODO Provide a JMX sampler implementation -->
-      <!-- <feature>sampler-jmx</feature> -->
+      <!-- Provide a JMX sampler implementation -->
+      <feature>sampler-jmx</feature>
       <!-- Store samples in RRD files -->
       <feature>sample-storage-rrd</feature>
     </feature>
@@ -191,8 +191,8 @@
       <feature>sampler-scheduler</feature>
       <!-- Provide an SNMP sampler implementation -->
       <feature>sampler-snmp</feature>
-      <!-- TODO Provide a JMX sampler implementation -->
-      <!-- <feature>sampler-jmx</feature> -->
+      <!-- Provide a JMX sampler implementation -->
+      <feature>sampler-jmx</feature>
       <!-- Export samples over ActiveMQ -->
       <feature>sample-dispatch-activemq</feature>
     </feature>
