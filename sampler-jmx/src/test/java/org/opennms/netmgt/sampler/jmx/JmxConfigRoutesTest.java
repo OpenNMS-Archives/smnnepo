@@ -7,6 +7,7 @@ import java.util.Properties;
 
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.apache.camel.util.KeyValueHolder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opennms.core.test.OpenNMSJUnit4ClassRunner;
@@ -74,6 +75,12 @@ public class JmxConfigRoutesTest extends CamelBlueprintTestSupport {
     }
 
     @Test
+    public void canLoadBlueprint() {
+        // Verifies that the blueprint can load without throwing any exceptions
+    }
+
+    @Test
+    @Ignore
     public void testParseJmxXml() throws Exception {
         System.err.printf("Starting testParseJmxXml");
         JmxDatacollectionConfig resultsUsingURL = template.requestBody("direct:parseJmxXml", new URL(REST_ROOT + "/etc/jmx-datacollection-config.xml"), JmxDatacollectionConfig.class);
@@ -88,6 +95,7 @@ public class JmxConfigRoutesTest extends CamelBlueprintTestSupport {
     }
 
     @Test
+    @Ignore
     public void testLoadJmxDatacollectionConfig() throws Exception {
         System.err.printf("Starting testLoadJmxDatacollectionConfig");
 
