@@ -17,10 +17,6 @@ Terms
   to a Dominion controller.</dd>
   <dt>ActiveMQ</dt> <dd>Apache's implementation of JMS: the Java Message Service, used
   for communicating between Minions and the Dominion controller.</dd>
-  <dt>SMNnepO</dt> <dd>The code name for the codebase implementing the Dominion,
-  Minions, and sampler code.  If you see this, we probably just need to update the
-  documentation. ;)  It is likely to refer to the Minion, and not the Dominion
-  controller.</dd>
 </dl>
 
 <a name="requirements"></a>Requirements
@@ -29,8 +25,7 @@ Terms
 The Dominion controller (the OpenNMS side) has the same requirements of OpenNMS, since
 it runs inside OpenNMS's embedded Karaf.
 
-The Minion should run anywhere Java 7 is available. Current Minion code is not compatible
-with Java 8.
+The Minion should run anywhere where Java 8 is available.
 
 Installing from RPMs
 ====================
@@ -40,9 +35,9 @@ There are now standalone RPMs available for running Minions with OpenNMS.
 Installing the Minion Client RPM
 --------------------------------
 
-On the system that should be doing collection, download the "smnnepo" RPM
+On the system that should be doing collection, download the "opennms-minion" RPM
 from http://yum.opennms.org/branches/develop/common/opennms/ and install
-it, like so: <code>rpm -Uvh smnnepo-\*.rpm</code>
+it, like so: <code>rpm -Uvh opennms-minion-\*.rpm</code>
 
 
 Installing the Minion Server Components
@@ -53,7 +48,7 @@ RPMs are available at http://yum.opennms.org/branches/develop/common/opennms/
 
 You'll need OpenNMS (at least <code>opennms-core</code> and
 <code>opennms-webapp-jetty</code>), as well as the Minion webapp from the
-same location (<code>opennms-webapp-smnnepo</code>).  Configure OpenNMS for
+same location (<code>opennms-webapp-minion</code>).  Configure OpenNMS for
 monitoring locations like you would normally (see below for details), and
 then start it up.
 
@@ -62,7 +57,7 @@ Starting the Minion Server in OpenNMS
 
 1. Connect to the OpenNMS karaf console: <code>ssh -p 8101 admin@localhost</code>
    <br />(password is 'admin')
-2. Run the configuration script: <code>source http://localhost:8980/smnnepo/opennms-setup.karaf</code>
+2. Run the configuration script: <code>source http://localhost:8980/minion/opennms-setup.karaf</code>
 
 This will update your local feature repository, and then install the
 <code>sample-receiver-activemq</code> feature, to allow for listening
@@ -71,13 +66,13 @@ on an internal ActiveMQ server.
 To enable RRD collection, you will also need to configure and install the
 <code>sample-storage-rrd</code> feature.
 
-Starting the SMNnepO Client
+Starting the Minion Client
 ---------------------------
 
-1. Edit /etc/sysconfig/smnnepo, and put in the URL for the root of your
+1. Edit /etc/sysconfig/minion, and put in the URL for the root of your
    OpenNMS server, the name of your monitoring location, and (optionally) the
    URL for your ActiveMQ broker.
-2. Start the SMNnepO client: <code>sudo /etc/init.d/smnnepo start</code>
+2. Start the Minion client: <code>sudo /etc/init.d/minion start</code>
 
 <hr>
 
@@ -85,8 +80,8 @@ Installing from Source
 ======================
 
 1. Build [OpenNMS develop](https://github.com/OpenNMS/opennms/tree/develop)
-2. Build [Minion](http://github.com/OpenNMS/smnnepo.git)
-3. From the Minion source build, copy <code>sampler-repo-webapp/target/smnnepo.war</code>
+2. Build [Minion](http://github.com/OpenNMS/minion.git)
+3. From the Minion source build, copy <code>sampler-repo-webapp/target/minion.war</code>
    to your OpenNMS <code>jetty-webapps/</code> directory.
 
 Configuring OpenNMS
@@ -101,25 +96,25 @@ Configuring OpenNMS
       Make sure it has both the "collection-package-name" and "polling-package-name"
       attributes.
 
-2. If you didn't already, copy the <code>smnnepo.war</code> file from the source build above to your
+2. If you didn't already, copy the <code>minion.war</code> file from the source build above to your
    <code>$OPENNMS\_HOME/jetty-webapps</code> directory.
 3. Restart OpenNMS.
 
 Configuring the Dominion Server in OpenNMS
 ----------------------------------------
 
-1. Connect to the OpenNMS karaf console: <code>ssh -p 8101 admin@localhost</code>
+1. Connect to the OpenNMS Apache Karaf console: <code>ssh -p 8101 admin@localhost</code>
    <br />(password is 'admin')
-2. Run the configuration script: <code>source http://localhost:8980/smnnepo/opennms-setup.karaf</code>
+2. Run the configuration script: <code>source http://localhost:8980/minion/opennms-setup.karaf</code>
 
 If the Dominion Server is behind a firewall you have to open the following ports:
 
  * **8980** The port number for the OpenNMS Webapp. 
    The Minion needs this to download the
-   <code>smnnepo-setup.karaf</code> file.
+   <code>minion-setup.karaf</code> file.
  * **61616** The port for the ActiveMQ JMS. 
    The Minion needs this port to send messages 
-   to the  Dominion Controller.
+   to the Dominion Controller.
    
 
 Configuring a Minion Client
@@ -130,7 +125,7 @@ Ensure that the pc running the <code>Minion Client</code> meets the [requirement
 1. Download and unpack [Karaf 2.4](http://karaf.apache.org/index/community/download.html).
 2. Run Karaf (<code>bin/karaf</code>)
 3. Run the configuration script:
-   <code>source http://opennms-root:8980/smnnepo/smnnepo-setup.karaf instance username password opennms-root location-name</code>
+   <code>source http://opennms-root:8980/minion/minion-setup.karaf instance username password opennms-root location-name</code>
 
     * instance: possible values are +root+, +activemq+, +minion+, +sampler+
 	* username: The OpenNMS username allowed to make ReST calls
@@ -255,6 +250,6 @@ If you encounter an error like this:
 
 You have very likely not set up the `org.ops4j.pax.url.mvn.cfg` config file correctly.
 
-Check the logs of your karaf and look for something like `java.net.MalformedURLException: no protocol: 192.168.0.2:8980/smnnepo/`.
+Check the logs of your karaf and look for something like `java.net.MalformedURLException: no protocol: 192.168.0.2:8980/minion/`.
 This indicates that you have forgotten to set the protocol of the URL (`http` or `https`).
 Please invoke the original installation script with the `http|https` protocol.

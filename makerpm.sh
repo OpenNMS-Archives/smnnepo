@@ -82,19 +82,19 @@ function extraInfo()
 {
     if use_git; then
         if [ "$RELEASE_MAJOR" = "0" ] ; then
-            echo "This is a SMNnepO build from the $(branch) branch.  For a complete log, see:"
+            echo "This is a Minion build from the $(branch) branch.  For a complete log, see:"
         else
-            echo "This is a SMNnepO build from Git.  For a complete log, see:"
+            echo "This is a Minion build from Git.  For a complete log, see:"
         fi
     else
-        echo "This is a SMNnepO build from source."
+        echo "This is a Minion build from source."
     fi
 }
 
 function extraInfo2()
 {
     if use_git; then
-        echo "  https://github.com/OpenNMS/smnnepo/commit/$(commit)"
+        echo "  https://github.com/OpenNMS/minion/commit/$(commit)"
     else
         echo ""
     fi
@@ -169,24 +169,24 @@ function main()
     setJavaHome
 
     if $BUILD_RPM; then
-        echo "==== Building SMNnepO RPMs ===="
+        echo "==== Building Minion RPMs ===="
         echo
         echo "Version: " $VERSION
         echo "Release: " $RELEASE
         echo
 
         echo "=== Creating Working Directories ==="
-        run install -d -m 755 "$WORKDIR/tmp/smnnepo-$VERSION-$RELEASE"
+        run install -d -m 755 "$WORKDIR/tmp/minion-$VERSION-$RELEASE"
         run install -d -m 755 "$WORKDIR"/{BUILD,RPMS/{i386,i686,noarch},SOURCES,SPECS,SRPMS}
 
         echo "=== Copying Source to Source Directory ==="
-        run rsync -aqr --exclude=.git --exclude=.svn --exclude=target --delete --delete-excluded "$TOPDIR/" "$WORKDIR/tmp/smnnepo-$VERSION-$RELEASE/"
+        run rsync -aqr --exclude=.git --exclude=.svn --exclude=target --delete --delete-excluded "$TOPDIR/" "$WORKDIR/tmp/minion-$VERSION-$RELEASE/"
 
         echo "=== Creating a tar.gz archive of the Source in $WORKDIR/SOURCES ==="
-        run tar zcf "$WORKDIR/SOURCES/smnnepo-source-$VERSION-$RELEASE.tar.gz" -C "$WORKDIR/tmp" "smnnepo-$VERSION-$RELEASE"
+        run tar zcf "$WORKDIR/SOURCES/opennms-minion-source-$VERSION-$RELEASE.tar.gz" -C "$WORKDIR/tmp" "minion-$VERSION-$RELEASE"
 
         echo "=== Building RPMs ==="
-        for spec in smnnepo.spec
+        for spec in minion.spec
         do
             run rpmbuild -bb \
                 --define "extrainfo $EXTRA_INFO" \
@@ -209,7 +209,7 @@ function main()
 
     fi
 
-    echo "==== SMNnepO RPM Build Finished ===="
+    echo "==== Minion RPM Build Finished ===="
 
     echo ""
     echo "Your completed RPMs are in the $WORKDIR/RPMS/noarch directory."

@@ -20,7 +20,7 @@
   <packaging>war</packaging>
   
   <build>
-    <finalName>smnnepo</finalName>
+    <finalName>minion</finalName>
     <resources>
       <!-- we do not want the karaf files to be copied to target/classes -->
       <resource>
