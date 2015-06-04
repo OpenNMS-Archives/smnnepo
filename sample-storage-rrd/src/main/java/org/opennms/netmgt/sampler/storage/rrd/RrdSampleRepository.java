@@ -49,12 +49,15 @@ import org.opennms.netmgt.collection.sampler.SamplerCollectionAttributeType;
 import org.opennms.netmgt.collection.sampler.SamplerCollectionResource;
 import org.opennms.netmgt.collection.sampler.SamplerCollectionSet;
 import org.opennms.netmgt.rrd.RrdRepository;
+import org.opennms.netmgt.rrd.RrdStrategy;
 
 public class RrdSampleRepository implements SampleRepository {
 
 	//private static final Logger LOG = LoggerFactory.getLogger(RrdSampleRepository.class);
 
 	private RrdRepository m_repo;
+
+	private RrdStrategy<?, ?> m_rrdStrategy;
 
 	@Override
 	public void save(SampleSet sampleSet) {
@@ -65,7 +68,8 @@ public class RrdSampleRepository implements SampleRepository {
 		// Create an RrdRepository
 		RrdRepository repository = getRrdRepository();
 
-		BasePersister persister = new OneToOnePersister(new ServiceParameters(Collections.<String,Object>emptyMap()), repository);
+		// TODO: We need to use the GroupPersister here when storeByGroup is enabled
+		BasePersister persister = new OneToOnePersister(new ServiceParameters(Collections.<String,Object>emptyMap()), repository, m_rrdStrategy);
 
 		for (Resource resource : sampleSet.getResources()) {
 			//SamplerCollectionAgent agent = new SamplerCollectionAgent(resource.getAgent());
@@ -94,6 +98,14 @@ public class RrdSampleRepository implements SampleRepository {
 
 	public void setRrdRepository(RrdRepository repo) {
 		m_repo = repo;
+	}
+
+	public RrdStrategy<?, ?> getRrdStrategy() {
+		return m_rrdStrategy;
+	}
+
+	public void setRrdStrategy(RrdStrategy<?, ?> rrdStrategy) {
+		m_rrdStrategy = rrdStrategy;
 	}
 
 	@Override

@@ -54,7 +54,8 @@ import org.opennms.netmgt.collection.sampler.SamplerCollectionAttributeType;
 import org.opennms.netmgt.collection.sampler.SamplerCollectionResource;
 import org.opennms.netmgt.collection.sampler.SamplerCollectionSet;
 import org.opennms.netmgt.rrd.RrdRepository;
-import org.opennms.netmgt.rrd.RrdUtils;
+import org.opennms.netmgt.rrd.RrdStrategy;
+import org.opennms.netmgt.rrd.jrobin.JRobinRrdStrategy;
 import org.opennms.test.FileAnticipator;
 
 /**
@@ -70,13 +71,15 @@ public class SamplerCollectionSetPersistenceTest {
     private Resource m_resource;
     private SamplerCollectionResource m_collectionResource;
     private RrdRepository m_repository;
-    
+    private RrdStrategy<?, ?> m_rrdStrategy;
+
     private static final String NODE_ID = "1";
     
     @Before
     public void setUp() throws Exception {
         MockLogAppender.setupLogging();
         m_fileAnticipator = new FileAnticipator();
+        m_rrdStrategy = new JRobinRrdStrategy();
 
         // Set up the collection results
         m_agent = new Agent(new InetSocketAddress(InetAddressUtils.getLocalHostAddress(), 161), "SNMP", NODE_ID);
@@ -95,14 +98,14 @@ public class SamplerCollectionSetPersistenceTest {
 
     @Test
     public void testCommitWithNoDeclaredAttributes() throws Exception {
-        PersistOperationBuilder builder = new PersistOperationBuilder(m_repository, m_collectionResource, "rrdName");
+        PersistOperationBuilder builder = new PersistOperationBuilder(m_rrdStrategy, m_repository, m_collectionResource, "rrdName");
         builder.commit();
     }
 
     @Test
     public void testCommitWithDeclaredAttribute() throws Exception {
         File nodeDir = m_fileAnticipator.expecting(getSnmpRrdDirectory(), NODE_ID);
-        m_fileAnticipator.expecting(nodeDir, "rrdName" + RrdUtils.getExtension());
+        m_fileAnticipator.expecting(nodeDir, "rrdName" + m_rrdStrategy.getDefaultFileExtension());
         m_fileAnticipator.expecting(nodeDir, "rrdName" + ".meta");
 
         SamplerCollectionSet collectionSet = new SamplerCollectionSet();
@@ -116,7 +119,7 @@ public class SamplerCollectionSetPersistenceTest {
         
         collectionSet.setStatus(ServiceCollector.COLLECTION_SUCCEEDED);
 
-        PersistOperationBuilder builder = new PersistOperationBuilder(m_repository, m_collectionResource, "rrdName");
+        PersistOperationBuilder builder = new PersistOperationBuilder(m_rrdStrategy, m_repository, m_collectionResource, "rrdName");
         builder.declareAttribute(attributeType);
         builder.commit();
     }
@@ -124,7 +127,7 @@ public class SamplerCollectionSetPersistenceTest {
     @Test
     public void testCommitWithDeclaredAttributeAndValue() throws Exception {
         File nodeDir = m_fileAnticipator.expecting(getSnmpRrdDirectory(), NODE_ID);
-        m_fileAnticipator.expecting(nodeDir, "rrdName" + RrdUtils.getExtension());
+        m_fileAnticipator.expecting(nodeDir, "rrdName" + m_rrdStrategy.getDefaultFileExtension());
         m_fileAnticipator.expecting(nodeDir, "rrdName" + ".meta");
 
         SamplerCollectionSet collectionSet = new SamplerCollectionSet();
@@ -136,7 +139,7 @@ public class SamplerCollectionSetPersistenceTest {
         SamplerCollectionAttribute attribute = new SamplerCollectionAttribute(attributeType, m_collectionResource, sample);
         m_collectionResource.getGroup(groupType).addAttribute(attribute);
 
-        PersistOperationBuilder builder = new PersistOperationBuilder(m_repository, m_collectionResource, "rrdName");
+        PersistOperationBuilder builder = new PersistOperationBuilder(m_rrdStrategy, m_repository, m_collectionResource, "rrdName");
         builder.declareAttribute(attributeType);
         builder.setAttributeValue(attributeType, "100");
         builder.commit();

@@ -47,9 +47,13 @@
     <property name="heartBeat" value="${heartBeat}"/>
   </bean>
 
+  <!-- Locate the RrdStrategy via the service registry -->
+  <reference id="rrdStrategy" interface="org.opennms.netmgt.rrd.RrdStrategy" availability="mandatory" />
+
   <!-- Create the sample repository that will save to RRDs -->
   <bean id="rrdSampleRepository" class="org.opennms.netmgt.sampler.storage.rrd.RrdSampleRepository">
     <property name="rrdRepository" ref="rrdRepository"/>
+    <property name="rrdStrategy" ref="rrdStrategy"/>
   </bean>
 
   <service ref="rrdSampleRepository" interface="org.opennms.netmgt.api.sample.SampleSetDispatcher">
