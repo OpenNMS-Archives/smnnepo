@@ -28,7 +28,7 @@ public class OnmsMinionStatusMessageWriter implements StatusMessageWriter {
             final Set<String> keys = existingProps.keySet();
             for (final String key : keys) {
                 if (!properties.containsKey(key)) {
-                    minion.removeProperty(key);
+                    minion.getProperties().remove(key);
                 }
             }
         }
