@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Dictionary;
@@ -235,10 +236,10 @@ public class SnmpCollectorTokenExpansionTest extends CamelBlueprintTestSupport i
 		LOG.debug(m_sampleSet.toString());
 		for (Resource resource : m_sampleSet.getResources()) {
 			CollectionResource collectionResource = new SamplerCollectionResource(resource, repo);
-			File resourceDir = collectionResource.getResourceDir(repo);
-			LOG.debug("Resource directory: {}", collectionResource.getResourceDir(repo));
+			Path resourcePath = collectionResource.getPath();
+			LOG.debug("Resource directory: {}", resourcePath);
 			// We should get indices 1 through 6
-			assertTrue(resourceDir.toString(), resourceDir.toString().matches("^" + baseDir + "/" + nodeId + "/pethMainPseGroupIndex/[1-6]$"));
+			assertTrue(resourcePath.toString(), resourcePath.toString().matches("^" + nodeId + "/pethMainPseGroupIndex/[1-6]$"));
 		}
 
 		Set<Metric> metricSet = m_snmpMetricRepository.getMetrics("mib2-powerethernet");

@@ -28,8 +28,10 @@
 
 package org.opennms.netmgt.sampler.storage.rrd;
 
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Map.Entry;
 
 import org.opennms.netmgt.api.sample.Metric;
 import org.opennms.netmgt.api.sample.Resource;
@@ -48,6 +50,8 @@ import org.opennms.netmgt.collection.sampler.SamplerCollectionAttribute;
 import org.opennms.netmgt.collection.sampler.SamplerCollectionAttributeType;
 import org.opennms.netmgt.collection.sampler.SamplerCollectionResource;
 import org.opennms.netmgt.collection.sampler.SamplerCollectionSet;
+import org.opennms.netmgt.dao.api.ResourceStorageDao;
+import org.opennms.netmgt.model.ResourcePath;
 import org.opennms.netmgt.rrd.RrdRepository;
 import org.opennms.netmgt.rrd.RrdStrategy;
 
@@ -59,6 +63,8 @@ public class RrdSampleRepository implements SampleRepository {
 
 	private RrdStrategy<?, ?> m_rrdStrategy;
 
+	private ResourceStorageDao m_resourceStorageDao;
+
 	@Override
 	public void save(SampleSet sampleSet) {
 		// Create a new collection set
@@ -69,7 +75,7 @@ public class RrdSampleRepository implements SampleRepository {
 		RrdRepository repository = getRrdRepository();
 
 		// TODO: We need to use the GroupPersister here when storeByGroup is enabled
-		BasePersister persister = new OneToOnePersister(new ServiceParameters(Collections.<String,Object>emptyMap()), repository, m_rrdStrategy);
+		BasePersister persister = new OneToOnePersister(new ServiceParameters(Collections.<String,Object>emptyMap()), repository, m_rrdStrategy, m_resourceStorageDao);
 
 		for (Resource resource : sampleSet.getResources()) {
 			//SamplerCollectionAgent agent = new SamplerCollectionAgent(resource.getAgent());
@@ -84,6 +90,12 @@ public class RrdSampleRepository implements SampleRepository {
 				}
 			}
 			collectionSet.getCollectionResources().add(collectionResource);
+
+            // Persist string attributes
+			ResourcePath resourcePath = ResourcePath.get(collectionResource.getPath());
+            for (Entry<String, String> attr : resource.getAttributes().entrySet()) {
+                m_resourceStorageDao.setStringAttribute(resourcePath, attr.getKey(), attr.getValue());
+            }
 		}
 
 		collectionSet.setStatus(ServiceCollector.COLLECTION_SUCCEEDED);
@@ -107,6 +119,14 @@ public class RrdSampleRepository implements SampleRepository {
 	public void setRrdStrategy(RrdStrategy<?, ?> rrdStrategy) {
 		m_rrdStrategy = rrdStrategy;
 	}
+
+    public ResourceStorageDao getResourceStorageDao() {
+        return m_resourceStorageDao;
+    }
+
+    public void setResourceStorageDao(ResourceStorageDao resourceStorageDao) {
+        m_resourceStorageDao = resourceStorageDao;
+    }
 
 	@Override
 	public Results find(SampleProcessorBuilder builder, Timestamp start, Timestamp end, Resource resource, Metric... metrics) {

@@ -50,10 +50,14 @@
   <!-- Locate the RrdStrategy via the service registry -->
   <reference id="rrdStrategy" interface="org.opennms.netmgt.rrd.RrdStrategy" availability="mandatory" />
 
+  <!-- Locate the ResourceStorageDao via the service registry -->
+  <reference id="resourceStorageDao" interface="org.opennms.netmgt.dao.api.ResourceStorageDao" availability="mandatory" />
+
   <!-- Create the sample repository that will save to RRDs -->
   <bean id="rrdSampleRepository" class="org.opennms.netmgt.sampler.storage.rrd.RrdSampleRepository">
     <property name="rrdRepository" ref="rrdRepository"/>
     <property name="rrdStrategy" ref="rrdStrategy"/>
+    <property name="resourceStorageDao" ref="resourceStorageDao"/>
   </bean>
 
   <service ref="rrdSampleRepository" interface="org.opennms.netmgt.api.sample.SampleSetDispatcher">

@@ -28,72 +28,57 @@
 
 package org.opennms.netmgt.collection.sampler;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
 
 import org.opennms.netmgt.api.sample.Resource;
 import org.opennms.netmgt.collection.api.CollectionResource;
-import org.opennms.netmgt.collection.api.CollectionSetVisitor;
 import org.opennms.netmgt.collection.support.AbstractCollectionResource;
 import org.opennms.netmgt.collection.support.IndexStorageStrategy;
-import org.opennms.netmgt.model.ResourceTypeUtils;
 import org.opennms.netmgt.rrd.RrdRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SamplerCollectionResource extends AbstractCollectionResource {
-	private static final Logger LOG = LoggerFactory.getLogger(SamplerCollectionResource.class);
 
 	private final Resource m_resource;
-	private final RrdRepository m_repository;
 
 	public SamplerCollectionResource(Resource resource, RrdRepository repository) {
 		super(new SamplerCollectionAgent(resource.getAgent()));
 		m_resource = resource;
-		m_repository = repository;
 	}
 
-	@Override
-	public File getResourceDir(RrdRepository repository) {
-		File rrdBaseDir = repository.getRrdBaseDir();
-		// The parent directory is the ID of the agent, normally the node ID
-		File nodeDir = new File(rrdBaseDir, getParent());
-		if (CollectionResource.RESOURCE_TYPE_NODE.equalsIgnoreCase(m_resource.getType())) {
-			return nodeDir;
-		} else if (
-			// TODO This case will probably never happen because interfaces are treated just like
-			// generic indexed resources in the sampler object model.
-			CollectionResource.RESOURCE_TYPE_IF.equalsIgnoreCase(m_resource.getType()) ||
-			"ifIndex".equalsIgnoreCase(m_resource.getType()) 
-		) {
-			// The name field contains the interface label
-			String resourceName = m_resource.getName();
-			// Replace spaces, slashes, backslashes, and square brackets with underscores.
-			// Remove colons.
-			resourceName = resourceName.replaceAll("\\s+", "_").replaceAll(":", "").replaceAll("\\\\", "_").replaceAll("/", "_").replaceAll("[\\[\\]]", "_");
-			return new File(nodeDir, resourceName);
-		} else {
-			String resourceName = m_resource.getName();
+    @Override
+    public Path getPath() {
+        // The parent directory is the ID of the agent, normally the node ID
+        Path nodeDir = super.getPath();
+        if (CollectionResource.RESOURCE_TYPE_NODE.equalsIgnoreCase(m_resource.getType())) {
+            return nodeDir;
+        } else if (
+            // TODO This case will probably never happen because interfaces are treated just like
+            // generic indexed resources in the sampler object model.
+            CollectionResource.RESOURCE_TYPE_IF.equalsIgnoreCase(m_resource.getType()) ||
+            "ifIndex".equalsIgnoreCase(m_resource.getType())
+        ) {
+            // The name field contains the interface label
+            String resourceName = m_resource.getName();
+            // Replace spaces, slashes, backslashes, and square brackets with underscores.
+            // Remove colons.
+            resourceName = resourceName.replaceAll("\\s+", "_").replaceAll(":", "").replaceAll("\\\\", "_").replaceAll("/", "_").replaceAll("[\\[\\]]", "_");
+            return nodeDir.resolve(resourceName);
+        } else {
+            String resourceName = m_resource.getName();
 
-			// Replace spaces, slashes, backslashes, and square brackets with underscores.
-			// Remove colons.
-			resourceName = resourceName.replaceAll("\\s+", "_").replaceAll(":", "").replaceAll("\\\\", "_").replaceAll("/", "_").replaceAll("[\\[\\]]", "_");
+            // Replace spaces, slashes, backslashes, and square brackets with underscores.
+            // Remove colons.
+            resourceName = resourceName.replaceAll("\\s+", "_").replaceAll(":", "").replaceAll("\\\\", "_").replaceAll("/", "_").replaceAll("[\\[\\]]", "_");
 
-			// This is an indexed resource so we need to construct a directory based on the resource type and instance
-			IndexStorageStrategy strategy = new IndexStorageStrategy();
-			strategy.setResourceTypeName(m_resource.getType());
-			// TODO: Do we ever need to do this?
-			//strategy.setParameters(m_resource.getAttributes());
+            // This is an indexed resource so we need to construct a directory based on the resource type and instance
+            IndexStorageStrategy strategy = new IndexStorageStrategy();
+            strategy.setResourceTypeName(m_resource.getType());
+            // TODO: Do we ever need to do this?
+            //strategy.setParameters(m_resource.getAttributes());
 
-			String resourcePath = strategy.getRelativePathForAttribute(getParent(), resourceName);
-			File resourceDir = new File(repository.getRrdBaseDir(), resourcePath);
-			return resourceDir;
-		}
-	}
+            return strategy.getRelativePathForAttribute(getParent(), resourceName);
+        }
+    }
 
 	@Override
 	public String getResourceTypeName() {
@@ -126,31 +111,5 @@ public class SamplerCollectionResource extends AbstractCollectionResource {
 			return m_resource.getName();
 		}
 	}
-
-	@Override
-	public void visit(CollectionSetVisitor visitor) {
-		File resourceDir = getResourceDir(m_repository);
-        createResourcePath(resourceDir.toPath());
-		for (Map.Entry<String,String> entry : m_resource.getAttributes().entrySet()) {
-			try {
-				ResourceTypeUtils.updateStringProperty(resourceDir, entry.getValue(), entry.getKey());
-			} catch (FileNotFoundException e) {
-				LOG.error("Unable to save string attribute {}->{}", entry.getKey(), entry.getValue(), e);
-			} catch(IOException e) {
-				LOG.error("Unable to save string attribute {}->{}", entry.getKey(), entry.getValue(), e);
-			}
-		}
-		super.visit(visitor);
-	}
-
-    private void createResourcePath(Path resourcePath) {
-        if (!Files.exists(resourcePath)) {
-            LOG.info("Resource path {} does not exist. Try to create it.", resourcePath);
-            try {
-                Files.createDirectories(resourcePath);
-            } catch (IOException e) {
-                LOG.error("Could not create resource path {}. Error: {}", resourcePath, e);
-            }
-        }
-    }
 }
+

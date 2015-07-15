@@ -49,6 +49,16 @@ public class SamplerCollectionAgent implements CollectionAgent {
 		m_agent = agent;
 	}
 
+    /**
+     * <p>getNodeLabel</p>
+     *
+     * @return a {@link java.lang.String} object.
+     */
+    @Override
+    public String getNodeLabel() {
+        return null;
+    }
+
 	/**
 	 * <p>isStoreByForeignSource</p>
 	 * 
