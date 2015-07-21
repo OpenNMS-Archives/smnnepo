@@ -28,7 +28,6 @@
 
 package org.opennms.netmgt.sampler.storage.rrd;
 
-import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map.Entry;
@@ -42,10 +41,10 @@ import org.opennms.netmgt.api.sample.SampleRepository;
 import org.opennms.netmgt.api.sample.SampleSet;
 import org.opennms.netmgt.api.sample.Timestamp;
 import org.opennms.netmgt.collection.api.AttributeGroupType;
+import org.opennms.netmgt.collection.api.Persister;
+import org.opennms.netmgt.collection.api.PersisterFactory;
 import org.opennms.netmgt.collection.api.ServiceCollector;
 import org.opennms.netmgt.collection.api.ServiceParameters;
-import org.opennms.netmgt.collection.persistence.rrd.BasePersister;
-import org.opennms.netmgt.collection.persistence.rrd.OneToOnePersister;
 import org.opennms.netmgt.collection.sampler.SamplerCollectionAttribute;
 import org.opennms.netmgt.collection.sampler.SamplerCollectionAttributeType;
 import org.opennms.netmgt.collection.sampler.SamplerCollectionResource;
@@ -53,7 +52,6 @@ import org.opennms.netmgt.collection.sampler.SamplerCollectionSet;
 import org.opennms.netmgt.dao.api.ResourceStorageDao;
 import org.opennms.netmgt.model.ResourcePath;
 import org.opennms.netmgt.rrd.RrdRepository;
-import org.opennms.netmgt.rrd.RrdStrategy;
 
 public class RrdSampleRepository implements SampleRepository {
 
@@ -61,7 +59,7 @@ public class RrdSampleRepository implements SampleRepository {
 
 	private RrdRepository m_repo;
 
-	private RrdStrategy<?, ?> m_rrdStrategy;
+	private PersisterFactory m_persisterFactory;
 
 	private ResourceStorageDao m_resourceStorageDao;
 
@@ -74,9 +72,7 @@ public class RrdSampleRepository implements SampleRepository {
 		// Create an RrdRepository
 		RrdRepository repository = getRrdRepository();
 
-		// TODO: We need to use the GroupPersister here when storeByGroup is enabled
-		BasePersister persister = new OneToOnePersister(new ServiceParameters(Collections.<String,Object>emptyMap()), repository, m_rrdStrategy, m_resourceStorageDao);
-
+		Persister persister = m_persisterFactory.createPersister(new ServiceParameters(Collections.<String,Object>emptyMap()), repository);
 		for (Resource resource : sampleSet.getResources()) {
 			//SamplerCollectionAgent agent = new SamplerCollectionAgent(resource.getAgent());
 			SamplerCollectionResource collectionResource = new SamplerCollectionResource(resource, repository);
@@ -112,12 +108,12 @@ public class RrdSampleRepository implements SampleRepository {
 		m_repo = repo;
 	}
 
-	public RrdStrategy<?, ?> getRrdStrategy() {
-		return m_rrdStrategy;
+	public PersisterFactory getPersisterFactory() {
+		return m_persisterFactory;
 	}
 
-	public void setRrdStrategy(RrdStrategy<?, ?> rrdStrategy) {
-		m_rrdStrategy = rrdStrategy;
+	public void setPersisterFactory(PersisterFactory persisterFactory) {
+	    m_persisterFactory = persisterFactory;
 	}
 
     public ResourceStorageDao getResourceStorageDao() {

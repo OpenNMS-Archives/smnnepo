@@ -48,7 +48,7 @@ import org.opennms.netmgt.api.sample.Timestamp;
 import org.opennms.netmgt.collection.api.AttributeGroupType;
 import org.opennms.netmgt.collection.api.CollectionResource;
 import org.opennms.netmgt.collection.api.ServiceCollector;
-import org.opennms.netmgt.collection.persistence.rrd.PersistOperationBuilder;
+import org.opennms.netmgt.collection.persistence.rrd.RrdPersistOperationBuilder;
 import org.opennms.netmgt.collection.sampler.SamplerCollectionAttribute;
 import org.opennms.netmgt.collection.sampler.SamplerCollectionAttributeType;
 import org.opennms.netmgt.collection.sampler.SamplerCollectionResource;
@@ -98,7 +98,7 @@ public class SamplerCollectionSetPersistenceTest {
 
     @Test
     public void testCommitWithNoDeclaredAttributes() throws Exception {
-        PersistOperationBuilder builder = new PersistOperationBuilder(m_rrdStrategy, m_repository, m_collectionResource, "rrdName");
+        RrdPersistOperationBuilder builder = new RrdPersistOperationBuilder(m_rrdStrategy, m_repository, m_collectionResource, "rrdName", false);
         builder.commit();
     }
 
@@ -119,7 +119,7 @@ public class SamplerCollectionSetPersistenceTest {
         
         collectionSet.setStatus(ServiceCollector.COLLECTION_SUCCEEDED);
 
-        PersistOperationBuilder builder = new PersistOperationBuilder(m_rrdStrategy, m_repository, m_collectionResource, "rrdName");
+        RrdPersistOperationBuilder builder = new RrdPersistOperationBuilder(m_rrdStrategy, m_repository, m_collectionResource, "rrdName", false);
         builder.declareAttribute(attributeType);
         builder.commit();
     }
@@ -139,9 +139,9 @@ public class SamplerCollectionSetPersistenceTest {
         SamplerCollectionAttribute attribute = new SamplerCollectionAttribute(attributeType, m_collectionResource, sample);
         m_collectionResource.getGroup(groupType).addAttribute(attribute);
 
-        PersistOperationBuilder builder = new PersistOperationBuilder(m_rrdStrategy, m_repository, m_collectionResource, "rrdName");
+        RrdPersistOperationBuilder builder = new RrdPersistOperationBuilder(m_rrdStrategy, m_repository, m_collectionResource, "rrdName", false);
         builder.declareAttribute(attributeType);
-        builder.setAttributeValue(attributeType, "100");
+        builder.setAttributeValue(attributeType, 100);
         builder.commit();
     }
 

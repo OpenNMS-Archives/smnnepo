@@ -43,8 +43,8 @@ public class SamplerCollectionAttribute extends AbstractCollectionAttribute {
 	}
 
 	@Override
-	public String getNumericValue() {
-		return String.valueOf(m_sample.getValue().doubleValue());
+	public Number getNumericValue() {
+		return m_sample.getValue();
 	}
 
 	@Override
