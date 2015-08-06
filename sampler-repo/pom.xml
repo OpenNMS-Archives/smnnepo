@@ -108,6 +108,7 @@
           <descriptors>
             <descriptor>src/assembly/repo.xml</descriptor>
           </descriptors>
+          <tarLongFileMode>posix</tarLongFileMode>
         </configuration>
         <executions>
           <execution>

@@ -38,7 +38,7 @@
             <descriptor>src/assembly/minion.xml</descriptor>
           </descriptors>
           <appendAssemblyId>false</appendAssemblyId>
-          <tarLongFileMode>gnu</tarLongFileMode>
+          <tarLongFileMode>posix</tarLongFileMode>
           <finalName>opennms-sampler-${project.version}</finalName>
         </configuration>
       </plugin>
