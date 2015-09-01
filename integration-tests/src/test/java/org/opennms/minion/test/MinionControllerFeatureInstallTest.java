@@ -1,19 +1,19 @@
 package org.opennms.minion.test;
 
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
+
+import java.io.IOException;
+import java.util.List;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opennms.minion.test.core.SmnnepoKarafTest;
+import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerMethod;
 import org.osgi.framework.InvalidSyntaxException;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 
 /**
  * The minion-controller feature requires special configuration.
@@ -23,11 +23,11 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfi
 public class MinionControllerFeatureInstallTest extends SmnnepoKarafTest {
 
     @Override
+    @Configuration
     public Option[] config() {
-        Option[] options = super.config();
-        List<Option> optionsList = Arrays.asList(new Option[options.length + 1]);
+        List<Option> optionsList = super.configAsList();
         optionsList.add(editConfigurationFilePut("etc/org.opennms.minion.controller.cfg", "location", "dummy"));
-        return (Option[]) optionsList.toArray();
+        return optionsList.toArray(new Option[0]);
     }
 
     @Test

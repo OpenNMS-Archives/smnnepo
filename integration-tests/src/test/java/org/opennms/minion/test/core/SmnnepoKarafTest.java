@@ -4,6 +4,8 @@ import org.junit.Before;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
 
+import org.opennms.core.test.karaf.KarafTestCase;
+
 public abstract class SmnnepoKarafTest extends KarafTestCase {
     @Before
     public void registerMinionFeatures() {
