@@ -174,3 +174,16 @@ rm -rf "$RPM_BUILD_ROOT"
 %files -n opennms-webapp-minion -f %{_tmppath}/files.webapp
 %defattr(664 root root 775)
 %config(noreplace) %{webappdir}/minion/*.karaf
+
+%post -p /bin/bash
+ROOT_INST="$RPM_INSTALL_PREFIX0"
+[ -z "$ROOT_INST"  ] && ROOT_INST="%{instprefix}"
+
+printf -- "- cleaning up %{instprefix}/data... "
+for DATADIR in $ROOT_INST/data $ROOT_INST/instances/*/data; do
+  if [ -d "$DATADIR" ]; then
+    find "$DATADIR/"* -maxdepth 0 -name tmp -prune -o -print | xargs rm -rf
+    find "$DATADIR/tmp/"* -maxdepth 0 -name README -prune -o -print | xargs rm -rf
+  fi
+done
+echo "done"
