@@ -96,12 +96,9 @@ public class JmxCollectionRequest implements CollectionRequest<JmxAgent> {
             }
 
             private Metric getMetric(Map<String, String> parameters, Mbean mbean, Attrib attrib) {
-                // Trim it (this is because rrd and collection is not separated correctly)
-                // this needs to go away in the future
-                final String sampleAlias = JmxUtils.trimAttributeName(attrib.getAlias());
                 final MetricType metricType = getMetricType(attrib);
                 final String groupName = JmxUtils.getGroupName(parameters, mbean);
-                final Metric metric = new Metric(sampleAlias, metricType, groupName);
+                final Metric metric = new Metric(attrib.getAlias(), metricType, groupName);
                 return metric;
             }
 
