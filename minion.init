@@ -38,17 +38,7 @@ case "$1" in
 		;;
 
 	stop)
-		echo -n "Stopping $DESC: "
 		if is_running; then
-			"$MINION_HOME"/bin/stop >/dev/null
-			RETVAL="$?"
-			if [ $RETVAL -eq 0 ]; then
-				echo "OK"
-			else
-				echo "FAILED"
-				exit 1
-			fi
-
 			# Stop all subinstances
 			# Filter out all of the [, ], and / characters
 			"$MINION_HOME"/bin/admin list | grep '^\[' | sed 's#[][/]# #g' | while read LINE; do
@@ -65,9 +55,20 @@ case "$1" in
 					fi
 				fi
 			done
+
+			echo -n "Stopping $DESC: "
+			"$MINION_HOME"/bin/stop >/dev/null
+			RETVAL="$?"
+			if [ $RETVAL -eq 0 ]; then
+				echo "OK"
+			else
+				echo "FAILED"
+				exit 1
+			fi
+
 			exit 0
 		else
-			echo "FAILED: $DESC is not running."
+			echo "$DESC is not running."
 			exit 1
 		fi
 		;;

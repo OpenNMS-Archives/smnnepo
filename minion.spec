@@ -179,11 +179,30 @@ rm -rf "$RPM_BUILD_ROOT"
 ROOT_INST="$RPM_INSTALL_PREFIX0"
 [ -z "$ROOT_INST"  ] && ROOT_INST="%{instprefix}"
 
+# This code is taken from minion.init
+if $ROOT_INST/bin/status >/dev/null; then
+  $ROOT_INST/bin/admin list | grep '^\[' | sed 's#[][/]# #g' | while read LINE; do
+    INSTANCE=`echo "$LINE" | awk '{print $6}'`
+    if [ "$INSTANCE" != "root" ]; then
+      $ROOT_INST/bin/admin stop $INSTANCE >/dev/null 2>&1
+    fi
+  done
+
+  $ROOT_INST/bin/stop >/dev/null 
+fi
+
 printf -- "- cleaning up %{instprefix}/data... "
-for DATADIR in $ROOT_INST/data $ROOT_INST/instances/*/data; do
+for DATADIR in $ROOT_INST/data; do
   if [ -d "$DATADIR" ]; then
     find "$DATADIR/"* -maxdepth 0 -name tmp -prune -o -print | xargs rm -rf
     find "$DATADIR/tmp/"* -maxdepth 0 -name README -prune -o -print | xargs rm -rf
   fi
 done
 echo "done"
+
+printf -- "- cleaning up instances... "
+rm -rf $ROOT_INST/instances
+echo "done"
+
+# Clean up any lockfile
+rm -rf $ROOT_INST/lock
