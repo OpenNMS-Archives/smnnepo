@@ -122,7 +122,8 @@
     <feature name="sample-dispatch-activemq" description="Sample Collection and Storage :: ActiveMQ Dispatcher" version="${project.version}">
       <configfile override="true" finalname="/etc/blueprint-activemq-dispatch.xml">mvn:org.opennms.netmgt.sample/sampler-routes/${project.version}/xml/blueprint-activemq-dispatch</configfile>
       <feature version="[1.9.0,2.0)">commons-codec</feature>
-      <feature>opennms-activemq-dispatcher</feature>
+      <!-- Don't start the ActiveMQ broker in this feature -->
+      <!-- <feature>opennms-activemq-dispatcher</feature> -->
       <feature>sample-api</feature>
       <feature>camel-jaxb</feature>
       <feature>activemq-camel</feature>
@@ -133,7 +134,8 @@
     <feature name="sample-receiver-activemq" description="Sample Collection and Storage :: ActiveMQ Receiver" version="${project.version}">
       <configfile override="true" finalname="/etc/blueprint-activemq-receiver.xml">mvn:org.opennms.netmgt.sample/sampler-routes/${project.version}/xml/blueprint-activemq-receiver</configfile>
       <feature version="[1.9.0,2.0)">commons-codec</feature>
-      <feature>opennms-activemq</feature>
+      <!-- Don't start the ActiveMQ broker in this feature -->
+      <!-- <feature>opennms-activemq</feature> -->
       <feature>sample-api</feature>
       <feature>camel-jaxb</feature>
       <feature>activemq-camel</feature>
