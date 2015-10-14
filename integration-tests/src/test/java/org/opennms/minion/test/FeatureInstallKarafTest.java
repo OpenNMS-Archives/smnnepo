@@ -81,11 +81,6 @@ public class FeatureInstallKarafTest extends SmnnepoKarafTest {
     }
 
     @Test
-    public void testOpennmsActivemqDispatcher() {
-        installFeature("opennms-activemq-dispatcher");
-    }
-
-    @Test
     public void testSampleStorageRrd() {
         installFeature("sample-storage-rrd");
     }
