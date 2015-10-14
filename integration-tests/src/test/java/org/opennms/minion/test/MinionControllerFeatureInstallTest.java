@@ -37,7 +37,7 @@ public class MinionControllerFeatureInstallTest extends SmnnepoKarafTest {
     @Test
     public void testMinionController() throws IOException, InvalidSyntaxException {
         // Start an ActiveMQ broker
-        installFeature("activemq");
+        installFeature("activemq-broker-noweb");
         // Install the controller feature
         installFeature("minion-controller");
 

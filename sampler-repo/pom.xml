@@ -71,8 +71,10 @@
                 <feature>pax-jetty</feature>
                 <feature>pax-http</feature>
                 <feature>http</feature>
-                <feature>activemq-client</feature>
                 <feature>activemq</feature>
+                <feature>activemq-broker</feature>
+                <feature>activemq-broker-noweb</feature>
+                <feature>activemq-client</feature>
 
                 <!-- Sampler features -->
                 <feature>sample-receiver-activemq</feature>
