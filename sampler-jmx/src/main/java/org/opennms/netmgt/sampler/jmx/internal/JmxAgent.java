@@ -4,13 +4,14 @@ import org.opennms.netmgt.api.sample.Agent;
 import org.opennms.netmgt.config.collectd.jmx.JmxCollection;
 import org.opennms.netmgt.jmx.JmxCollectorConfig;
 import org.opennms.netmgt.jmx.ParameterName;
+import org.opennms.netmgt.jmx.connection.JmxConnectors;
 import org.opennms.netmgt.snmp.InetAddrUtils;
 
 public class JmxAgent extends Agent {
 
     private static final long serialVersionUID = 1L;
 
-    private String connectorName;
+    private JmxConnectors connectorName;
 
     private JmxCollection collection;
 
@@ -18,8 +19,8 @@ public class JmxAgent extends Agent {
         super(agent);
     }
 
-    public void setConnectorName(String connectorName) {
-        this.connectorName = connectorName;
+    public void setConnectorName(final String connectorName) {
+        this.connectorName = JmxConnectors.valueOf(connectorName);
     }
 
     public JmxCollectorConfig getCollectorConfig() {

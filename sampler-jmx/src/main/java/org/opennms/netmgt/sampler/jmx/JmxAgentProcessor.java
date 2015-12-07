@@ -46,7 +46,7 @@ public class JmxAgentProcessor implements Processor {
 
         final String collection = Objects.toString(jmxAgent.getParameter(ParameterName.COLLECTION.toString()), "jsr160");
         final String retry = Objects.toString(jmxAgent.getParameter(ParameterName.RETRY.toString()), "3");
-        final String connectorName = Objects.toString(getJmxConnectorName(serviceClassName), JmxConnectors.JSR160);
+        final String connectorName = Objects.toString(getJmxConnectorName(serviceClassName), JmxConnectors.jsr160.toString());
         final JmxDatacollectionConfig jmxDatacollectionConfig = (JmxDatacollectionConfig)jmxConfigFactory.getInstance();
         final JmxCollection jmxCollection = jmxDatacollectionConfig != null ? jmxDatacollectionConfig.getJmxCollection(collection) : null;
 
@@ -75,14 +75,13 @@ public class JmxAgentProcessor implements Processor {
      * This is needed for backwards compatibility and maps
      * the collectd-configuration.xml classes to jmx connector names.
      */
-    private String getJmxConnectorName(String collectorClass) {
-        final Map<String, String> mapping = new HashMap<>();
-        mapping.put("org.opennms.netmgt.collectd.Jsr160Collector", JmxConnectors.JSR160);
-        mapping.put("org.opennms.netmgt.collectd.JBossCollector", JmxConnectors.JBOSS);
-        mapping.put("org.opennms.netmgt.collectd.MX4JCollector", JmxConnectors.MX4J);
-        mapping.put("org.opennms.netmgt.collectd.JMXSecureCollector", JmxConnectors.JMX_SECURE);
+    private JmxConnectors getJmxConnectorName(String collectorClass) {
+        final Map<String, JmxConnectors> mapping = new HashMap<>();
+        mapping.put("org.opennms.netmgt.collectd.Jsr160Collector", JmxConnectors.jsr160);
+        mapping.put("org.opennms.netmgt.collectd.JBossCollector", JmxConnectors.jboss);
+        mapping.put("org.opennms.netmgt.collectd.MX4JCollector", JmxConnectors.mx4j);
+        mapping.put("org.opennms.netmgt.collectd.JMXSecureCollector", JmxConnectors.jmx_secure);
 
-        final String connectorName = mapping.get(collectorClass);
-        return connectorName;
+        return mapping.get(collectorClass);
     }
 }
