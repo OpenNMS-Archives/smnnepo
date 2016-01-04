@@ -1,12 +1,12 @@
 BROKERNAME=opennms
 
 # Configure the local ActiveMQ broker
-config:edit org.apache.activemq.server-default
+#config:edit org.apache.activemq.server-default
 # Needs to be globally unique
-config:propset broker-name "$BROKERNAME"
-config:propset config ${karaf.base}/etc/activemq-receiver.xml
-config:propset data ${karaf.data}/activemq
-config:update
+#config:propset broker-name "$BROKERNAME"
+#config:propset config ${karaf.base}/etc/activemq-receiver.xml
+#config:propset data ${karaf.data}/activemq
+#config:update
 
 # Configure the ActiveMQ web UI
 # Don't use this for now because it conflicts with the OpenNMS MX4J HTTP interface
@@ -39,5 +39,5 @@ features:addurl mvn:org.apache.activemq/activemq-karaf/${activemqVersion}/xml/fe
 features:addurl mvn:org.opennms.netmgt.sample/karaf/${project.version}/xml
 
 # Install all required features
-features:install -v opennms-activemq
-features:install -v sample-receiver-activemq minion-base dominion-controller-statuswriter-dao dominion-controller
+#features:install -v opennms-activemq
+features:install -v sample-receiver-activemq sample-storage-rrd minion-base dominion-controller-statuswriter-dao dominion-controller
