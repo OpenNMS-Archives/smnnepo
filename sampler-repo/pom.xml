@@ -76,6 +76,10 @@
                 <feature>activemq-broker-noweb</feature>
                 <feature>activemq-client</feature>
 
+                <!-- OpenNMS features -->
+                <feature>opennms-activemq-dispatcher-config</feature>
+                <feature>opennms-activemq-dispatcher</feature>
+
                 <!-- Sampler features -->
                 <feature>sample-receiver-activemq</feature>
                 <feature>sample-storage-file</feature>
