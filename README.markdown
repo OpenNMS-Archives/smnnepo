@@ -60,8 +60,15 @@ Configure a remote monitoring location in OpenNMS by following instructions at [
 
 ### Starting the Dominion service inside OpenNMS
 
+1. Open the ActiveMQ port on the OpenNMS server by editing <code>/opt/opennms/etc/opennms-activemq.xml</code>. Change the
+   transport connector configuration to listen on <code>0.0.0.0</code> instead of <code>127.0.0.1</code>:
+
+    ```
+    <transportConnector name="openwire" uri="tcp://0.0.0.0:61616?useJmx=false&amp;maximumConnections=1000&amp;wireformat.maxFrameSize=104857600"/>
+    ```
+
 1. Connect to the OpenNMS Karaf console with the same admin credentials from the web UI: <code>ssh -p 8101 admin@localhost</code>
-2. Run the Dominion configuration script: <code>source http://localhost:8980/minion/opennms-setup.karaf</code>
+1. Run the Dominion configuration script: <code>source http://localhost:8980/minion/opennms-setup.karaf</code>
 
 This will update your local feature repository and then install the
 <code>sample-receiver-activemq</code> feature to allow OpenNMS to receive
@@ -103,8 +110,15 @@ Newts).
 
 ### Configuring the Dominion Server in OpenNMS
 
+1. Open the ActiveMQ port on the OpenNMS server by editing <code>/opt/opennms/etc/opennms-activemq.xml</code>. Change the
+   transport connector configuration to listen on <code>0.0.0.0</code> instead of <code>127.0.0.1</code>:
+
+    ```
+    <transportConnector name="openwire" uri="tcp://0.0.0.0:61616?useJmx=false&amp;maximumConnections=1000&amp;wireformat.maxFrameSize=104857600"/>
+    ```
+
 1. Connect to the OpenNMS Karaf console with the same admin credentials from the web UI: <code>ssh -p 8101 admin@localhost</code>
-2. Run the Dominion configuration script: <code>source http://localhost:8980/minion/opennms-setup.karaf</code>
+1. Run the Dominion configuration script: <code>source http://localhost:8980/minion/opennms-setup.karaf</code>
 
 If the Dominion Server is behind a firewall you have to open the following ports:
 
