@@ -61,8 +61,8 @@ public class DominionControllerImpl implements MinionMessageReceiver {
             m_statusMessageWriter.write(statusMessage.getId(), statusMessage.getLocation(), statusMessage.getStatus(), statusMessage.getDate(), statusMessage.getProperties());
 
             final MinionInitializationMessageImpl initMessage = new MinionInitializationMessageImpl(statusMessage.getId(), 1);
-            initMessage.addFeatureRepository("mvn:org.opennms.netmgt.sample/karaf/18.0.0-SNAPSHOT/xml/minion");
-            initMessage.addFeatureRepository("mvn:org.opennms.netmgt.sample/karaf/18.0.0-SNAPSHOT/xml");
+            initMessage.addFeatureRepository("mvn:org.opennms.netmgt.sample/karaf/19.0.0-SNAPSHOT/xml/minion");
+            initMessage.addFeatureRepository("mvn:org.opennms.netmgt.sample/karaf/19.0.0-SNAPSHOT/xml");
             sendInitializationMessage(initMessage);
         } else {
             throw new MinionException("Unknown message type " + message.getClass().getName() + ": " + message);
