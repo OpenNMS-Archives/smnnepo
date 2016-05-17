@@ -8,11 +8,11 @@ import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.apache.camel.util.KeyValueHolder;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opennms.core.network.IPAddress;
+import org.opennms.core.test.camel.CamelBlueprintTest;
 import org.opennms.netmgt.api.sample.Agent;
 import org.opennms.netmgt.api.sample.AgentDispatcher;
 import org.opennms.netmgt.api.sample.PackageAgentList;
@@ -28,22 +28,9 @@ import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Level;
 
-public class SchedulerTest extends CamelBlueprintTestSupport {
+public class SchedulerTest extends CamelBlueprintTest {
     private static final Logger LOG = LoggerFactory.getLogger(SchedulerTest.class);
     private LatchAgentDispatcher m_latchDispatcher;
-
-    /**
-     * Use Aries Blueprint synchronous mode to avoid a blueprint
-     * deadlock bug.
-     * 
-     * @see https://issues.apache.org/jira/browse/ARIES-1051
-     * @see https://access.redhat.com/site/solutions/640943
-     */
-    @Override
-    public void doPreSetup() throws Exception { 
-        System.setProperty("org.apache.aries.blueprint.synchronous", Boolean.TRUE.toString());
-        System.setProperty("de.kalpatec.pojosr.framework.events.sync", Boolean.TRUE.toString());
-    }
 
     @Override
     protected String getBlueprintDescriptor() {

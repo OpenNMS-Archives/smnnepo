@@ -18,13 +18,13 @@ import java.util.concurrent.CountDownLatch;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.RouteDefinition;
-import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.apache.camel.util.KeyValueHolder;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opennms.core.test.TestContextAware;
 import org.opennms.core.test.TestContextAwareExecutionListener;
+import org.opennms.core.test.camel.CamelBlueprintTest;
 import org.opennms.core.test.snmp.JUnitSnmpAgentExecutionListener;
 import org.opennms.core.test.snmp.annotations.JUnitSnmpAgent;
 import org.opennms.core.xml.JaxbUtils;
@@ -65,7 +65,7 @@ import ch.qos.logback.classic.LoggerContext;
 @ContextConfiguration(locations={
 	"classpath:/snmpCollectorTest-context.xml"
 })
-public class SnmpCollectorTokenExpansionTest extends CamelBlueprintTestSupport implements TestContextAware {
+public class SnmpCollectorTokenExpansionTest extends CamelBlueprintTest implements TestContextAware {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(SnmpCollectorTokenExpansionTest.class);
 
@@ -77,19 +77,6 @@ public class SnmpCollectorTokenExpansionTest extends CamelBlueprintTestSupport i
 	private SampleSet m_sampleSet = null;
 	private SnmpMetricRepository m_snmpMetricRepository;
 
-	/**
-	 * Use Aries Blueprint synchronous mode to avoid a blueprint
-	 * deadlock bug.
-	 * 
-	 * @see https://issues.apache.org/jira/browse/ARIES-1051
-	 * @see https://access.redhat.com/site/solutions/640943
-	 */
-	@Override
-	public void doPreSetup() throws Exception { 
-		System.setProperty("org.apache.aries.blueprint.synchronous", Boolean.TRUE.toString());
-		System.setProperty("de.kalpatec.pojosr.framework.events.sync", Boolean.TRUE.toString());
-	}
-
 	@Override
 	public void setTestContext(TestContext testContext) {
 		m_testContext = testContext;
@@ -99,17 +86,6 @@ public class SnmpCollectorTokenExpansionTest extends CamelBlueprintTestSupport i
 	public static void configureLogging() throws SecurityException, IOException {
 		LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
 		lc.getLogger("org.apache.aries.blueprint").setLevel(Level.INFO);
-	}
-
-	@Override
-	public boolean isUseAdviceWith() {
-		return true;
-	}
-
-	@Override
-	public boolean isUseDebugger() {
-		// must enable debugger
-		return true;
 	}
 
 	@Override

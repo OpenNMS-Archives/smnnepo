@@ -7,10 +7,10 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.apache.camel.util.KeyValueHolder;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.opennms.core.test.camel.CamelBlueprintTest;
 import org.opennms.core.utils.InetAddressUtils;
 import org.opennms.netmgt.snmp.SnmpObjId;
 import org.opennms.netmgt.snmp.SnmpUtils;
@@ -20,20 +20,7 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 
-public class TrapReceiverContextTest extends CamelBlueprintTestSupport {
-
-	/**
-	 * Use Aries Blueprint synchronous mode to avoid a blueprint
-	 * deadlock bug.
-	 * 
-	 * @see https://issues.apache.org/jira/browse/ARIES-1051
-	 * @see https://access.redhat.com/site/solutions/640943
-	 */
-	@Override
-	public void doPreSetup() throws Exception { 
-		System.setProperty("org.apache.aries.blueprint.synchronous", Boolean.TRUE.toString());
-		System.setProperty("de.kalpatec.pojosr.framework.events.sync", Boolean.TRUE.toString());
-	}
+public class TrapReceiverContextTest extends CamelBlueprintTest {
 
 	/**
 	 * TODO: This isn't working properly because the ActiveMQ logs aren't getting routed
@@ -44,22 +31,6 @@ public class TrapReceiverContextTest extends CamelBlueprintTestSupport {
 		LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
 		lc.getLogger("org.apache.aries.blueprint").setLevel(Level.INFO);
 		lc.getLogger("org.apache.activemq.broker.jmx").setLevel(Level.INFO);
-	}
-
-	@Override
-	public boolean isUseAdviceWith() {
-		return true;
-	}
-
-	@Override
-	public boolean isUseDebugger() {
-		// must enable debugger
-		return true;
-	}
-
-	@Override
-	public String isMockEndpoints() {
-		return "*";
 	}
 
 	@Override

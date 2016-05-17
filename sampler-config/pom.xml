@@ -9,7 +9,7 @@
   <parent>
     <groupId>org.opennms.netmgt.sample</groupId>
     <artifactId>sample-parent</artifactId>
-    <version>18.0.0-SNAPSHOT</version>
+    <version>19.0.0-SNAPSHOT</version>
   </parent>
 
   <properties>
@@ -123,9 +123,8 @@
 
     <!-- Test Dependencies -->
     <dependency>
-      <groupId>org.opennms.dependencies</groupId>
-      <artifactId>camel-test-dependencies</artifactId>
-      <type>pom</type>
+      <groupId>org.opennms.core.test-api</groupId>
+      <artifactId>org.opennms.core.test-api.camel</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

@@ -10,11 +10,11 @@ import java.util.concurrent.CountDownLatch;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.apache.camel.util.KeyValueHolder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opennms.core.test.OpenNMSJUnit4ClassRunner;
+import org.opennms.core.test.camel.CamelBlueprintTest;
 import org.opennms.core.test.http.annotations.JUnitHttpServer;
 import org.opennms.netmgt.api.sample.AgentList;
 import org.opennms.netmgt.api.sample.PackageAgentList;
@@ -30,7 +30,7 @@ import org.springframework.test.context.ContextConfiguration;
 @RunWith(OpenNMSJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath:/META-INF/opennms/emptyContext.xml"})
 @JUnitHttpServer(port=9162)
-public class ConfigRouteTest extends CamelBlueprintTestSupport {
+public class ConfigRouteTest extends CamelBlueprintTest {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigRouteTest.class);
     private static final String OPENNMS_HOME = "target/test-classes";
     private static final String REST_ROOT = "http://localhost:9162";
@@ -40,35 +40,6 @@ public class ConfigRouteTest extends CamelBlueprintTestSupport {
     }
 
     private CountDownLatch m_schedulerServiceCalls = null;
-
-    /**
-     * Use Aries Blueprint synchronous mode to avoid a blueprint
-     * deadlock bug.
-     * 
-     * @see https://issues.apache.org/jira/browse/ARIES-1051
-     * @see https://access.redhat.com/site/solutions/640943
-     */
-    @Override
-    public void doPreSetup() throws Exception { 
-        System.setProperty("org.apache.aries.blueprint.synchronous", Boolean.TRUE.toString());
-        System.setProperty("de.kalpatec.pojosr.framework.events.sync", Boolean.TRUE.toString());
-    }
-
-    @Override
-    public boolean isUseAdviceWith() {
-        return true;
-    }
-
-    @Override
-    public boolean isUseDebugger() {
-        // must enable debugger
-        return true;
-    }
-
-    @Override
-    public String isMockEndpoints() {
-        return "*";
-    }
 
     /**
      * Register a mock OSGi {@link SchedulerService} so that we can make sure that

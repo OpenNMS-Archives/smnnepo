@@ -4,46 +4,22 @@ import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Map;
 
-import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.apache.camel.util.KeyValueHolder;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.opennms.core.test.camel.CamelBlueprintTest;
 import org.opennms.netmgt.api.sample.SampleSetDispatcher;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 
-public class FileStorageContextTest extends CamelBlueprintTestSupport {
-	
-	/**
-	 * Use Aries Blueprint synchronous mode to avoid a blueprint
-	 * deadlock bug.
-	 * 
-	 * @see https://issues.apache.org/jira/browse/ARIES-1051
-	 * @see https://access.redhat.com/site/solutions/640943
-	 */
-	@Override
-	public void doPreSetup() throws Exception { 
-		System.setProperty("org.apache.aries.blueprint.synchronous", Boolean.TRUE.toString());
-		System.setProperty("de.kalpatec.pojosr.framework.events.sync", Boolean.TRUE.toString());
-	}
+public class FileStorageContextTest extends CamelBlueprintTest {
 
 	@BeforeClass
 	public static void configureLogging() throws SecurityException, IOException {
 		LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
 		lc.getLogger("org.apache.aries.blueprint").setLevel(Level.INFO);
-	}
-
-	@Override
-	public boolean isUseAdviceWith() {
-		return true;
-	}
-
-	@Override
-	public boolean isUseDebugger() {
-		// must enable debugger
-		return true;
 	}
 
 	// The location of our Blueprint XML file to be used for testing

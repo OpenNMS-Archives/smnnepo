@@ -5,7 +5,6 @@ import java.net.URL;
 import java.util.Dictionary;
 import java.util.Properties;
 
-import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,6 +12,7 @@ import org.opennms.core.test.MockLogAppender;
 import org.opennms.core.test.MockLogger;
 import org.opennms.core.test.MockLoggerFactory;
 import org.opennms.core.test.OpenNMSJUnit4ClassRunner;
+import org.opennms.core.test.camel.CamelBlueprintTest;
 import org.opennms.core.test.http.annotations.JUnitHttpServer;
 import org.opennms.netmgt.api.sample.support.SingletonBeanFactory;
 import org.opennms.netmgt.config.snmp.SnmpConfig;
@@ -26,21 +26,8 @@ import ch.qos.logback.classic.LoggerContext;
 @RunWith(OpenNMSJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath:/META-INF/opennms/emptyContext.xml"})
 @JUnitHttpServer(port=9162)
-public class SnmpConfigRoutesTest extends CamelBlueprintTestSupport {
+public class SnmpConfigRoutesTest extends CamelBlueprintTest {
     private static final String REST_ROOT = "http://localhost:9162";
-
-    /**
-     * Use Aries Blueprint synchronous mode to avoid a blueprint
-     * deadlock bug.
-     * 
-     * @see https://issues.apache.org/jira/browse/ARIES-1051
-     * @see https://access.redhat.com/site/solutions/640943
-     */
-    @Override
-    public void doPreSetup() throws Exception {
-        System.setProperty("org.apache.aries.blueprint.synchronous", Boolean.TRUE.toString());
-        System.setProperty("de.kalpatec.pojosr.framework.events.sync", Boolean.TRUE.toString());
-    }
 
     @BeforeClass
     public static void configureLogging() throws SecurityException, IOException {
@@ -54,17 +41,6 @@ public class SnmpConfigRoutesTest extends CamelBlueprintTestSupport {
             MockLogAppender.setupLogging(true, props);
         }
 
-    }
-
-    @Override
-    public boolean isUseAdviceWith() {
-        return true;
-    }
-
-    @Override
-    public boolean isUseDebugger() {
-        // must enable debugger
-        return true;
     }
 
     // The location of our Blueprint XML file to be used for testing
