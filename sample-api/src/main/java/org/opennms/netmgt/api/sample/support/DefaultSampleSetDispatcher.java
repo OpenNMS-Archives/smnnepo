@@ -1,12 +1,11 @@
 package org.opennms.netmgt.api.sample.support;
 
-import org.apache.camel.InOnly;
 import org.apache.camel.Produce;
+import org.opennms.core.camel.DefaultDispatcher;
 import org.opennms.netmgt.api.sample.Agent;
 import org.opennms.netmgt.api.sample.SampleSet;
 import org.opennms.netmgt.api.sample.SampleSetDispatcher;
 
-@InOnly
 public class DefaultSampleSetDispatcher extends DefaultDispatcher implements SampleSetDispatcher {
 
 	@Produce(property="endpointUri")
