@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Config;
-use Cwd;
+use Cwd qw(abs_path getcwd);
 use File::Basename;
 use File::Find;
 use File::Path qw(rmtree);
@@ -12,6 +12,7 @@ use File::Spec;
 use Getopt::Long qw(:config permute bundling pass_through);
 use IO::Handle;
 use IPC::Open2;
+use Scalar::Util qw(looks_like_number);
 
 use vars qw(
 	$BUILD_PROFILE
@@ -23,19 +24,22 @@ use vars qw(
 	$MVN
 	$MAVEN_VERSION
 	$MAVEN_OPTS
+	$OOSNMP_TRUSTSTORE
 	$PATHSEP
 	$PREFIX
+	$SKIP_OPENJDK
 	$TESTS
 	$VERBOSE
 	@ARGS
 );
+@ARGS          = ();
 $BUILD_PROFILE = "default";
 $HELP          = undef;
 $JAVA_HOME     = undef;
-$PATHSEP       = $Config{'path_sep'};
-$VERBOSE       = undef;
 $LOGLEVEL      = 'debug' unless (defined $LOGLEVEL);
-@ARGS          = ();
+$PATHSEP       = $Config{'path_sep'};
+$SKIP_OPENJDK  = $ENV{'SKIP_OPENJDK'};
+$VERBOSE       = undef;
 
 @JAVA_SEARCH_DIRS = qw(
 	/usr/lib/jvm
@@ -46,6 +50,7 @@ $LOGLEVEL      = 'debug' unless (defined $LOGLEVEL);
 	/opt
 	/opt/ci/java
 );
+unshift(@JAVA_SEARCH_DIRS, File::Spec->catdir($ENV{'HOME'}, 'ci', 'java'));
 
 push(@JAVA_SEARCH_DIRS, File::Spec->catdir($ENV{'HOME'}, 'ci', 'java'));
 
@@ -80,7 +85,33 @@ delete $ENV{'M2_HOME'};
 # maven options
 $MAVEN_OPTS = $ENV{'MAVEN_OPTS'};
 if (not defined $MAVEN_OPTS or $MAVEN_OPTS eq '') {
-	$MAVEN_OPTS = '-XX:MaxMetaspaceSize=1g -Xmx1g -XX:ReservedCodeCacheSize=512m';
+	if (defined $TESTS) {
+		$MAVEN_OPTS = "-Xmx2048m -XX:ReservedCodeCacheSize=512m";
+	} else {
+		$MAVEN_OPTS = "-Xmx1536m -XX:ReservedCodeCacheSize=512m";
+	}
+}
+
+if (not $MAVEN_OPTS =~ /TieredCompilation/) {
+	# Improve startup speed by disabling collection of extra profiling information during compiles since they're not
+	# long-running enough for them to be a net-win for performance.
+	$MAVEN_OPTS .= " -XX:+TieredCompilation -XX:TieredStopAtLevel=1";
+}
+
+if (not $MAVEN_OPTS =~ /UseGCOverheadLimit/) {
+	# The concurrent collector will throw an OutOfMemoryError if too much time is being spent in garbage collection: if
+	# more than 98% of the total time is spent in garbage collection and less than 2% of the heap is recovered, an
+	# OutOfMemoryError will be thrown. This feature is designed to prevent applications from running for an extended
+	# period of time while making little or no progress because the heap is too small. If necessary, this feature can
+	# be disabled by adding the option -XX:-UseGCOverheadLimit to the command line.
+	$MAVEN_OPTS .= " -XX:-UseGCOverheadLimit";
+}
+
+if (not $MAVEN_OPTS =~ /UseParallelGC/) {
+	# If (a) peak application performance is the first priority and (b) there are no pause time requirements or pauses
+	# of one second or longer are acceptable, then select the parallel collector with -XX:+UseParallelGC and
+	# (optionally) enable parallel compaction with -XX:+UseParallelOldGC.
+	$MAVEN_OPTS .= " -XX:+UseParallelGC -XX:+UseParallelOldGC";
 }
 
 my $result = GetOptions(
@@ -113,7 +144,7 @@ usage: $0 [-h] [-j \$JAVA_HOME] [-t] [-v]
 	-m/--maven-opts OPTS   set \$MAVEN_OPTS to OPTS
 	                       (default: $MAVEN_OPTS)
 	-p/--profile PROFILE   default, dir, full, or fulldir
-	-t/--enable-tests      enable tests when building
+	-t/--enable-tests      enable integration tests when building
 	-l/--log-level         log level (error/warning/info/debug)
 END
 	exit 1;
@@ -142,8 +173,8 @@ if ((defined $JAVA_HOME and -d $JAVA_HOME) or (exists $ENV{'JAVA_HOME'} and -d $
 	my $minimumversion = get_minimum_java();
 
 	if ($shortversion < $minimumversion) {
-		warning("You specified a Java home of $JAVA_HOME, but it does not meet minimum java version $minimumversion!  Will try detecting instead.");
-		undef $JAVA_HOME;
+		warning("You specified a Java home of $JAVA_HOME, but it does not meet minimum java version $minimumversion!  Will attempt to search for one instead.");
+		$JAVA_HOME = undef;
 		delete $ENV{'JAVA_HOME'};
 	}
 }
@@ -167,19 +198,17 @@ if (not exists $ENV{'JAVA_VENDOR'}) {
 	warning("you might need to set it, eg, to 'Sun' or 'openjdk'.");
 }
 
-$MAVEN_VERSION = `$MVN --version`;
+$MAVEN_VERSION = `'$MVN' --version`;
 $MAVEN_VERSION =~ s/^.*Apache Maven ([\d\.]+).*?$/$1/gs;
 chomp($MAVEN_VERSION);
 if ($MAVEN_VERSION =~ /^[12]/) {
 	warning("Your maven version ($MAVEN_VERSION) is too old.  There are known bugs building with a version less than 3.0.  Expect trouble.");
 }
 
+unshift(@ARGS, '-DfailIfNoTests=false');
 if (defined $TESTS) {
-	debug("tests are enabled");
-	unshift(@ARGS, '-DfailIfNoTests=false');
-} else {
-	debug("tests are not enabled, passing -Dmaven.test.skip.exec=true");
-	unshift(@ARGS, '-Dmaven.test.skip.exec=true');
+	debug("integration tests are enabled");
+	unshift(@ARGS, '-DskipITs=false');
 }
 unshift(@ARGS, '-Djava.awt.headless=true');
 
@@ -201,12 +230,18 @@ if (grep { $_ =~ /^-Dbuild.profile=/ } @ARGS) {
 	unshift(@ARGS, "-Dbuild.profile=$BUILD_PROFILE");
 }
 
+if (not grep { $_ =~ /^-Dbuild.skip.tarball=/ } @ARGS) {
+	if (abs_path(getcwd()) ne abs_path($PREFIX)) {
+		debug("not building in the root directory, passing -Dbuild.skip.tarball=true");
+		unshift(@ARGS, "-Dbuild.skip.tarball=true");
+	}
+}
 
 if (-r File::Spec->catfile($ENV{'HOME'}, '.opennms-buildrc')) {
 	if (open(FILEIN, File::Spec->catfile($ENV{'HOME'}, '/.opennms-buildrc'))) {
 		while (my $line = <FILEIN>) {
 			chomp($line);
-			if ($line !~ /^\s*$/ && $line !~ /^\s*\#/) {
+			if ($line !~ /^\s*$/ and $line !~ /^\s*\#/) {
 				unshift(@ARGS, $line);
 			}
 		}
@@ -221,12 +256,21 @@ info("PATH = " . $ENV{'PATH'});
 info("MVN = $MVN");
 info("MAVEN_OPTS = $MAVEN_OPTS"); 
 
-chomp(my $git_branch=`$GIT symbolic-ref HEAD 2>/dev/null || $GIT rev-parse HEAD 2>/dev/null`);
+my $git_branch = "unknown";
+if (exists $ENV{'bamboo_planRepository_branch'}) {
+	$git_branch = $ENV{'bamboo_planRepository_branch'};
+} elsif (defined $GIT and -x $GIT) {
+	chomp($git_branch=`$GIT symbolic-ref HEAD 2>/dev/null || $GIT rev-parse HEAD 2>/dev/null`);
+}
+
 $git_branch =~ s,^refs/heads/,,;
 info("Git Branch = $git_branch");
 
 sub find_git {
-	my $git = $ENV{'GIT'};
+	my $git = undef;
+	if (exists $ENV{'GIT'}) {
+		$git = $ENV{'GIT'};
+	}
 
 	if (not defined $git or not -x $git) {
 		for my $dir (File::Spec->path()) {
@@ -240,7 +284,7 @@ sub find_git {
 		}
 	}
 
-	if ($git eq "" or ! -x $git) {
+	if (not defined $git or $git eq "" or ! -x $git) {
 		warning("Unable to locate git.");
 		$git = undef;
 	}
@@ -248,7 +292,7 @@ sub find_git {
 }
 
 sub get_minimum_java {
-	my $minimum_java = '1.6';
+	my $minimum_java = '1.8';
 
 	my $pomfile = File::Spec->catfile($PREFIX, 'pom.xml');
 	if (-e $pomfile) {
@@ -275,9 +319,9 @@ sub get_version_from_java {
 	my ($output, $bindir, $shortversion, $version, $build, $java_home);
 
 	$output = `"$javacmd" -version 2>\&1`;
-	($version) = $output =~ / version \"?([\d\.]+?(?:[\-\_]\S+?)?)\"?$/ms;
-	($version, $build) = $version =~ /^([\d\.]+)(?:[\-\_](.*?))?$/;
-	($shortversion) = $version =~ /^(\d+\.\d+)/;
+	($version) = $output =~ / version \"?([\d\.]+?(?:[\+\-\_]\S+?)?)\"?$/ms;
+	($version, $build) = $version =~ /^([\d\.]+)(?:[\+\-\_](.*?))?$/;
+	($shortversion) = $version =~ /^(\d+\.\d+|\d+)/;
 	$build = 0 if (not defined $build);
 
 	$bindir = dirname($javacmd);
@@ -307,7 +351,18 @@ sub find_java_home {
 
 		for my $java (@javas) {
 			if (-x $java and ! -d $java) {
+				$java = abs_path($java);
 				my ($shortversion, $version, $build, $java_home) = get_version_from_java($java);
+
+				if ($SKIP_OPENJDK) {
+					next if ($java  =~ /openjdk/i);
+					next if ($build =~ /openjdk/i);
+				}
+				next unless (defined $shortversion and $shortversion);
+
+				$versions->{$shortversion}             = {} unless (exists $versions->{$shortversion});
+				$versions->{$shortversion}->{$version} = {} unless (exists $versions->{$shortversion}->{$version});
+
 				next if (exists $versions->{$shortversion}->{$version}->{$build});
 
 				$versions->{$shortversion}->{$version}->{$build} = $java_home;
@@ -318,7 +373,7 @@ sub find_java_home {
 	my $highest_valid = undef;
 
 	for my $majorversion (sort keys %$versions) {
-		if ($majorversion < $minimum_java) {
+		if (looks_like_number($majorversion) and looks_like_number($minimum_java) and $majorversion < $minimum_java) {
 			next;
 		}
 
@@ -328,7 +383,13 @@ sub find_java_home {
 			for my $build (sort keys %{$versions->{$majorversion}->{$version}}) {
 				my $java_home = $versions->{$majorversion}->{$version}->{$build};
 				#print STDERR "    ", $build, ": ", $java_home, "\n";
-				if ($build =~ /^\d/) {
+				if ($build =~ /^(\d+)/) {
+					my $buildnumber = $1 || 0;
+					if ($majorversion eq "1.7" and $buildnumber >= 65 and defined $highest_valid) {
+						# if we've already found an older Java 7, skip build 65 and higher because of bytecode verification issues
+						next;
+					}
+
 					$highest_valid = $java_home;
 				} elsif (defined $highest_valid) {
 					last JDK_SEARCH;
@@ -346,7 +407,7 @@ sub find_java_home {
 }
 
 sub clean_git {
-	if (-d '.git') {
+	if (-d '.git' and defined $GIT and -x $GIT) {
 		my @command = ($GIT, "clean", "-fdx", ".");
 		info("running:", @command);
 		handle_errors_and_exit_on_failure(system(@command));
@@ -357,6 +418,10 @@ sub clean_git {
 
 sub clean_m2_repository {
 	my %dirs;
+	my $repodir = File::Spec->catfile($ENV{'HOME'}, '.m2', 'repository');
+	if (not -d $repodir) {
+		return;
+	}
 	find(
 		{
 			wanted => sub {
@@ -366,7 +431,7 @@ sub clean_m2_repository {
 				}
 			}
 		},
-		File::Spec->catfile($ENV{'HOME'}, '.m2', 'repository')
+		$repodir
 	);
 	my @remove = sort keys %dirs;
 	info("cleaning up old m2_repo directories: " . @remove);

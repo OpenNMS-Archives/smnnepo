@@ -2,7 +2,6 @@ package org.opennms.netmgt.sampler.config.snmp;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Dictionary;
 import java.util.Properties;
 
 import org.junit.BeforeClass;
