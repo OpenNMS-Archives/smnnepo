@@ -34,21 +34,7 @@ public class TrapReceiverContextTest extends CamelBlueprintTest {
 	}
 
 	@Override
-	protected Properties useOverridePropertiesWithPropertiesComponent() {
-		Properties props = new Properties();
-		props.put("trapListenAddress", "127.0.0.1");
-		props.put("trapListenPort", "9162");
-		return props;
-	}
-
-	/**
-	 * We have to use {@link #useOverridePropertiesWithPropertiesComponent()} and
-	 * {@link #useOverridePropertiesWithConfigAdmin(Dictionary)} because there are
-	 * beans outside of the Camel context that use CM properties.
-	 */
-	@Override
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected String useOverridePropertiesWithConfigAdmin(Dictionary props) throws Exception {
+	protected String setConfigAdminInitialConfiguration(Properties props) {
 		props.put("trapListenAddress", "127.0.0.1");
 		props.put("trapListenPort", "9162");
 		return "org.opennms.netmgt.sampler.trapReceiver";

@@ -66,22 +66,7 @@ public class ConfigRouteTest extends CamelBlueprintTest {
     }
 
     @Override
-    protected Properties useOverridePropertiesWithPropertiesComponent() {
-        Properties props = new Properties();
-        props.put("opennms.home", OPENNMS_HOME);
-        props.put("collectdConfigUrl", REST_ROOT + "/etc/collectd-configuration.xml");
-        props.put("agentListUrl", REST_ROOT + "/agents");
-        return props;
-    }
-
-    /**
-     * We have to use {@link #useOverridePropertiesWithPropertiesComponent()} and
-     * {@link #useOverridePropertiesWithConfigAdmin(Dictionary)} because there are
-     * beans outside of the Camel context that use CM properties.
-     */
-    @Override
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected String useOverridePropertiesWithConfigAdmin(Dictionary props) throws Exception {
+    protected String setConfigAdminInitialConfiguration(Properties props) {
         props.put("opennms.home", OPENNMS_HOME);
         props.put("collectdConfigUrl", REST_ROOT + "/etc/collectd-configuration.xml");
         props.put("agentListUrl", REST_ROOT + "/agents");

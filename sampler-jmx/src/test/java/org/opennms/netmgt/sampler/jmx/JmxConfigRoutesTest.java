@@ -32,20 +32,7 @@ public class JmxConfigRoutesTest extends CamelBlueprintTest {
     }
 
     @Override
-    protected Properties useOverridePropertiesWithPropertiesComponent() {
-        Properties props = new Properties();
-        props.put("jmxDatacollectionConfigUrl", REST_ROOT + "/etc/jmx-datacollection-config.xml");
-        return props;
-    }
-
-    /**
-     * We have to use {@link #useOverridePropertiesWithPropertiesComponent()} and
-     * {@link #useOverridePropertiesWithConfigAdmin(Dictionary)} because there are
-     * beans outside of the Camel context that use CM properties.
-     */
-    @Override
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected String useOverridePropertiesWithConfigAdmin(Dictionary props) throws Exception {
+    protected String setConfigAdminInitialConfiguration(Properties props) {
         props.put("jmxDatacollectionConfigUrl", REST_ROOT + "/etc/jmx-datacollection-config.xml");
         return "org.opennms.netmgt.sampler.config.snmp.jmx";
     }

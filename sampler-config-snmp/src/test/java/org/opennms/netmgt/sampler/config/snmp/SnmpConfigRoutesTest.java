@@ -50,22 +50,7 @@ public class SnmpConfigRoutesTest extends CamelBlueprintTest {
     }
 
     @Override
-    protected Properties useOverridePropertiesWithPropertiesComponent() {
-        Properties props = new Properties();
-        props.put("snmpConfigUrl", REST_ROOT + "/etc/snmp-config.xml");
-        props.put("datacollectionFileUrl", REST_ROOT + "/etc/datacollection-config.xml");
-        props.put("datacollectionGroupUrls", REST_ROOT + "/etc/datacollection/mib2.xml," + REST_ROOT + "/etc/datacollection/netsnmp.xml," + REST_ROOT + "/etc/datacollection/dell.xml");
-        return props;
-    }
-
-    /**
-     * We have to use {@link #useOverridePropertiesWithPropertiesComponent()} and
-     * {@link #useOverridePropertiesWithConfigAdmin(Dictionary)} because there are
-     * beans outside of the Camel context that use CM properties.
-     */
-    @Override
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected String useOverridePropertiesWithConfigAdmin(Dictionary props) throws Exception {
+    protected String setConfigAdminInitialConfiguration(Properties props) {
         props.put("snmpConfigUrl", REST_ROOT + "/etc/snmp-config.xml");
         props.put("datacollectionFileUrl", REST_ROOT + "/etc/datacollection-config.xml");
         props.put("datacollectionGroupUrls", REST_ROOT + "/etc/datacollection/mib2.xml," + REST_ROOT + "/etc/datacollection/netsnmp.xml," + REST_ROOT + "/etc/datacollection/dell.xml");
