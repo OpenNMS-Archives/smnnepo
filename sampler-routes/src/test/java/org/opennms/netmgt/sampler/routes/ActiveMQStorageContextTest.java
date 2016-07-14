@@ -4,11 +4,17 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.Map;
+import java.util.Properties;
 
+import org.apache.activemq.camel.component.ActiveMQComponent;
+import org.apache.camel.Component;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.util.KeyValueHolder;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.opennms.core.camel.JmsQueueNameFactory;
+import org.opennms.core.test.activemq.ActiveMQBroker;
 import org.opennms.core.test.camel.CamelBlueprintTest;
 import org.opennms.netmgt.api.sample.SampleSet;
 import org.opennms.netmgt.api.sample.SampleSetDispatcher;
@@ -19,6 +25,9 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 
 public class ActiveMQStorageContextTest extends CamelBlueprintTest {
+
+	@ClassRule
+	public static ActiveMQBroker s_broker = new ActiveMQBroker();
 
 	/**
 	 * TODO: This isn't working properly because the ActiveMQ logs aren't getting routed
@@ -40,16 +49,24 @@ public class ActiveMQStorageContextTest extends CamelBlueprintTest {
 	@Override
 	@SuppressWarnings("rawtypes")
 	protected void addServicesOnStartup(Map<String, KeyValueHolder<Object, Dictionary>> services) {
-		// Don't need any OSGi services yet
+		Properties props = new Properties();
+		props.setProperty("alias", "opennms.broker");
+		services.put(
+			Component.class.getName(),
+			new KeyValueHolder<Object, Dictionary>(
+				ActiveMQComponent.activeMQComponent("vm://localhost?create=false"), props
+			)
+		);
 	}
 
 	@Test(timeout=60000)
 	public void test() throws Exception {
 
-		assertTrue(context.hasEndpoint("mock:activemq:sampleSet") != null);
+		JmsQueueNameFactory factory = new JmsQueueNameFactory("Sampler", "BroadcastSampleSet");
+		assertTrue(context.hasEndpoint("mock:queuingservice:" + factory.getName()) != null);
 		assertTrue(context.hasEndpoint("direct:sendSampleSet") != null);
 		assertTrue(context.hasEndpoint("mock:direct:sendSampleSet") != null);
-		MockEndpoint endpoint = getMockEndpoint("mock:activemq:sampleSet", false);
+		MockEndpoint endpoint = getMockEndpoint("mock:queuingservice:" + factory.getName(), false);
 		endpoint.setExpectedMessageCount(2);
 
 		SampleSetDispatcher dispatcher = getOsgiService(SampleSetDispatcher.class);
