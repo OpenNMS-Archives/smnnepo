@@ -1,4 +1,4 @@
-package org.opennms.netmgt.sampler.snmp.internal;
+package org.opennms.netmgt.sampler.snmp;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;

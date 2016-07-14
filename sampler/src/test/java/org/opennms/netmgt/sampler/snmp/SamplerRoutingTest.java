@@ -30,8 +30,8 @@ import org.opennms.netmgt.config.collectd.CollectdConfiguration;
 import org.opennms.netmgt.config.collectd.Package;
 import org.opennms.netmgt.config.collectd.Service;
 import org.opennms.netmgt.config.snmp.SnmpConfig;
-import org.opennms.netmgt.sampler.config.internal.PackageAgentAggregator;
-import org.opennms.netmgt.sampler.config.internal.PackageServiceSplitter;
+import org.opennms.netmgt.sampler.config.PackageAgentAggregator;
+import org.opennms.netmgt.sampler.config.PackageServiceSplitter;
 import org.opennms.netmgt.sampler.config.snmp.SnmpMetricRepository;
 import org.springframework.test.context.ContextConfiguration;
 

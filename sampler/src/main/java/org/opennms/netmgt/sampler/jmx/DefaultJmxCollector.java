@@ -1,9 +1,13 @@
-package org.opennms.netmgt.sampler.jmx.internal;
+package org.opennms.netmgt.sampler.jmx;
 
 import org.opennms.netmgt.api.sample.SampleSet;
 import org.opennms.netmgt.api.sample.Timestamp;
 import org.opennms.netmgt.jmx.JmxCollectorConfig;
 import org.opennms.netmgt.jmx.JmxSampleProcessor;
+import org.opennms.netmgt.sampler.jmx.internal.CollectionException;
+import org.opennms.netmgt.sampler.jmx.internal.JmxAgent;
+import org.opennms.netmgt.sampler.jmx.internal.JmxCollectionRequest;
+import org.opennms.netmgt.sampler.jmx.internal.JmxCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

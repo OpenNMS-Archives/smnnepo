@@ -1,11 +1,9 @@
-package org.opennms.netmgt.sampler.snmp.internal;
+package org.opennms.netmgt.sampler.snmp;
 
 import org.opennms.netmgt.api.sample.SampleSet;
 import org.opennms.netmgt.api.sample.Timestamp;
 import org.opennms.netmgt.sampler.config.snmp.SnmpAgent;
 import org.opennms.netmgt.sampler.config.snmp.SnmpCollectionRequest;
-import org.opennms.netmgt.sampler.snmp.CollectionException;
-import org.opennms.netmgt.sampler.snmp.SnmpCollector;
 import org.opennms.netmgt.snmp.CollectionTracker;
 import org.opennms.netmgt.snmp.SnmpAgentConfig;
 import org.opennms.netmgt.snmp.SnmpUtils;

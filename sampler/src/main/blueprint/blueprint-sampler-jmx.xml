@@ -52,7 +52,7 @@
   <!-- Provided by sampler-config -->
   <reference id="collectdConfiguration" interface="org.opennms.netmgt.api.sample.support.SingletonBeanFactory" filter="(beanClass=org.opennms.netmgt.config.collectd.CollectdConfiguration)"/>
 
-  <bean id="jmxCollectionConfiguration" class="org.opennms.netmgt.sampler.jmx.internal.JmxCollectionConfiguration"/>
+  <bean id="jmxCollectionConfiguration" class="org.opennms.netmgt.sampler.jmx.JmxCollectionConfiguration"/>
 
   <!-- Register a whiteboard of sample repositories where samples will be saved -->
   <bean id="sampleSetDispatcher" class="org.opennms.netmgt.api.sample.support.DispatcherWhiteboard">
@@ -97,7 +97,7 @@
     <property name="collectdConfigFactory" ref="collectdConfiguration"/>
   </bean>
 
-  <bean id="jmxCollector" class="org.opennms.netmgt.sampler.jmx.internal.DefaultJmxCollector"/>
+  <bean id="jmxCollector" class="org.opennms.netmgt.sampler.jmx.DefaultJmxCollector"/>
 
   <camelContext id="samplerJmxCamelContext" xmlns="http://camel.apache.org/schema/blueprint">
     <route id="triggerReloadConfiguration">

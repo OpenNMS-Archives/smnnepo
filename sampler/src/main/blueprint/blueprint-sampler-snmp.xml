@@ -21,7 +21,7 @@
   <reference id="snmpConfig" interface="org.opennms.netmgt.api.sample.support.SingletonBeanFactory" filter="(beanClass=org.opennms.netmgt.config.snmp.SnmpConfig)" />
 
   <!-- The collector that fetches the data from the agent -->
-  <bean id="snmpCollector" class="org.opennms.netmgt.sampler.snmp.internal.DefaultSnmpCollector" />
+  <bean id="snmpCollector" class="org.opennms.netmgt.sampler.snmp.DefaultSnmpCollector" />
 
   <!-- Register a whiteboard of sample repositories where samples will be saved -->
   <bean id="sampleSetDispatcher" class="org.opennms.netmgt.api.sample.support.DispatcherWhiteboard">
@@ -34,7 +34,7 @@
   </bean>
 
   <!-- Camel EIP helper beans -->
-  <bean id="snmpAgentProcessor" class="org.opennms.netmgt.sampler.snmp.internal.SnmpAgentProcessor">
+  <bean id="snmpAgentProcessor" class="org.opennms.netmgt.sampler.snmp.SnmpAgentProcessor">
     <property name="snmpConfigFactory" ref="snmpConfig" />
   </bean>
 
