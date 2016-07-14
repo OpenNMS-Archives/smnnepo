@@ -1,6 +1,6 @@
 # The version used to be passed from build.xml. It's hardcoded here
 # the build system generally passes --define "version X" to rpmbuild.
-%{!?version:%define version 16.0.0}
+%{!?version:%define version 19.0.0}
 # The release number is set to 0 unless overridden
 %{!?releasenumber:%define releasenumber 0}
 # The install prefix becomes $OPENMS_HOME in the finished package
@@ -14,7 +14,7 @@
 
 %{!?jdk:%define jdk java-1.8.0}
 
-%{!?karaf_version:%define karaf_version 2.4.0}
+%{!?karaf_version:%define karaf_version 2.4.3}
 
 %{!?extrainfo:%define extrainfo }
 %{!?extrainfo2:%define extrainfo2 }
