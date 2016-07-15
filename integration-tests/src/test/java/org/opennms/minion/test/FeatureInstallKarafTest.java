@@ -51,6 +51,11 @@ public class FeatureInstallKarafTest extends SmnnepoKarafTest {
     }
 
     @Test
+    public void testSampler() {
+        installFeature("opennms-sampler");
+    }
+
+    @Test
     public void testSamplerScheduler() {
         installFeature("sampler-scheduler");
     }

@@ -96,12 +96,6 @@
                 <feature>sampler-with-rrd-storage</feature>
                 <feature>sampler-jmx</feature>
 
-                <!-- Newts storage -->
-                <feature>newts-cassandra</feature>
-
-                <!-- Minion management features -->
-                <feature>minion-controller</feature>
-                <feature>dominion-controller</feature>
               </features>
               <repository>target/maven-repo</repository>
             </configuration>
@@ -142,69 +136,14 @@
       <classifier>features</classifier>
     </dependency>
     <dependency>
-      <groupId>org.opennms.netmgt.sample</groupId>
-      <artifactId>sampler-config</artifactId>
+      <groupId>org.opennms.features</groupId>
+      <artifactId>org.opennms.features.sampler</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.opennms.netmgt.sample</groupId>
       <artifactId>sampler-config-snmp</artifactId>
       <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.opennms.netmgt.sample</groupId>
-      <artifactId>sampler-scheduler</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.opennms.netmgt.sample</groupId>
-      <artifactId>sampler-snmp</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.opennms.netmgt.sample</groupId>
-      <artifactId>sampler-jmx</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.opennms.netmgt.sample</groupId>
-      <artifactId>sampler-routes</artifactId>
-      <version>${project.version}</version>
-      <type>xml</type>
-      <classifier>blueprint-file-storage</classifier>
-    </dependency>
-    <dependency>
-      <groupId>org.opennms.netmgt.sample</groupId>
-      <artifactId>sampler-routes</artifactId>
-      <version>${project.version}</version>
-      <type>xml</type>
-      <classifier>blueprint-activemq-dispatch</classifier>
-    </dependency>
-    <dependency>
-      <groupId>org.opennms.netmgt.sample</groupId>
-      <artifactId>sampler-routes</artifactId>
-      <version>${project.version}</version>
-      <type>xml</type>
-      <classifier>blueprint-activemq-receiver</classifier>
-    </dependency>
-    <dependency>
-      <groupId>org.opennms.features.activemq</groupId>
-      <artifactId>org.opennms.features.activemq.broker</artifactId>
-      <version>${project.version}</version>
-      <type>xml</type>
-      <classifier>activemq-dispatcher</classifier>
-    </dependency>
-    <dependency>
-      <groupId>org.opennms.features.activemq</groupId>
-      <artifactId>org.opennms.features.activemq.broker</artifactId>
-      <version>${project.version}</version>
-      <type>xml</type>
-      <classifier>activemq-receiver</classifier>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-all</artifactId>
-      <version>${activemqVersion}</version>
     </dependency>
   </dependencies>
 

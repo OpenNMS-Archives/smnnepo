@@ -159,14 +159,5 @@
       <type>pom</type>
       <scope>test</scope>
     </dependency>
-
-    <dependency>
-      <groupId>org.opennms.netmgt.sample</groupId>
-      <artifactId>karaf</artifactId>
-      <version>${project.version}</version>
-      <type>xml</type>
-      <scope>test</scope>
-    </dependency>
-
   </dependencies>
 </project>

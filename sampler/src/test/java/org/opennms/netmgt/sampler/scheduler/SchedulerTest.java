@@ -32,6 +32,7 @@ public class SchedulerTest extends CamelBlueprintTest {
 
     @Override
     protected String getBlueprintDescriptor() {
+        // Add blueprint-empty-camel-context.xml since our blueprint does't have a Camel context
         return "file:src/main/blueprint/blueprint-sampler-scheduler.xml,blueprint-empty-camel-context.xml";
     };
 
