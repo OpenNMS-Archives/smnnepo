@@ -30,12 +30,14 @@
 
   <reference id="queuingservice" interface="org.apache.camel.Component" filter="(alias=opennms.broker)"/>
 
-  <!-- Camel (un)marshalling DataFormats -->
-  <bean id="jaxbXml" class="org.opennms.netmgt.api.sample.DataFormatUtils" factory-method="jaxbXml"/>
+  <!-- Camel marshalling processor -->
+  <bean id="marshaller" class="org.opennms.core.camel.JaxbUtilsMarshalProcessor">
+    <argument value="org.opennms.netmgt.api.sample.SampleSet" />
+  </bean>
 
   <!-- Wire in a dispatcher that will route SampleSet messages into the Camel context -->
   <bean id="activemqDispatcher" class="org.opennms.netmgt.api.sample.support.DefaultSampleSetDispatcher">
-    <argument value="direct:sendSampleSet"/>
+    <argument value="seda:sendSampleSet"/>
   </bean>
 
   <service ref="activemqDispatcher" interface="org.opennms.netmgt.api.sample.SampleSetDispatcher">
@@ -49,10 +51,10 @@
 
     <!-- Send SampleSets over ActiveMQ -->
     <route id="sendSampleSet">
-      <from uri="direct:sendSampleSet" />
+      <from uri="seda:sendSampleSet?concurrentConsumers=4" />
       <convertBodyTo type="org.opennms.netmgt.api.sample.SampleSet" />
-      <!-- TODO: Change to JaxbUtilsMarshalProcessor -->
-      <marshal ref="jaxbXml" />
+      <!-- Marshal the message to XML -->
+      <bean ref="marshaller"/>
       <!--
         Turn off persistent messages to avoid the latency penalty: 
         http://activemq.apache.org/async-sends.html

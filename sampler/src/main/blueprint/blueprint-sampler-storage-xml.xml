@@ -21,8 +21,10 @@
     </cm:default-properties>
   </cm:property-placeholder>
 
-  <!-- Camel (un)marshalling DataFormats -->
-  <bean id="jaxbXml" class="org.opennms.netmgt.api.sample.DataFormatUtils" factory-method="jaxbXml"/>
+  <!-- Camel marshalling processor -->
+  <bean id="marshaller" class="org.opennms.core.camel.JaxbUtilsMarshalProcessor">
+    <argument value="org.opennms.netmgt.api.sample.SampleSet" />
+  </bean>
 
   <!-- Wire in a dispatcher that will route SampleSet messages into the Camel context -->
   <bean id="xmlDispatcher" class="org.opennms.netmgt.api.sample.support.DefaultSampleSetDispatcher">
@@ -53,7 +55,7 @@
           </setHeader>
 
           <!-- Marshal the SampleSet to XML -->
-          <marshal ref="jaxbXml" />
+          <bean ref="marshaller"/>
           <!-- Sniff the agent ID out of any sample because they should be all the same -->
           <setHeader headerName="agentId">
             <xpath >/sample-set/samples/sample[1]/resource/agent/id/text()</xpath>

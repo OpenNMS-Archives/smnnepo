@@ -30,8 +30,10 @@
 
   <reference id="queuingservice" interface="org.apache.camel.Component" filter="(alias=onms.broker)"/>
 
-  <!-- Camel (un)marshalling DataFormats -->
-  <bean id="jaxbXml" class="org.opennms.netmgt.api.sample.DataFormatUtils" factory-method="jaxbXml"/>
+  <!-- Camel unmarshalling processor -->
+  <bean id="unmarshaller" class="org.opennms.core.camel.JaxbUtilsUnmarshalProcessor">
+    <argument value="org.opennms.netmgt.api.sample.SampleSet" />
+  </bean>
 
   <!-- Register a whiteboard of sample repositories where samples will be saved -->
   <bean id="sampleSetDispatcher" class="org.opennms.netmgt.api.sample.support.DispatcherWhiteboard">
@@ -49,10 +51,10 @@
     <!-- Receive SampleSets over ActiveMQ -->
     <route id="receiveSampleSet">
       <from uri="queuingservice:{{queueName}}?concurrentConsumers=8" />
-      <!-- TODO: Change to JaxbUtilsUnmarshalProcessor -->
-      <unmarshal ref="jaxbXml" />
+      <!-- Unmarshal the message from XML -->
+      <bean ref="unmarshaller"/>
       <!-- Forward them onto the whiteboard receivers -->
-      <log loggingLevel="INFO" message="Received SampleSet with ${body.measurements.size} sample(s) in blueprint-activemq-receiver"/>
+      <log loggingLevel="INFO" message="Received SampleSet with ${body.measurements.size} sample(s) in blueprint-sampler-sampleset-dominion"/>
       <to uri="seda:saveToRepository" />
     </route>
 

@@ -82,7 +82,7 @@ public class SnmpCollectorTest extends CamelBlueprintTest implements TestContext
 	@Override
 	protected String getBundleFilter() {
 		// Don't start the config or config-snmp bundles
-		return "(& (!(Bundle-SymbolicName=org.opennms.netmgt.sampler.config)) (!(Bundle-SymbolicName=org.opennms.netmgt.sampler.config.snmp)) )";
+		return "(!(Bundle-SymbolicName=org.opennms.netmgt.sampler.config.snmp))";
 	}
 
 	// The location of our Blueprint XML file to be used for testing

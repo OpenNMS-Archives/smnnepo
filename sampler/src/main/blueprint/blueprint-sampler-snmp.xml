@@ -66,7 +66,7 @@
     -->
 
     <route id="collectAgent">
-      <from uri="seda:collectAgent"/>
+      <from uri="seda:collectAgent?concurrentConsumers=4"/>
       <!-- Convert the generic Agent into an SnmpAgent -->
       <bean ref="snmpAgentProcessor"/>
       <log loggingLevel="INFO" message="sampler-snmp blueprint.xml: Collecting agent ${body.id}" />
@@ -80,7 +80,7 @@
     </route>
 
     <route id="sampleSet">
-      <from uri="seda:sampleSets"/>
+      <from uri="seda:sampleSets?concurrentConsumers=4"/>
       <log loggingLevel="INFO" message="Received SampleSet with ${body.measurements.size} sample(s)"/>
       <!-- send it the persister -->
       <to uri="seda:saveToRepository"/>

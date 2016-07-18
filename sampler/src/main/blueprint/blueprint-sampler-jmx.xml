@@ -45,6 +45,7 @@
   <!-- Override with an etc/org.opennms.netmgt.sampler.config.snmp.cfg -->
   <cm:property-placeholder id="properties" persistent-id="org.opennms.netmgt.sampler.config.jmx" update-strategy="none">
     <cm:default-properties>
+      <!-- TODO: Replace with Minion URI -->
       <cm:property name="jmxDatacollectionConfigUrl" value="[[rest.root]]/config/jmx"/>
     </cm:default-properties>
   </cm:property-placeholder>
@@ -70,6 +71,7 @@
   </bean>
 
   <!-- Camel unmarshalling DataFormats -->
+  <!-- TODO: Replace with JaxbUtilsUnmarshalProcessor -->
   <bean id="jmxConfigXmlFormat" class="org.opennms.netmgt.api.sample.DataFormatUtils" factory-method="jaxbXml"/>
 
   <!-- OSGi service that exposes this sampler as a scheduling target -->
@@ -135,7 +137,7 @@
     </route>
 
     <route id="collectAgent">
-      <from uri="seda:collectAgent"/>
+      <from uri="seda:collectAgent?concurrentConsumers=4"/>
       <!-- Convert the generic Agent into a JmxAgent -->
       <bean ref="jmxAgentProcessor"/>
       <log loggingLevel="INFO" message="sampler-jmx: Collecting agent ${body.id}"/>
@@ -149,7 +151,7 @@
     </route>
 
     <route id="sampleSet">
-      <from uri="seda:sampleSets"/>
+      <from uri="seda:sampleSets?concurrentConsumers=4"/>
       <log loggingLevel="INFO" message="Received SampleSet with ${body.measurements.size} sample(s)"/>
       <!-- send it the persister -->
       <to uri="seda:saveToRepository"/>

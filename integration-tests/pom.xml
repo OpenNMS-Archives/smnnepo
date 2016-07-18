@@ -36,6 +36,7 @@
                   <type>tar.gz</type>
                   <classifier>repo</classifier>
                   <overWrite>true</overWrite>
+                  <!-- Make sure that this dir is covered inside KarafTestCase -->
                   <outputDirectory>${project.build.directory}/features-repo</outputDirectory>
                 </artifactItem>
               </artifactItems>
@@ -52,6 +53,7 @@
               <useRepositoryLayout>true</useRepositoryLayout>
               <excludeTypes>tar.gz</excludeTypes>
               <excludeGroupIds>org.opennms</excludeGroupIds>
+              <!-- Make sure that this dir is covered inside KarafTestCase -->
               <outputDirectory>${project.build.directory}/paxexam/test-repo</outputDirectory>
             </configuration>
           </execution>

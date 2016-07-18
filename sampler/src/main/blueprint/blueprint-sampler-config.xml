@@ -28,9 +28,13 @@
   -->
   <cm:property-placeholder id="samplerProperties" persistent-id="org.opennms.netmgt.sampler.config" update-strategy="none">
     <cm:default-properties>
+      <!-- TODO: Replace with Minion URI -->
       <cm:property name="rest.root" value="http://localhost:8980/opennms/rest"/>
+      <!-- TODO: Replace with Minion location -->
       <cm:property name="location.name" value="remote" />
+      <!-- TODO: Replace with Minion username -->
       <cm:property name="username" value="admin"/>
+      <!-- TODO: Replace with Minion password -->
       <cm:property name="password" value="admin"/>
       <cm:property name="collectdConfigUrl" value="{{rest.root}}/config/{{location.name}}/collection"/>
       <cm:property name="agentListUrl" value="{{rest.root}}/config/agents"/>
@@ -39,6 +43,7 @@
   </cm:property-placeholder>
 
   <!-- Camel unmarshalling DataFormats -->
+  <!-- TODO: Replace with JaxbUtilsUnmarshalProcessor -->
   <bean id="jaxbXml" class="org.opennms.netmgt.api.sample.DataFormatUtils" factory-method="jaxbXml"/>
 
   <!-- Beans that hold a copy of a configuration object -->
